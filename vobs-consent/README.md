@@ -1,6 +1,6 @@
 # vobs-consent
 
-Quản lý consent theo Nghị định 13/2023/NĐ-CP và Thông tư 64/2024/TT-NHNN: cấp, xem, thu hồi theo phạm vi dữ
+Quản lý consent theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Thông tư 64/2024/TT-NHNN: cấp, xem, thu hồi theo phạm vi dữ
 liệu và thời hạn; mọi lần đổi trạng thái đều ghi log kiểm toán không sửa được.
 
 ```

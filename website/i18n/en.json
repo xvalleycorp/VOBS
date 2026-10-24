@@ -57,7 +57,7 @@
   "home.problem.c3.p": "Each bank has its own API style and onboarding process, so integration cost grows with every bank instead of being reused.",
   "home.problem.c4.kicker": "Personal data",
   "home.problem.c4.h3": "Consent must be explicit and traceable",
-  "home.problem.c4.p": "Decree 13/2023/ND-CP and Vietnam's data laws require consent that is scoped, time-limited and revocable, with every access on record.",
+  "home.problem.c4.p": "Vietnam's Personal Data Protection Law (No. 91/2025/QH15) and Data Law require consent that is scoped, time-limited and revocable, with every access on record.",
   "home.arch.kicker": "Architecture",
   "home.arch.h2": "Reads and writes take separate paths",
   "home.arch.lead": "Read requests are served from a read store that the integration hub keeps in sync with the core, so core load does not grow with the number of partners. Writes such as payment initiation go through the bank's own systems; VOBS never writes to the core through a back door.",

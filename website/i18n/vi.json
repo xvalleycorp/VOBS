@@ -57,7 +57,7 @@
   "home.problem.c3.p": "Mỗi ngân hàng một kiểu API, một quy trình onboarding. Chi phí tích hợp tăng theo số ngân hàng thay vì dùng lại.",
   "home.problem.c4.kicker": "Dữ liệu cá nhân",
   "home.problem.c4.h3": "Consent phải rõ ràng và truy vết được",
-  "home.problem.c4.p": "Nghị định 13/2023/NĐ-CP và luật về dữ liệu đòi hỏi consent có phạm vi, có thời hạn, thu hồi được, và mọi truy cập đều có bản ghi.",
+  "home.problem.c4.p": "Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Luật Dữ liệu đòi hỏi consent có phạm vi, có thời hạn, thu hồi được, và mọi truy cập đều có bản ghi.",
   "home.arch.kicker": "Kiến trúc",
   "home.arch.h2": "Tách luồng đọc khỏi luồng ghi",
   "home.arch.lead": "Request đọc lấy dữ liệu từ kho đọc mà Integration Hub đồng bộ liên tục từ core, nên tải lên core không tăng theo số đối tác. Lệnh ghi như khởi tạo thanh toán đi qua hệ thống của chính ngân hàng; VOBS không ghi vào core bằng đường tắt.",

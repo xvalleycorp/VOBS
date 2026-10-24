@@ -63,5 +63,5 @@ VietQr qr = VietQr.parse(payload);
 [Apache License 2.0](LICENSE). Phần lõi cam kết không đổi giấy phép.
 
 > Các văn bản pháp lý nhắc trong repo (Thông tư 64/2024/TT-NHNN, Thông tư 09/2020/TT-NHNN, Nghị định 85/2016/NĐ-CP,
-> Nghị định 13/2023/NĐ-CP, Luật Dữ liệu 2024, Luật Bảo vệ dữ liệu cá nhân 2025) cần được kiểm tra lại hiệu lực và
-> nội dung trước khi dùng chính thức.
+> Luật Dữ liệu 2024, Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 thay cho Nghị định 13/2023/NĐ-CP) cần được kiểm
+> tra lại hiệu lực và nội dung trước khi dùng chính thức.
