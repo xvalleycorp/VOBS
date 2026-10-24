@@ -99,6 +99,8 @@ function headLinks(pageKey, lang) {
   const page = PAGES[pageKey];
   const links = [
     `<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">`,
+    // Chạy trước khi vẽ trang để áp giao diện người xem đã chọn, tránh nháy sai màu
+    `<script src="/assets/theme.js"></script>`,
     `<link rel="stylesheet" href="/assets/style.css">`,
     `<script src="/assets/lang.js" defer></script>`,
   ];

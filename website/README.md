@@ -24,8 +24,8 @@ host; ngoài Cloudflare Web Analytics (bật ở cấp zone, không dùng cookie
 
 ## Nhận diện
 
-VOBS là hạ tầng dùng chung cho mọi ngân hàng và bên thứ ba. Nhận diện xoay quanh ý "kết nối mà mỗi bên vẫn nguyên
-vẹn":
+VOBS là hạ tầng Open Banking mã nguồn mở, phù hợp nhu cầu của mọi ngân hàng Việt Nam. Nhận diện xoay quanh ý "kết nối
+mà mỗi bên vẫn nguyên vẹn":
 
 - Logo: chữ V từ hai mắt xích dài bằng nhau móc vào nhau ở đầu dưới. Mắt trái màu Đồng là ngân hàng, mắt phải màu
   Hổ phách là bên thứ ba. Lòng mắt chỉ rộng hơn thanh một chút để xích có cảm giác chặt
@@ -37,7 +37,14 @@ vẹn":
   đen là màu kiêng trong tài chính ở Việt Nam.
 - Màu không cần né ngân hàng nào, chỉ cần không bị nhầm với cách một thương hiệu cụ thể dùng màu (ví dụ cam tươi đi
   với xanh dương, hay vàng tươi trên nền đen).
-- Khi viết tiếng Việt, mô tả VOBS là "dùng chung" hay "không thuộc riêng ngân hàng nào", không dùng "trung lập".
+
+Khi viết nội dung tiếng Việt:
+
+- Nói rõ "mã nguồn mở", không dùng "mở" đứng một mình: chữ "Open" đã nằm trong "Open Banking", còn "mã nguồn mở" là
+  thuật ngữ công nghệ rõ nghĩa ở Việt Nam và hàm ý tùy chỉnh được.
+- Nói VOBS "phù hợp nhu cầu của mọi ngân hàng", không nói "dùng chung cho mọi ngân hàng": VOBS có sẵn phần mà ngân
+  hàng nào cũng cần, và mỗi ngân hàng tự chủ tùy chỉnh phần còn lại theo hiện trạng hệ thống của mình.
+- Không dùng "trung lập": trong tiếng Việt từ này không mang nghĩa tốt như "neutral" trong tiếng Anh.
 - Chữ: Be Vietnam Pro, phông thiết kế cho tiếng Việt.
 
 ## Chạy và triển khai
