@@ -87,7 +87,9 @@ Còn mở: pháp chế có cần duyệt việc thêm BSD-2-Clause vào danh sá
   - kiểm tra quyền chi tiết bằng OpenFGA;
   - luồng duyệt consent trên Temporal.
 - **API Gateway:** chạy thử plugin `vobs-consent` và route `/consents` trên APISIX thật. Route `/consents` cần xác nhận `proxy-rewrite` đọc được biến `$vobs_client_id`.
-- **Sandbox cho bên thứ ba:** đưa service consent vào `docker compose` của sandbox, để fintech thử trọn luồng tạo, duyệt, kiểm tra consent.
+- **Sandbox cho bên thứ ba:** đã đưa service Quản lý sự đồng ý vào `docker compose` (nhánh `feat/sandbox-consent`), kèm
+  `try-consent-flow.sh` và job CI `sandbox` build image, chạy thử luồng, quét Trivy. Máy local chưa có Docker nên
+  phần container chỉ được kiểm chứng trên CI. Việc kế: dữ liệu mẫu phong phú hơn, nối bộ giả lập chuyển mạch.
 - **Lộ trình** ([`docs/roadmap.md`](roadmap.md)):
   - tra cứu nhãn hiệu VOBS và logo tại Cục Sở hữu trí tuệ (nhóm 9, 36, 42);
   - đối chiếu Phụ lục 01, 02 Thông tư 64;

@@ -1,9 +1,32 @@
-# Sandbox cục bộ cho fintech: Microcks dựng API giả lập từ bộ đặc tả trong vobs-spec.
-#   docker compose up -d && ./import-specs.sh
+# Sandbox cục bộ cho bên thứ ba (fintech, ví điện tử):
+# - Microcks dựng API giả lập từ bộ đặc tả trong vobs-spec;
+# - service Quản lý sự đồng ý chạy thật, lưu trong bộ nhớ, để thử trọn luồng tạo, duyệt, kiểm tra consent.
+#
+#   docker compose up -d --build
+#   ./import-specs.sh        # nạp đặc tả vào Microcks
+#   ./try-consent-flow.sh    # chạy thử luồng consent
+#
 # Giao diện Microcks: http://localhost:8585
 services:
   microcks:
     image: quay.io/microcks/microcks-uber:1.10.0
     ports:
       - "8585:8080"
+    restart: unless-stopped
+
+  consent:
+    image: vobs-consent:sandbox
+    build:
+      context: ..
+      dockerfile: vobs-consent/Dockerfile
+    environment:
+      # Đối tác mẫu: fintech chỉ dùng được nhóm truy vấn thông tin; ví điện tử và ngân hàng dùng được nhóm thanh toán
+      VOBS_CONSENT_THIRD_PARTIES: "fintech-a:OTHER,wallet-b:PAYMENT_INTERMEDIARY,bank-c:BANK"
+    ports:
+      # Cổng đối tác. Ở môi trường thật, đối tác gọi qua API Gateway và gateway đặt header x-vobs-client-id;
+      # trong sandbox, đối tác tự gửi header này.
+      - "127.0.0.1:8090:8080"
+      # Cổng nội bộ, đóng vai kênh của ngân hàng (khách hàng duyệt, thu hồi consent) và gateway (kiểm tra consent).
+      # Chỉ mở trên localhost.
+      - "127.0.0.1:8091:8081"
     restart: unless-stopped

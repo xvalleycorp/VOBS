@@ -21,8 +21,8 @@
   },
   {
     "name": "vobs-sandbox", "status": "draft",
-    "vi": {"title": "Sandbox cho bên thứ ba", "label": "Chạy trên máy", "desc": "API giả lập cho fintech, dựng tự động từ đặc tả bằng Microcks; chạy trên máy bằng Docker Compose."},
-    "en": {"title": "Partner Sandbox", "label": "Runs locally", "desc": "Mock APIs for fintechs, generated from the specification with Microcks; runs locally with Docker Compose."}
+    "vi": {"title": "Sandbox cho bên thứ ba", "label": "Chạy trên máy", "desc": "API giả lập dựng từ đặc tả bằng Microcks, kèm service Quản lý sự đồng ý chạy thật để thử trọn luồng tạo, duyệt, kiểm tra và thu hồi consent; chạy trên máy bằng Docker Compose."},
+    "en": {"title": "Partner Sandbox", "label": "Runs locally", "desc": "Mock APIs generated from the specification with Microcks, plus a live Consent Manager to try the full flow: create, approve, check and revoke consent; runs locally with Docker Compose."}
   },
   {
     "name": "vobs-switch", "status": "draft",

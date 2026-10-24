@@ -24,7 +24,7 @@ Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintec
 | [Thư viện VietQR](vobs-vietqr) | `vobs-vietqr` | Tạo và đọc mã VietQR | 1 | Dùng được |
 | [Thư viện ISO 20022](vobs-iso20022) | `vobs-iso20022` | pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022 | 1 | Dùng được |
 | [Kết nối chuyển mạch](vobs-switch) | `vobs-switch` | Adapter chung tới chuyển mạch; bộ giả lập | 1–2 | SPI và giả lập; chưa có NAPAS, MDP |
-| [Sandbox cho bên thứ ba](vobs-sandbox) | `vobs-sandbox` | API giả lập cho fintech bằng Microcks | 1 | Cấu hình cục bộ |
+| [Sandbox cho bên thứ ba](vobs-sandbox) | `vobs-sandbox` | API giả lập bằng Microcks; service Quản lý sự đồng ý chạy thật để thử luồng consent | 1 | Chạy trên máy bằng Docker Compose |
 | [Quản lý sự đồng ý](vobs-consent) | `vobs-consent` | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi, API HTTP, lưu trữ PostgreSQL; chạy một bản |
 | [Integration Hub](vobs-hub) | `vobs-hub` | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
 | [API Gateway](vobs-gateway) | `vobs-gateway` | Plugin APISIX: consent, log kiểm toán | 2 | Plugin consent bản đầu |
