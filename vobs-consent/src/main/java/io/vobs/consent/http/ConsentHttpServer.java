@@ -36,8 +36,8 @@ import java.util.concurrent.Executors;
  *   <li>Cổng đối tác, chỉ nhận request đã qua API Gateway: {@code POST /consents}, {@code GET /consents/{id}},
  *       {@code DELETE /consents/{id}} (đặc tả {@code vobs-spec/openapi/vobs-open-api.yaml}). Gateway xác thực mã truy
  *       cập rồi đặt mã client vào header {@value #CLIENT_ID_HEADER}, ghi đè giá trị đối tác tự gửi.</li>
- *   <li>Cổng nội bộ: {@code POST /internal/consent-checks} cho gateway, và duyệt, từ chối, thu hồi consent cho kênh
- *       của ngân hàng (đặc tả {@code vobs-spec/openapi/internal-consent-check.yaml}).</li>
+ *   <li>Cổng nội bộ: {@code POST /internal/consent-checks} cho gateway; xem danh sách, duyệt, từ chối, thu hồi
+ *       consent cho kênh của ngân hàng (đặc tả {@code vobs-spec/openapi/internal-consent-check.yaml}).</li>
  * </ul>
  *
  * <p>Lỗi trả theo RFC 9457 ({@code application/problem+json}) kèm mã lý do máy đọc được. TLS và mTLS do sidecar
@@ -123,6 +123,11 @@ public final class ConsentHttpServer implements AutoCloseable {
             requireMethod(exchange, "POST");
             return checkConsent(exchange);
         }
+        if (path.length == 4 && path[0].equals("internal") && path[1].equals("customers")
+                && path[3].equals("consents")) {
+            requireMethod(exchange, "GET");
+            return listForCustomer(path[2]);
+        }
         if (path.length == 4 && path[0].equals("internal") && path[1].equals("consents")) {
             requireMethod(exchange, "POST");
             String consentId = path[2];
@@ -176,6 +181,13 @@ public final class ConsentHttpServer implements AutoCloseable {
         ObjectNode result = json.createObjectNode();
         result.put("allowed", decision.allowed());
         result.put("reason", decision.reason());
+        return Response.json(200, result);
+    }
+
+    private Response listForCustomer(String customerId) {
+        ObjectNode result = json.createObjectNode();
+        ArrayNode consents = result.putArray("consents");
+        service.listForCustomer(customerId).forEach(consent -> consents.add(internalView(consent)));
         return Response.json(200, result);
     }
 

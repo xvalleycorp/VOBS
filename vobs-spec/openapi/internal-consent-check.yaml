@@ -7,8 +7,8 @@ info:
     Chỉ mở trong mạng nội bộ, trên cổng riêng tách khỏi cổng API đối tác; không công bố cho đối tác.
     - API Gateway (plugin `vobs-consent` trong `vobs-gateway`) gọi `/internal/consent-checks` trước mỗi request
       của đối tác. Logic tương ứng: `ConsentService.check` trong `vobs-consent`.
-    - Kênh của ngân hàng (trang xác nhận trong luồng redirect, ứng dụng ngân hàng số) gọi các API duyệt, từ chối,
-      thu hồi sau khi đã xác thực khách hàng. Đối tác tạo consent khi chưa biết khách hàng là ai; khách hàng được
+    - Kênh của ngân hàng (trang xác nhận trong luồng redirect, ứng dụng ngân hàng số) gọi các API xem danh sách,
+      duyệt, từ chối, thu hồi sau khi đã xác thực khách hàng. Đối tác tạo consent khi chưa biết khách hàng là ai; khách hàng được
       gắn vào consent khi duyệt hoặc từ chối.
     Cài đặt: `ConsentHttpServer` trong `vobs-consent`.
   license:
@@ -62,6 +62,40 @@ paths:
                       - null
         '400':
           $ref: '#/components/responses/BadRequest'
+
+  /internal/customers/{customerId}/consents:
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        description: Mã khách hàng đã được kênh của ngân hàng xác thực
+        schema: { type: string }
+    get:
+      operationId: listCustomerConsents
+      summary: Danh sách consent của một khách hàng
+      description: |
+        Cho khách hàng tra cứu dữ liệu đã đồng ý chia sẻ và rút lại đồng ý (Điều 11, 12 Thông tư 64/2024/TT-NHNN).
+        Mới nhất trước; consent quá hạn được chuyển sang `EXPIRED`. Consent chưa được khách hàng duyệt hay từ chối
+        không thuộc khách hàng nào nên không có trong danh sách.
+      responses:
+        '200':
+          description: Danh sách consent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [consents]
+                properties:
+                  consents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InternalConsent'
+        '405':
+          description: Chỉ hỗ trợ GET
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
   /internal/consents/{consentId}/authorisation:
     parameters:

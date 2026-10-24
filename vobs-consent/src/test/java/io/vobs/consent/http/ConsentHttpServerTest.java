@@ -17,8 +17,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Clock;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -108,6 +110,30 @@ class ConsentHttpServerTest {
                 "{\"customerId\":\"cif-2\"}").status());
         assertEquals("REVOKED", internal("POST", "/internal/consents/" + revoked + "/revocation",
                 "{\"customerId\":\"cif-1\"}").text("status"));
+    }
+
+    @Test
+    void customerSeesOwnConsentsThroughBankChannel() throws Exception {
+        String first = createAccountsConsent("fintech-a");
+        internal("POST", "/internal/consents/" + first + "/authorisation",
+                "{\"customerId\":\"cif-1\",\"accountIds\":[\"acc-1\"]}");
+        String second = createAccountsConsent("fintech-b");
+        internal("POST", "/internal/consents/" + second + "/rejection", "{\"customerId\":\"cif-1\"}");
+        String other = createAccountsConsent("fintech-a");
+        internal("POST", "/internal/consents/" + other + "/authorisation",
+                "{\"customerId\":\"cif-2\",\"accountIds\":[\"acc-9\"]}");
+
+        Reply list = internal("GET", "/internal/customers/cif-1/consents", null);
+        assertEquals(200, list.status());
+        JsonNode consents = list.body().get("consents");
+        assertEquals(2, consents.size());
+        Set<String> ids = new HashSet<>();
+        consents.forEach(consent -> {
+            ids.add(consent.get("consentId").asText());
+            assertEquals("cif-1", consent.get("customerId").asText());
+        });
+        assertEquals(Set.of(first, second), ids);
+        assertEquals(0, internal("GET", "/internal/customers/cif-3/consents", null).body().get("consents").size());
     }
 
     // ------------------------------------------------------------------ quy định của Thông tư

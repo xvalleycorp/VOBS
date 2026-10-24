@@ -35,7 +35,7 @@ plugins:
 ## Việc cần làm trước khi dùng thật
 
 - Chạy thử plugin với APISIX bằng bộ test của APISIX (`t/` dùng Test::Nginx).
-- Service consent (`vobs-consent`) đã có API HTTP nhưng lưu trữ còn trong bộ nhớ; cần PostgreSQL trước khi dùng thật.
+- Service consent (`vobs-consent`) đã có API HTTP và lưu trữ PostgreSQL, nhưng mỗi lúc chỉ chạy được một bản.
 - Route `consents` chưa chạy thử: cần xác nhận `proxy-rewrite` đọc được biến `$vobs_client_id` do plugin
   `vobs-consent` đăng ký.
 - Upstream `vobs-read-api` trong route mẫu là API đọc của Integration Hub, chưa có.

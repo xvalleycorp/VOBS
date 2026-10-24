@@ -3,6 +3,7 @@ package io.vobs.consent;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
@@ -111,6 +112,15 @@ public final class ConsentService {
     /** Lấy consent; nếu đã quá hạn thì chuyển sang {@code EXPIRED} trước khi trả về. */
     public Optional<Consent> find(String consentId) {
         return repository.find(consentId).map(this::expireIfDue);
+    }
+
+    /**
+     * Consent của một khách hàng, mới nhất trước, để kênh của ngân hàng cho khách hàng tra cứu dữ liệu đã đồng ý chia
+     * sẻ và rút lại đồng ý (Điều 11, 12 Thông tư 64/2024/TT-NHNN). Consent quá hạn được chuyển sang {@code EXPIRED}.
+     */
+    public List<Consent> listForCustomer(String customerId) {
+        Objects.requireNonNull(customerId, "customerId");
+        return repository.findByCustomer(customerId).stream().map(this::expireIfDue).toList();
     }
 
     /** Gateway gọi trước mỗi request của đối tác. */

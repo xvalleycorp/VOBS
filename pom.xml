@@ -76,6 +76,7 @@
     <!-- Khớp với bản jaxb-impl mà Prowide kéo vào lúc chạy -->
     <jakarta-xml-bind.version>4.0.4</jakarta-xml-bind.version>
     <jackson.version>2.18.12</jackson.version>
+    <postgresql.version>42.7.7</postgresql.version>
   </properties>
 
   <dependencyManagement>
@@ -94,6 +95,11 @@
         <groupId>jakarta.xml.bind</groupId>
         <artifactId>jakarta.xml.bind-api</artifactId>
         <version>${jakarta-xml-bind.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
@@ -225,6 +231,7 @@
                     <licenseMerge>EDL-1.0|EDL 1.0|Eclipse Distribution License - v 1.0</licenseMerge>
                     <licenseMerge>MIT|MIT License|The MIT License</licenseMerge>
                     <licenseMerge>BSD-3-Clause|BSD 3-Clause|BSD-3-Clause License|The BSD 3-Clause License</licenseMerge>
+                    <licenseMerge>BSD-2-Clause|BSD 2-Clause|BSD-2-Clause License|The BSD 2-Clause License</licenseMerge>
                   </licenseMerges>
                   <!-- Danh sách cho phép: giấy phép nào nằm ngoài danh sách này đều làm build thất bại -->
                   <includedLicenses>
@@ -232,6 +239,7 @@
                     <includedLicense>EDL-1.0</includedLicense>
                     <includedLicense>MIT</includedLicense>
                     <includedLicense>BSD-3-Clause</includedLicense>
+                    <includedLicense>BSD-2-Clause</includedLicense>
                   </includedLicenses>
                 </configuration>
               </execution>
