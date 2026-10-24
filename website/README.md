@@ -30,7 +30,8 @@ mà mỗi bên vẫn nguyên vẹn":
 - Logo: chữ V từ hai mắt xích dài bằng nhau móc vào nhau ở đầu dưới. Mắt trái màu Đồng là ngân hàng, mắt phải màu
   Hổ phách là bên thứ ba. Lòng mắt chỉ rộng hơn thanh một chút để xích có cảm giác chặt
   ([`static/assets/logo.svg`](static/assets/logo.svg)). Favicon có thanh mảnh hơn và lòng rộng hơn để vẫn đọc được
-  ở 16px ([`static/assets/favicon.svg`](static/assets/favicon.svg)).
+  ở 16px ([`static/assets/favicon.svg`](static/assets/favicon.svg)). Hình học của cả hai sinh bằng
+  [`tools/logo.py`](tools/logo.py); đổi tham số trong script rồi chạy lại để cập nhật logo, favicon, header và hero.
 - Màu nhận diện: Đồng `#C2693A` và Hổ phách `#E9A33D`; trên nền tối dùng `#E1884F` và `#F2B65B`. Đồng là vật liệu
   của dây dẫn, thứ nối các hệ thống với nhau.
 - Nền kem `#FBF7F1`, chữ nâu `#2A1D19`, nút chính nâu `#6B3A22`; nền tối là nâu đêm `#2A1D19`. Không dùng đen, vì
