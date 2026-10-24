@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
- * Lệnh chuyển khoản VND giữa hai ngân hàng trong nước, dạng trung lập trước khi dựng thành pacs.008.
+ * Lệnh chuyển khoản VND giữa hai ngân hàng trong nước, ở dạng chung trước khi dựng thành pacs.008.
  *
  * @param messageId mã thông điệp, tối đa 35 ký tự
  * @param endToEndId mã đầu-cuối do bên khởi tạo cấp, tối đa 35 ký tự

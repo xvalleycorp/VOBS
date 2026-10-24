@@ -10,7 +10,7 @@ DomesticCreditTransfer back = Pacs008.read(mx.message());
 
 | Lớp | Vai trò |
 | --- | --- |
-| `DomesticCreditTransfer` | Lệnh chuyển VND giữa hai ngân hàng, dạng trung lập |
+| `DomesticCreditTransfer` | Lệnh chuyển VND giữa hai ngân hàng, ở dạng chung chưa gắn định dạng thông điệp |
 | `Pacs008` | Dựng và đọc pacs.008.001.08: tên bỏ dấu, viết hoa; ngân hàng định danh bằng mã BIN |
 | `VnPaymentRules` | VND không có phần lẻ, `NbOfTxs` khớp số giao dịch, tên và nội dung chỉ dùng ký tự Latin cơ bản |
 
