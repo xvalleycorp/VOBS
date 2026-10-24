@@ -11,7 +11,7 @@ Code mở theo Apache 2.0. Doanh thu đến từ trách nhiệm và cam kết d�
 ## Pháp nhân và quản trị
 
 - Một công ty Việt Nam đứng sau dự án, ký hợp đồng và chịu trách nhiệm trước ngân hàng.
-- Tên dự án tách khỏi tên công ty, để sau này dễ chuyển sang quản trị trung lập.
+- Tên dự án tách khỏi tên công ty, để sau này dễ chuyển sang quản trị độc lập, đa bên.
 - Giai đoạn đầu có hội đồng kỹ thuật với đại diện ngân hàng thí điểm, fintech và SI.
 - Khi có từ 3 ngân hàng trở lên sử dụng, cân nhắc chuyển dự án vào FINOS hoặc Linux Foundation.
 

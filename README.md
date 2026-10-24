@@ -9,7 +9,7 @@ Website: **<https://vobs.dxa.io.vn>** · [Đặc tả API](https://vobs.dxa.io.v
 Bộ nền tảng Open Banking mã nguồn mở cho Việt Nam. VOBS giúp ngân hàng tuân thủ Thông tư 64/2024/TT-NHNN về
 Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintech kết nối nhiều ngân hàng qua một kiểu API.
 
-- **Là gì:** API Gateway theo chuẩn Thông tư 64, quản lý consent, Integration Hub đồng bộ dữ liệu từ core, và các
+- **Là gì:** API Gateway theo chuẩn Thông tư 64, quản lý sự đồng ý (consent) của khách hàng, Integration Hub đồng bộ dữ liệu từ core, và các
   thư viện nền (ISO 20022, VietQR, connector tới các hệ thống chuyển mạch NAPAS và MDP).
 - **Cho ai:** ngân hàng cần tuân thủ Open API, fintech cần kết nối nhiều ngân hàng, công ty tích hợp hệ thống (SI).
 - **Nguyên tắc:** Việt Nam trước, theo chuẩn quốc tế (OpenAPI 3.1, FAPI 2.0, ISO 20022, BIAN), module dùng riêng
@@ -25,7 +25,7 @@ Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintec
 | [Thư viện ISO 20022](vobs-iso20022) | `vobs-iso20022` | pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022 | 1 | Dùng được |
 | [Kết nối chuyển mạch](vobs-switch) | `vobs-switch` | Adapter chung tới chuyển mạch; bộ giả lập | 1–2 | SPI và giả lập; chưa có NAPAS, MDP |
 | [Sandbox cho bên thứ ba](vobs-sandbox) | `vobs-sandbox` | API giả lập bằng Microcks; service Quản lý sự đồng ý chạy thật để thử luồng consent | 1 | Chạy trên máy bằng Docker Compose |
-| [Quản lý consent](vobs-consent) | `vobs-consent` | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi, API HTTP, lưu trữ PostgreSQL; chạy một bản |
+| [Quản lý sự đồng ý](vobs-consent) | `vobs-consent` | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi, API HTTP, lưu trữ PostgreSQL; chạy một bản |
 | [Integration Hub](vobs-hub) | `vobs-hub` | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
 | [API Gateway](vobs-gateway) | `vobs-gateway` | Plugin APISIX: consent, log kiểm toán | 2 | Plugin consent bản đầu |
 | [Bộ triển khai](vobs-deploy) | `vobs-deploy` | Helm chart tổng, GitOps, bộ cài air-gapped | 2 | Khung |

@@ -31,7 +31,7 @@
   },
   {
     "name": "vobs-consent", "status": "draft",
-    "vi": {"title": "Quản lý consent", "label": "Thử nghiệm", "desc": "Quản lý consent theo Điều 5 và 11 Thông tư 64, có API cho bên thứ ba và cho gateway; log kiểm toán phát hiện chỉnh sửa, lưu trên PostgreSQL."},
+    "vi": {"title": "Quản lý sự đồng ý", "label": "Thử nghiệm", "desc": "Quản lý sự đồng ý (consent) của khách hàng theo Điều 5 và 11 Thông tư 64, có API cho bên thứ ba và cho gateway; log kiểm toán phát hiện chỉnh sửa, lưu trên PostgreSQL."},
     "en": {"title": "Consent Manager", "label": "Preview", "desc": "Consent management per Articles 5 and 11 of Circular 64, with APIs for third parties and the gateway; tamper-evident audit log, stored in PostgreSQL."}
   },
   {
