@@ -63,6 +63,9 @@ Khi viết nội dung cho website:
 
 - Chỉ mô tả cái đã có. Tính năng chưa làm thì không nhắc, hoặc nói rõ "chưa có" ở đúng module; không hứa thời gian.
 - Nhãn module nói mức sẵn sàng theo góc nhìn người dùng: Dùng được, Thử nghiệm, Đang phát triển, Nháp.
+- Gọi module bằng tên thân thiện (Thư viện VietQR, Quản lý consent, Integration Hub...). Mã `vobs-*` là tên thư
+  mục và artifact, chỉ hiện kèm để lập trình viên tra cứu. Bảng tên đầy đủ ở [README gốc](../README.md#module);
+  tên tiếng Anh nằm trong [`data/modules.json`](data/modules.json).
 - Không nhắc công cụ nội bộ (CI, script, tên file trong repo) hay quy trình của nhóm. Viết lợi ích cho người đọc,
   ví dụ "mỗi API ghi rõ điều khoản tương ứng" thay vì "CI kiểm tra độ phủ bằng script".
 - Đặc tả OpenAPI hiển thị trên `/api/` cũng là nội dung cho người dùng: phần `description` viết cho lập trình viên

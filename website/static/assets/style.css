@@ -978,12 +978,18 @@ section {
   gap: 12px;
 }
 
-.module code {
+.module h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+/* Mã module (tên artifact, thư mục trong repo) cho lập trình viên tra cứu; tên hiển thị là h3 */
+.module .module-id {
+  margin-top: 2px;
   background: none;
   padding: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--ink);
+  font-size: 0.8rem;
+  color: var(--ink-3);
 }
 
 .module p {

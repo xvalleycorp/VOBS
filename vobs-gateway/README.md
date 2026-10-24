@@ -1,4 +1,4 @@
-# vobs-gateway
+# API Gateway (`vobs-gateway`)
 
 Plugin và cấu hình mẫu cho Apache APISIX, lớp API Gateway của VOBS (giai đoạn 2).
 

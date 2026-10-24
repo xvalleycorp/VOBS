@@ -1,4 +1,4 @@
-# vobs-iso20022
+# Thư viện ISO 20022 (`vobs-iso20022`)
 
 Mở rộng [Prowide ISO 20022](https://github.com/prowide/prowide-iso20022) (Apache 2.0) cho chuyển khoản VND nội địa.
 

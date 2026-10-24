@@ -1,4 +1,4 @@
-# vobs-vietqr
+# Thư viện VietQR (`vobs-vietqr`)
 
 Tạo và đọc mã VietQR cho chuyển khoản nhanh liên ngân hàng (chuẩn EMVCo QR). Không phụ thuộc thư viện ngoài.
 

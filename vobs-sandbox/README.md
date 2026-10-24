@@ -1,4 +1,4 @@
-# vobs-sandbox
+# Sandbox cho bên thứ ba (`vobs-sandbox`)
 
 Sandbox cho đối tác: API giả lập dựng từ [bộ đặc tả](../vobs-spec/openapi) bằng [Microcks](https://microcks.io)
 (Apache 2.0). Fintech dùng sandbox để viết và kiểm thử tích hợp trước khi có ngân hàng thật.

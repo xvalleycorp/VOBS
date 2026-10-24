@@ -1,4 +1,4 @@
-# vobs-spec
+# Đặc tả Open API (`vobs-spec`)
 
 Bộ đặc tả Open API dùng chung theo Thông tư 64/2024/TT-NHNN và bộ kiểm thử tuân thủ. Đây là phần giá trị cốt
 lõi của VOBS: mọi ngân hàng triển khai cùng một đặc tả, fintech viết tích hợp một lần.
