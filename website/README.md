@@ -24,13 +24,20 @@ host; ngoài Cloudflare Web Analytics (bật ở cấp zone, không dùng cookie
 
 ## Nhận diện
 
-VOBS phải trung lập giữa các ngân hàng, nên không có màu chủ đạo đơn lẻ: gần như mọi màu (xanh lá, xanh ngọc, đỏ,
-xanh dương, tím, cam) đều đã gắn với một ngân hàng Việt Nam. Thay vào đó:
+VOBS là hạ tầng dùng chung cho mọi ngân hàng và bên thứ ba. Nhận diện xoay quanh ý "kết nối mà mỗi bên vẫn nguyên
+vẹn":
 
-- Nền mực than `#121317` và giấy ấm `#F6F5F1`; nút chính dùng màu mực.
-- Màu nhận diện là dải phổ `#FF6B4A → #FFC145 → #3DD6C6 → #7A6CFF`: lớp hạ tầng chung nối mọi ngân hàng. Chỉ
-  dùng cho logo, đồ họa và đường nhấn, không lấy một màu đơn trong dải làm màu thương hiệu.
-- Logo: chữ V vẽ bằng nét dải phổ trên nền mực ([`static/assets/logo.svg`](static/assets/logo.svg)).
+- Logo: chữ V từ hai mắt xích dài bằng nhau móc vào nhau ở đầu dưới. Mắt trái màu Đồng là ngân hàng, mắt phải màu
+  Hổ phách là bên thứ ba. Lòng mắt chỉ rộng hơn thanh một chút để xích có cảm giác chặt
+  ([`static/assets/logo.svg`](static/assets/logo.svg)). Favicon có thanh mảnh hơn và lòng rộng hơn để vẫn đọc được
+  ở 16px ([`static/assets/favicon.svg`](static/assets/favicon.svg)).
+- Màu nhận diện: Đồng `#C2693A` và Hổ phách `#E9A33D`; trên nền tối dùng `#E1884F` và `#F2B65B`. Đồng là vật liệu
+  của dây dẫn, thứ nối các hệ thống với nhau.
+- Nền kem `#FBF7F1`, chữ nâu `#2A1D19`, nút chính nâu `#6B3A22`; nền tối là nâu đêm `#2A1D19`. Không dùng đen, vì
+  đen là màu kiêng trong tài chính ở Việt Nam.
+- Màu không cần né ngân hàng nào, chỉ cần không bị nhầm với cách một thương hiệu cụ thể dùng màu (ví dụ cam tươi đi
+  với xanh dương, hay vàng tươi trên nền đen).
+- Khi viết tiếng Việt, mô tả VOBS là "dùng chung" hay "không thuộc riêng ngân hàng nào", không dùng "trung lập".
 - Chữ: Be Vietnam Pro, phông thiết kế cho tiếng Việt.
 
 ## Chạy và triển khai

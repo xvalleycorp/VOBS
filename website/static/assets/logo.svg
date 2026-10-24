@@ -1,16 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="VOBS">
-  <!-- Open Stack: hai lớp trên (gateway, hub) mở một rãnh, lớp core dưới cùng nguyên vẹn; dòng dữ liệu đi qua rãnh và dừng trên core -->
-  <defs>
-    <linearGradient id="flow" x1="16" y1="3.5" x2="16" y2="18.75" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FF6B4A"/>
-      <stop offset=".35" stop-color="#FFC145"/>
-      <stop offset=".68" stop-color="#3DD6C6"/>
-      <stop offset="1" stop-color="#7A6CFF"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8" fill="#121317"/>
-  <g fill="#F3F2EE">
-    <rect x="6" y="7" width="7.5" height="5" rx="1.8"/><rect x="18.5" y="7" width="7.5" height="5" rx="1.8"/><rect x="6" y="13.75" width="7.5" height="5" rx="1.8"/><rect x="18.5" y="13.75" width="7.5" height="5" rx="1.8"/><rect x="6" y="20.5" width="20" height="5" rx="1.8"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="VOBS">
+  <!-- Logo VOBS: chữ V từ hai mắt xích dài bằng nhau, lòng mắt chỉ rộng hơn thanh một chút, móc vào nhau ở đầu dưới. Mắt trái màu Đồng (ngân hàng), mắt phải màu Hổ phách (bên thứ ba). Ở giao điểm dưới mắt Đồng nằm trên, ở giao điểm trên mắt Hổ phách nằm trên; khe hở cắt theo mép mắt nằm trên. -->
+  <defs><clipPath id="m-k0"><circle cx="35.14" cy="50.63" r="7.22"/></clipPath><clipPath id="m-k1"><circle cx="31.02" cy="37.46" r="7.22"/></clipPath><mask id="m-l" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="none"><path d="M45.04 13.17L28.97 41.01A6.43 6.43 0 0 0 40.11 47.44L56.18 19.60A6.43 6.43 0 0 0 45.04 13.17Z" stroke="#000" stroke-width="7.92" clip-path="url(#m-k1)"/></g></mask><mask id="m-r" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="none"><path d="M7.82 22.99L23.89 50.83A6.43 6.43 0 0 0 35.03 44.40L18.96 16.56A6.43 6.43 0 0 0 7.82 22.99Z" stroke="#000" stroke-width="7.92" clip-path="url(#m-k0)"/></g></mask></defs>
+  <g fill="none" stroke-width="5.92">
+    <path d="M45.04 13.17L28.97 41.01A6.43 6.43 0 0 0 40.11 47.44L56.18 19.60A6.43 6.43 0 0 0 45.04 13.17Z" stroke="#E9A33D" mask="url(#m-r)"/>
+    <path d="M7.82 22.99L23.89 50.83A6.43 6.43 0 0 0 35.03 44.40L18.96 16.56A6.43 6.43 0 0 0 7.82 22.99Z" stroke="#C2693A" mask="url(#m-l)"/>
   </g>
-  <rect x="14.5" y="3.5" width="3" height="15.25" rx="1.5" fill="url(#flow)"/>
 </svg>

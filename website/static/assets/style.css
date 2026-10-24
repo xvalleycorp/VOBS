@@ -1,37 +1,40 @@
 @import url("/fonts/be-vietnam-pro.css");
 
 /*
-  Nhận diện VOBS: trung lập giữa các ngân hàng.
-  - Nền là mực than và giấy ấm, không có màu chủ đạo nào gắn với một ngân hàng.
-  - Màu nhận diện là dải phổ nhiều màu (spectrum): hạ tầng chung nối mọi ngân hàng. Chỉ dùng dải phổ cho logo,
-    đồ họa và điểm nhấn, không dùng một màu đơn của dải làm màu nút hay màu thương hiệu.
+  Nhận diện VOBS: hạ tầng dùng chung cho mọi ngân hàng.
+  - Logo là chữ V từ hai mắt xích móc vào nhau: mắt Đồng (ngân hàng) và mắt Hổ phách (bên thứ ba).
+  - Màu nhận diện là Đồng và Hổ phách, đi cùng nền kem và chữ nâu. Không dùng đen: đen là màu kiêng trong tài chính
+    ở Việt Nam, nên chữ, nút và nền tối đều là sắc nâu.
+  - Màu không cần né ngân hàng nào, chỉ cần không bị nhầm với cách một thương hiệu cụ thể dùng màu.
 */
 :root {
-  --s1: #ff6b4a;
-  --s2: #ffc145;
-  --s3: #3dd6c6;
-  --s4: #7a6cff;
-  --spectrum: linear-gradient(90deg, var(--s1), var(--s2) 35%, var(--s3) 68%, var(--s4));
+  --copper: #c2693a;
+  --amber: #e9a33d;
+  --brown: #6b3a22;
+  --brand: linear-gradient(90deg, var(--copper), var(--amber));
+  /* Logo trên nền tối (hero, chế độ tối) dùng sắc sáng hơn */
+  --copper-night: #e1884f;
+  --amber-night: #f2b65b;
 
-  --bg: #f6f5f1;
+  --bg: #fbf7f1;
   --surface: #ffffff;
-  --surface-2: #efede7;
-  --ink: #121317;
-  --ink-2: #41444d;
-  --ink-3: #6c6f78;
-  --line: #e1ded6;
-  --btn: #121317;
-  --btn-ink: #ffffff;
-  --code-bg: #efede7;
+  --surface-2: #f3ece3;
+  --ink: #2a1d19;
+  --ink-2: #5a463b;
+  --ink-3: #7a685d;
+  --line: #e8ddd0;
+  --btn: #6b3a22;
+  --btn-ink: #fff8ef;
+  --code-bg: #f3ece3;
   --dot-ready: #1c9e8f;
   --dot-draft: #c98a00;
-  --dot-skeleton: #9a9ca3;
+  --dot-skeleton: #a3958b;
 
-  --night: #0e0f13;
-  --night-2: #17191f;
-  --night-line: #2a2d35;
-  --night-ink: #f3f2ee;
-  --night-ink-2: #b6b8bf;
+  --night: #2a1d19;
+  --night-2: #35261f;
+  --night-line: #4a3830;
+  --night-ink: #fff8ef;
+  --night-ink-2: #d9c8bb;
 
   --radius: 14px;
   --max: 1160px;
@@ -42,21 +45,21 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e0f13;
-    --surface: #16181d;
-    --surface-2: #1d2027;
-    --ink: #f3f2ee;
-    --ink-2: #c3c5cb;
-    --ink-3: #8e919a;
-    --line: #2a2d35;
-    --btn: #f3f2ee;
-    --btn-ink: #121317;
-    --code-bg: #1d2027;
+    --copper: #e1884f;
+    --amber: #f2b65b;
+    --bg: #231814;
+    --surface: #2c1f1a;
+    --surface-2: #362720;
+    --ink: #fff8ef;
+    --ink-2: #dccbbe;
+    --ink-3: #a8968a;
+    --line: #47362d;
+    --btn: #f2b65b;
+    --btn-ink: #2a1d19;
+    --code-bg: #362720;
     --dot-ready: #3dd6c6;
-    --dot-draft: #ffc145;
-    --dot-skeleton: #6c6f78;
-    --night: #08090c;
-    --night-2: #121419;
+    --dot-draft: #f2b65b;
+    --dot-skeleton: #7a685d;
     color-scheme: dark;
   }
 }
@@ -87,7 +90,7 @@ a {
 }
 
 main a:not(.btn):not(.op) {
-  text-decoration-color: var(--s4);
+  text-decoration-color: var(--copper);
 }
 
 main a:not(.btn):not(.op):hover {
@@ -95,7 +98,7 @@ main a:not(.btn):not(.op):hover {
 }
 
 a:focus-visible {
-  outline: 2px solid var(--s4);
+  outline: 2px solid var(--copper);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -152,11 +155,9 @@ p {
   padding: 8px 12px;
 }
 
-/* Màu của dải phổ trong SVG */
-.s1 { stop-color: var(--s1); }
-.s2 { stop-color: var(--s2); }
-.s3 { stop-color: var(--s3); }
-.s4 { stop-color: var(--s4); }
+/* Màu nhận diện trong gradient SVG */
+.g-copper { stop-color: var(--copper); }
+.g-amber { stop-color: var(--amber); }
 
 /* ------------------------------------------------------------ header */
 .site-header {
@@ -189,22 +190,16 @@ p {
   flex: none;
 }
 
-.logo .logo-bg {
-  fill: #121317;
+.logo-links {
+  fill: none;
 }
 
-.logo .logo-slabs {
-  fill: #f3f2ee;
+.logo-links-l {
+  stroke: var(--copper);
 }
 
-.logo .logo-flow {
-  fill: url(#logo-flow);
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo .logo-bg {
-    fill: #23262e;
-  }
+.logo-links-r {
+  stroke: var(--amber);
 }
 
 .wordmark {
@@ -291,7 +286,7 @@ p {
 }
 
 .lang summary:focus-visible {
-  outline: 2px solid var(--s4);
+  outline: 2px solid var(--copper);
   outline-offset: 2px;
 }
 
@@ -322,7 +317,7 @@ p {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 12px 32px rgb(18 19 23 / 14%);
+  box-shadow: 0 12px 32px rgb(42 29 25 / 14%);
 }
 
 .lang-menu a {
@@ -352,7 +347,7 @@ p {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--spectrum);
+  background: var(--brand);
 }
 
 .sr-only {
@@ -422,7 +417,7 @@ p {
 .btn-primary {
   background: var(--btn);
   color: var(--btn-ink);
-  box-shadow: 0 1px 0 rgb(255 255 255 / 10%) inset, 0 6px 18px rgb(18 19 23 / 18%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 10%) inset, 0 6px 18px rgb(42 29 25 / 18%);
 }
 
 .btn-ghost {
@@ -436,9 +431,9 @@ p {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(600px 320px at 78% 30%, rgb(122 108 255 / 18%), transparent 70%),
-    radial-gradient(520px 300px at 92% 85%, rgb(61 214 198 / 12%), transparent 70%),
-    radial-gradient(500px 280px at 60% 0%, rgb(255 107 74 / 10%), transparent 70%),
+    radial-gradient(600px 320px at 78% 30%, rgb(233 163 61 / 16%), transparent 70%),
+    radial-gradient(520px 300px at 92% 85%, rgb(194 105 58 / 18%), transparent 70%),
+    radial-gradient(500px 280px at 60% 0%, rgb(225 136 79 / 10%), transparent 70%),
     var(--night);
   color: var(--night-ink);
   padding: 88px 0 56px;
@@ -451,7 +446,7 @@ p {
   right: 0;
   bottom: 0;
   height: 3px;
-  background: var(--spectrum);
+  background: var(--brand);
 }
 
 .hero-grid {
@@ -477,7 +472,7 @@ p {
   width: 28px;
   height: 3px;
   border-radius: 2px;
-  background: var(--spectrum);
+  background: var(--brand);
 }
 
 .hero .eyebrow {
@@ -509,7 +504,7 @@ p {
 .hero .btn-primary {
   background: var(--night-ink);
   color: var(--night);
-  box-shadow: 0 6px 24px rgb(122 108 255 / 25%);
+  box-shadow: 0 6px 24px rgb(233 163 61 / 25%);
 }
 
 .hero .btn-ghost {
@@ -541,10 +536,10 @@ p {
   animation: flow 2.4s linear infinite;
 }
 
-.hero-art .c1 { stroke: var(--s1); }
-.hero-art .c2 { stroke: var(--s2); }
-.hero-art .c3 { stroke: var(--s3); }
-.hero-art .c4 { stroke: var(--s4); }
+.hero-art .c1,
+.hero-art .c3 { stroke: var(--copper-night); }
+.hero-art .c2,
+.hero-art .c4 { stroke: var(--amber-night); }
 
 @keyframes flow {
   to {
@@ -566,7 +561,7 @@ p {
 }
 
 .hero-art .hub {
-  fill: #15171d;
+  fill: var(--night-2);
 }
 
 .hero-art .hub-ring {
@@ -575,12 +570,16 @@ p {
   stroke-width: 2;
 }
 
-.hero-art .hub-slabs {
-  fill: var(--night-ink);
+.hero-art .hub-links {
+  fill: none;
 }
 
-.hero-art .hub-flow {
-  fill: url(#hub-flow);
+.hero-art .hub-links-l {
+  stroke: var(--copper-night);
+}
+
+.hero-art .hub-links-r {
+  stroke: var(--amber-night);
 }
 
 .hero-art .hub-label {
@@ -692,7 +691,7 @@ section {
   width: 28px;
   height: 3px;
   border-radius: 2px;
-  background: var(--spectrum);
+  background: var(--brand);
 }
 
 .section-head p {
@@ -814,7 +813,7 @@ section {
 }
 
 .diagram .arrow-head-read {
-  fill: var(--s4);
+  fill: var(--amber);
 }
 
 .diagram .edge-label {
@@ -836,7 +835,7 @@ section {
   width: 24px;
   height: 3px;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--s3), var(--s4));
+  background: var(--brand);
   vertical-align: middle;
   margin-right: 8px;
 }
@@ -936,7 +935,7 @@ section {
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, var(--s1), var(--s2), var(--s3), var(--s4));
+  background: linear-gradient(180deg, var(--copper), var(--amber));
 }
 
 .callout-date {
@@ -1014,7 +1013,7 @@ section {
   right: 0;
   top: 0;
   height: 3px;
-  background: var(--spectrum);
+  background: var(--brand);
   opacity: 0.35;
 }
 
@@ -1114,7 +1113,7 @@ a.op code {
 
 a.op:hover code {
   text-decoration: underline;
-  text-decoration-color: var(--s4);
+  text-decoration-color: var(--copper);
 }
 
 .method {
@@ -1129,15 +1128,15 @@ a.op:hover code {
 }
 
 .m-get {
-  border-left-color: var(--s3);
+  border-left-color: var(--amber);
 }
 
 .m-post {
-  border-left-color: var(--s2);
+  border-left-color: var(--copper);
 }
 
 .m-webhook {
-  border-left-color: var(--s4);
+  border-left-color: var(--ink-3);
 }
 
 .note {
@@ -1171,7 +1170,7 @@ a.op:hover code {
   bottom: -1px;
   width: 100%;
   height: 3px;
-  background: var(--spectrum);
+  background: var(--brand);
 }
 
 .page-head.plain::after {
@@ -1263,13 +1262,13 @@ a.op:hover code {
   border-top: 1px solid var(--line);
 }
 
-.spectrum-rule {
+.brand-rule {
   position: absolute;
   top: -1px;
   left: 0;
   right: 0;
   height: 3px;
-  background: var(--spectrum);
+  background: var(--brand);
 }
 
 .site-footer .wrap {

@@ -98,7 +98,7 @@ function moduleCards(list, t, lang) {
 function headLinks(pageKey, lang) {
   const page = PAGES[pageKey];
   const links = [
-    `<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">`,
+    `<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">`,
     `<link rel="stylesheet" href="/assets/style.css">`,
     `<script src="/assets/lang.js" defer></script>`,
   ];

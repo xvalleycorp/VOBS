@@ -32,10 +32,7 @@
         <svg viewBox="0 0 520 400">
           <defs>
             <linearGradient id="hub-ring" x1="205" y1="145" x2="315" y2="255" gradientUnits="userSpaceOnUse">
-              <stop offset="0" class="s1"/><stop offset=".35" class="s2"/><stop offset=".68" class="s3"/><stop offset="1" class="s4"/>
-            </linearGradient>
-            <linearGradient id="hub-flow" x1="16" y1="3.5" x2="16" y2="18.75" gradientUnits="userSpaceOnUse">
-              <stop offset="0" class="s1"/><stop offset=".35" class="s2"/><stop offset=".68" class="s3"/><stop offset="1" class="s4"/>
+              <stop offset="0" class="g-copper"/><stop offset="1" class="g-amber"/>
             </linearGradient>
           </defs>
 
@@ -63,9 +60,9 @@
 
           <rect class="hub" x="205" y="145" width="110" height="110" rx="26"/>
           <rect class="hub-ring" x="205" y="145" width="110" height="110" rx="26"/>
-          <g transform="translate(224.8 156) scale(2.2)">
-            <g class="hub-slabs"><rect x="6" y="7" width="7.5" height="5" rx="1.8"/><rect x="18.5" y="7" width="7.5" height="5" rx="1.8"/><rect x="6" y="13.75" width="7.5" height="5" rx="1.8"/><rect x="18.5" y="13.75" width="7.5" height="5" rx="1.8"/><rect x="6" y="20.5" width="20" height="5" rx="1.8"/></g>
-            <rect class="hub-flow" x="14.5" y="3.5" width="3" height="15.25" rx="1.5"/>
+          <g transform="translate(224.8 150) scale(1.1)">
+            <defs><clipPath id="hub-k0"><circle cx="35.14" cy="50.63" r="7.22"/></clipPath><clipPath id="hub-k1"><circle cx="31.02" cy="37.46" r="7.22"/></clipPath><mask id="hub-l" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="none"><path d="M45.04 13.17L28.97 41.01A6.43 6.43 0 0 0 40.11 47.44L56.18 19.60A6.43 6.43 0 0 0 45.04 13.17Z" stroke="#000" stroke-width="7.92" clip-path="url(#hub-k1)"/></g></mask><mask id="hub-r" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="none"><path d="M7.82 22.99L23.89 50.83A6.43 6.43 0 0 0 35.03 44.40L18.96 16.56A6.43 6.43 0 0 0 7.82 22.99Z" stroke="#000" stroke-width="7.92" clip-path="url(#hub-k0)"/></g></mask></defs>
+            <g class="hub-links" stroke-width="5.92"><path class="hub-links-r" d="M45.04 13.17L28.97 41.01A6.43 6.43 0 0 0 40.11 47.44L56.18 19.60A6.43 6.43 0 0 0 45.04 13.17Z" mask="url(#hub-r)"/><path class="hub-links-l" d="M7.82 22.99L23.89 50.83A6.43 6.43 0 0 0 35.03 44.40L18.96 16.56A6.43 6.43 0 0 0 7.82 22.99Z" mask="url(#hub-l)"/></g>
           </g>
           <text class="hub-label" x="260" y="240" text-anchor="middle">VOBS</text>
 
@@ -112,7 +109,7 @@
         <svg viewBox="0 0 960 370" role="img" aria-label="{{t:home.arch.alt}}">
           <defs>
             <linearGradient id="read-path" x1="420" y1="0" x2="940" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0" class="s3"/><stop offset="1" class="s4"/>
+              <stop offset="0" class="g-copper"/><stop offset="1" class="g-amber"/>
             </linearGradient>
             <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path class="arrow-head" d="M0 0 10 5 0 10z"/>
