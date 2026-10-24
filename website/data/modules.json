@@ -1,0 +1,52 @@
+[
+  {
+    "name": "vobs-spec", "status": "draft", "phase": "1",
+    "vi": { "label": "Nháp {{SPEC_VERSION}}", "desc": "Đặc tả Open API theo Điều 6 Thông tư 64, kiểm tra độ phủ trong CI; bộ kiểm thử tuân thủ." },
+    "en": { "label": "Draft {{SPEC_VERSION}}", "desc": "Open API specification following Article 6 of Circular 64, with coverage checked in CI; conformance suite." }
+  },
+  {
+    "name": "vobs-vietqr", "status": "ready", "phase": "1",
+    "vi": { "label": "Dùng được", "desc": "Tạo và đọc mã VietQR chuẩn EMVCo, kiểm tra CRC; không phụ thuộc thư viện ngoài." },
+    "en": { "label": "Usable", "desc": "Create and parse EMVCo-compliant VietQR codes with CRC validation; no external dependencies." }
+  },
+  {
+    "name": "vobs-iso20022", "status": "ready", "phase": "1",
+    "vi": { "label": "Dùng được", "desc": "Dựng và kiểm tra pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022." },
+    "en": { "label": "Usable", "desc": "Build and validate pacs.008 for domestic VND transfers, on top of Prowide ISO 20022." }
+  },
+  {
+    "name": "vobs-model", "status": "ready", "phase": "1",
+    "vi": { "label": "Dùng được", "desc": "Mô hình dữ liệu theo BIAN; CCCD gắn chip, mã BIN, VND, tên tiếng Việt không dấu." },
+    "en": { "label": "Usable", "desc": "BIAN-aligned data model; chip-based citizen ID, bank BIN, VND, diacritic-free Vietnamese names." }
+  },
+  {
+    "name": "vobs-sandbox", "status": "draft", "phase": "1",
+    "vi": { "label": "Cục bộ", "desc": "API giả lập cho fintech, dựng tự động từ đặc tả bằng Microcks." },
+    "en": { "label": "Local", "desc": "Mock APIs for fintechs, generated from the specification with Microcks." }
+  },
+  {
+    "name": "vobs-switch", "status": "draft", "phase": "1–2",
+    "vi": { "label": "SPI + giả lập", "desc": "Một giao diện adapter cho mọi chuyển mạch. Adapter NAPAS và MDP chờ đặc tả kết nối." },
+    "en": { "label": "SPI + simulator", "desc": "One adapter interface for every payment switch. NAPAS and MDP adapters await connection specs." }
+  },
+  {
+    "name": "vobs-consent", "status": "draft", "phase": "2",
+    "vi": { "label": "Phần lõi", "desc": "Vòng đời consent theo Điều 5 và 11 Thông tư 64; log kiểm toán chuỗi hash phát hiện chỉnh sửa." },
+    "en": { "label": "Core", "desc": "Consent lifecycle per Articles 5 and 11 of Circular 64; hash-chained audit log that detects tampering." }
+  },
+  {
+    "name": "vobs-hub", "status": "draft", "phase": "2",
+    "vi": { "label": "Phần lõi", "desc": "Đọc sự kiện CDC từ Debezium, ánh xạ cột của core theo cấu hình, nạp vào kho đọc." },
+    "en": { "label": "Core", "desc": "Reads Debezium CDC events, maps core columns by configuration, loads the read store." }
+  },
+  {
+    "name": "vobs-gateway", "status": "draft", "phase": "2",
+    "vi": { "label": "Bản đầu", "desc": "Plugin APISIX kiểm tra consent, giới hạn tần suất theo bên thứ ba, log kiểm toán vào Kafka." },
+    "en": { "label": "First cut", "desc": "APISIX plugins for consent checks, per-partner rate limits and audit logging to Kafka." }
+  },
+  {
+    "name": "vobs-deploy", "status": "skeleton", "phase": "2",
+    "vi": { "label": "Khung", "desc": "Helm chart tổng, GitOps, bộ cài không cần Internet cho triển khai on-premise." },
+    "en": { "label": "Skeleton", "desc": "Umbrella Helm chart, GitOps and an air-gapped installer for on-premise deployment." }
+  }
+]

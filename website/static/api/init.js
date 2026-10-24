@@ -6,7 +6,7 @@ Redoc.init("/api/vobs-open-api.json", {
   scrollYOffset: ".site-header",
   jsonSampleExpandLevel: 3,
   theme: {
-    colors: { primary: { main: "#0b7a6f" } },
+    colors: { primary: { main: "#121317" } },
     typography: {
       fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
       headings: { fontFamily: "'Be Vietnam Pro', system-ui, sans-serif", fontWeight: "700" },
