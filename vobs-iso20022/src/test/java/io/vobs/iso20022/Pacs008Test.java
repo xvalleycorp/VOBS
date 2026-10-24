@@ -24,10 +24,10 @@ class Pacs008Test {
             Money.vnd(2_500_000),
             "Nguyễn Văn An",
             "0011004567890",
-            new BankId("970436", "BFTVVNVX"),
+            new BankId("999901", "ZZZZVNVX"),
             "Trần Thị Bình",
             "113366668888",
-            BankId.ofBin("970415"),
+            BankId.ofBin("999902"),
             "Thanh toán hóa đơn 1234");
 
     @Test
@@ -82,7 +82,7 @@ class Pacs008Test {
     @Test
     void rejectsNonVndTransfer() {
         assertThrows(IllegalArgumentException.class, () -> new DomesticCreditTransfer("m", "e",
-                OffsetDateTime.now(), LocalDate.now(), Money.of("10", "USD"), "a", "1", BankId.ofBin("970436"),
-                "b", "2", BankId.ofBin("970415"), null));
+                OffsetDateTime.now(), LocalDate.now(), Money.of("10", "USD"), "a", "1", BankId.ofBin("999901"),
+                "b", "2", BankId.ofBin("999902"), null));
     }
 }

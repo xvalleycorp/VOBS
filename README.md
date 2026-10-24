@@ -48,7 +48,7 @@ mvn -Plicense-check verify      # kiểm tra giấy phép của dependency
 Ví dụ dùng thư viện VietQR:
 
 ```java
-String payload = VietQr.toAccount("970436", "0123456789").withAmount(150_000).encode();
+String payload = VietQr.toAccount("999901", "0123456789").withAmount(150_000).encode();
 VietQr qr = VietQr.parse(payload);
 ```
 

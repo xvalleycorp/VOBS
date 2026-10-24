@@ -26,6 +26,8 @@ Pull request có commit thiếu sign-off sẽ không được merge.
 - Mỗi module dùng riêng được; tránh phụ thuộc chéo ngoài `vobs-model`.
 - Thông báo lỗi và Javadoc viết tiếng Việt; tên lớp, phương thức, biến viết tiếng Anh.
 - Không ghi log số tài khoản đầy đủ, số định danh, tên khách hàng.
+- Ví dụ, kiểm thử và dữ liệu mẫu không dùng mã của ngân hàng thật: dùng BIN giả `999901` (ngân hàng mẫu A), `999902`
+  (ngân hàng mẫu B) và BIC giả `ZZZZVNVX`. Dải `9999xx` nằm ngoài dải BIN `9704xx` của ngân hàng trong nước.
 - Dependency mới phải có giấy phép nằm ngoài danh sách cần tránh trong [docs/licensing.md](docs/licensing.md);
   CI chạy `mvn -Plicense-check verify` để kiểm tra.
 - Tiền tố commit theo module: `vietqr:`, `consent:`, `spec:`, `docs:`, `ci:`...

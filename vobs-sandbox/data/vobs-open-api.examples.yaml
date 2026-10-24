@@ -2,7 +2,8 @@
 # `examples` trong đặc tả: đặc tả giữ mỗi API một ví dụ để làm tài liệu, file này thêm khách hàng, tài khoản, giao dịch
 # và tình huống lỗi để bên thứ ba thử tích hợp.
 #
-# Mọi số liệu là giả: số tài khoản, số dư, lãi suất, tỷ giá không phản ánh ngân hàng nào. Danh mục dữ liệu ở
+# Mọi số liệu là giả: số tài khoản, số dư, lãi suất, tỷ giá không phản ánh ngân hàng nào; ngân hàng mẫu dùng BIN giả
+# 999901 (CONTRIBUTING.md). Danh mục dữ liệu ở
 # ../README.md. Tên example phải khác với tên trong đặc tả cho cùng một bộ tham số, để Microcks không có hai phản hồi
 # cho một request.
 #
@@ -95,7 +96,7 @@ operations:
         body:
           accountId: acc-1002
           maskedNumber: '*********4521'
-          bankBin: '970436'
+          bankBin: '999901'
           type: SAVINGS
           currency: VND
           status: ACTIVE
@@ -113,7 +114,7 @@ operations:
         body:
           accountId: acc-1003
           maskedNumber: '*********3307'
-          bankBin: '970436'
+          bankBin: '999901'
           type: CURRENT
           currency: USD
           status: ACTIVE
@@ -131,7 +132,7 @@ operations:
         body:
           accountId: acc-2001
           maskedNumber: '*********8812'
-          bankBin: '970436'
+          bankBin: '999901'
           type: CURRENT
           currency: VND
           status: ACTIVE
@@ -149,7 +150,7 @@ operations:
         body:
           accountId: acc-2002
           maskedNumber: '*********0645'
-          bankBin: '970436'
+          bankBin: '999901'
           type: CURRENT
           currency: VND
           status: DORMANT
@@ -167,7 +168,7 @@ operations:
         body:
           accountId: acc-2009
           maskedNumber: '*********9090'
-          bankBin: '970436'
+          bankBin: '999901'
           type: CURRENT
           currency: VND
           status: BLOCKED

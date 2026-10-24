@@ -34,7 +34,7 @@ nhận `400`.
 
 ## Dữ liệu mẫu
 
-Mọi số liệu là giả, không phản ánh ngân hàng nào. Gọi API giả lập với một `x-consent-id` bất kỳ; qua API Gateway
+Mọi số liệu là giả, không phản ánh ngân hàng nào; ngân hàng mẫu dùng BIN giả `999901`. Gọi API giả lập với một `x-consent-id` bất kỳ; qua API Gateway
 thì cần consent thật (mục dưới).
 
 | Khách hàng | Tài khoản | Loại, tiền tệ | Trạng thái | Lịch sử giao dịch |
