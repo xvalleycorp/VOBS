@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đối chiếu Thông tư 64 — VOBS</title>
+  <meta name="description" content="Đối chiếu danh mục Open API cơ bản tại Điều 6 Thông tư 64/2024/TT-NHNN với đặc tả API của VOBS, cùng các quy định về consent, giới hạn truy vấn và lưu log.">
+  <link rel="canonical" href="https://vobs.dxa.io.vn/thong-tu-64/">
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<!-- HEADER:tt64 -->
+
+<main id="main">
+  <div class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">Thông tư 64/2024/TT-NHNN</span>
+      <h1>Đặc tả VOBS đối chiếu Thông tư 64</h1>
+      <p>Thông tư 64/2024/TT-NHNN quy định triển khai Open API trong ngành ngân hàng, có hiệu lực từ 01/03/2025. Ngân hàng
+        đã kết nối với bên thứ ba phải tuân thủ đầy đủ trước <strong>01/03/2027</strong>. Đặc tả {{SPEC_VERSION}} của VOBS có
+        {{TT64_COVERED}}/{{TT64_TOTAL}} API trong danh mục Điều 6; bảng dưới đây được sinh tự động từ đặc tả.</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Danh mục Open API cơ bản (Điều 6 khoản 1)</h2>
+        <p>Nhấn vào một endpoint để xem chi tiết trong đặc tả. Nhóm điểm c chỉ được cung cấp cho bên thứ ba là ngân hàng
+          hoặc tổ chức cung ứng dịch vụ trung gian thanh toán (Điều 5).</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Mã</th><th scope="col">API trong Thông tư</th><th scope="col">Đặc tả VOBS</th></tr>
+          </thead>
+          <tbody>
+<!-- TT64_TABLE -->
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">* Tên dịch lại từ bản tiếng Anh, chưa khớp nguyên văn.
+        Hai API "cập nhật trạng thái xác thực" được mô tả là webhook ngân hàng gọi sang bên thứ ba; chiều gọi này là giả
+        định của VOBS.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Quy định khác và cách VOBS đáp ứng</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Điều</th><th scope="col">Quy định</th><th scope="col">VOBS</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>5</td><td>Nhóm thanh toán và ví điện tử chỉ cấp cho ngân hàng, tổ chức trung gian thanh toán</td><td>Module consent từ chối phạm vi không được phép; API trả <code>403 scope_not_permitted</code></td></tr>
+            <tr><td>9</td><td>Công khai hệ thống thử nghiệm và danh mục Open API trước khi kết nối</td><td>Sandbox Microcks dựng từ cùng bộ đặc tả</td></tr>
+            <tr><td>11</td><td>Thời hạn truy vấn sau khi khách hàng đồng ý không quá 180 ngày, trừ khi có thỏa thuận khác</td><td>Thời hạn consent mặc định tối đa 180 ngày</td></tr>
+            <tr><td>11</td><td>Công cụ cho khách hàng tra cứu dữ liệu đã đồng ý chia sẻ và rút lại đồng ý</td><td>API xem và thu hồi consent; thu hồi từ phía khách hàng hoặc bên thứ ba</td></tr>
+            <tr><td>11</td><td>Giới hạn số lần truy vấn tự động</td><td>Giới hạn tần suất theo bên thứ ba tại gateway; vượt hạn mức trả <code>429</code></td></tr>
+            <tr><td>11</td><td>Log mọi lần sử dụng Open API, lưu tối thiểu 3 tháng, sao lưu tối thiểu 1 năm</td><td>Log kiểm toán ghi vào Kafka, lưu kiểu WORM, chuỗi hash phát hiện chỉnh sửa</td></tr>
+            <tr><td>11</td><td>Hệ thống thông tin đạt tối thiểu cấp độ 3</td><td>Gói tuân thủ ánh xạ kiểm soát theo Nghị định 85/2016 và Thông tư 09/2020</td></tr>
+            <tr><td>12</td><td>Bên thứ ba có công cụ trực tuyến cho khách hàng tra cứu và rút lại đồng ý</td><td>API xem và thu hồi consent dành cho bên thứ ba</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap prose">
+      <h2>Chưa đối chiếu</h2>
+      <p>Phụ lục 01 (đặc tả kỹ thuật từng API) và Phụ lục 02 (tiêu chuẩn kiến trúc, dữ liệu, an toàn
+        thông tin) chưa được đối chiếu. Đường dẫn, tên trường, mã lỗi và yêu cầu xác thực trong đặc tả hiện là thiết kế
+        của VOBS theo thông lệ quốc tế: OpenAPI 3.1, OAuth 2.0, FAPI 2.0, RFC 9457.</p>
+      <p>Nguồn tra cứu ngày 24/10/2026:
+        <a href="https://sbv.gov.vn/en/w/press-release-on-issuance-of-circular-no.64/2024/tt-nhnn">thông cáo của Ngân hàng Nhà nước</a>,
+        <a href="https://caselaw.vn/van-ban-phap-luat/413231-thong-tu-so-64-2024-tt-nhnn-ngay-31-12-2024-cua-thong-doc-ngan-hang-nha-nuoc-viet-nam-quy-dinh-ve-trien-khai-giao-dien-lap-trinh-ung-dung-mo-trong-nganh-ngan-hang">CaseLaw.vn</a>,
+        <a href="https://english.luatvietnam.vn/tai-chinh/circular-64-2024-tt-nhnn-deployment-of-open-application-programming-interfaces-in-the-banking-sector-387124-d1.html">LuatVietnam</a>.
+        Cần kiểm tra lại với văn bản gốc trước khi dùng chính thức.</p>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+</body>
+</html>

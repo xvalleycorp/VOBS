@@ -3,6 +3,9 @@
 [![CI](https://github.com/xvalleycorp/vobs/actions/workflows/ci.yml/badge.svg)](https://github.com/xvalleycorp/vobs/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
+Website: **<https://vobs.dxa.io.vn>** · [Đặc tả API](https://vobs.dxa.io.vn/api/) ·
+[Đối chiếu Thông tư 64](https://vobs.dxa.io.vn/thong-tu-64/)
+
 Bộ nền tảng Open Banking mã nguồn mở cho Việt Nam. VOBS giúp ngân hàng tuân thủ Thông tư 64/2024/TT-NHNN về
 Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintech kết nối nhiều ngân hàng qua một kiểu API.
 

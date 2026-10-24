@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Website tĩnh của VOBS: chỉ phục vụ file trong dist/, không có Worker script.
+  "name": "vobs-website",
+  "compatibility_date": "2026-10-08",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    { "pattern": "vobs.dxa.io.vn", "custom_domain": true }
+  ],
+  "workers_dev": false
+}
