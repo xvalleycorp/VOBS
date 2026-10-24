@@ -1,0 +1,18 @@
+{
+  "name": "vobs-website",
+  "private": true,
+  "description": "Website giới thiệu VOBS — Vietnam Open Banking Stack, phục vụ tại https://vobs.dxa.io.vn",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "@fontsource/be-vietnam-pro": "5.3.0",
+    "redoc": "2.5.4",
+    "wrangler": "4.149.0",
+    "yaml": "2.9.1"
+  }
+}

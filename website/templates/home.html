@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{t:home.title}}</title>
+  <meta name="description" content="{{t:home.description}}">
+  <meta property="og:title" content="VOBS — Vietnam Open Banking Stack">
+  <meta property="og:description" content="{{t:home.ogDescription}}">
+  <meta property="og:url" content="{{canonical}}">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="{{t:meta.locale}}">
+  {{head:links}}
+</head>
+<body>
+<!-- HEADER -->
+
+<main id="main">
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">{{t:home.eyebrow}}</span>
+        <h1>{{t:home.h1}}</h1>
+        <p class="lead">{{t:home.lead}}</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="{{url:api}}">{{t:home.ctaApi}}</a>
+          <a class="btn btn-ghost" href="https://github.com/xvalleycorp/vobs">{{t:home.ctaGithub}}</a>
+        </div>
+      </div>
+
+      <figure class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 520 400">
+          <defs>
+            <linearGradient id="hub-ring" x1="205" y1="145" x2="315" y2="255" gradientUnits="userSpaceOnUse">
+              <stop offset="0" class="g-copper"/><stop offset="1" class="g-amber"/>
+            </linearGradient>
+          </defs>
+
+          <g class="strands">
+            <path class="strand c1" d="M78 80C150 80 140 179 205 179"/>
+            <path class="strand c2" d="M78 160C150 160 140 193 205 193"/>
+            <path class="strand c3" d="M78 240C150 240 140 207 205 207"/>
+            <path class="strand c4" d="M78 320C150 320 140 221 205 221"/>
+            <path class="strand c4" d="M315 179C380 179 370 80 442 80"/>
+            <path class="strand c3" d="M315 193C380 193 370 160 442 160"/>
+            <path class="strand c2" d="M315 207C380 207 370 240 442 240"/>
+            <path class="strand c1" d="M315 221C380 221 370 320 442 320"/>
+          </g>
+
+          <g class="nodes">
+            <g transform="translate(24 60)"><rect class="node" width="54" height="40" rx="10"/><path class="glyph" d="M15 17 27 11l12 6M17 18v10M23 18v10M31 18v10M37 18v10M14 30h26"/></g>
+            <g transform="translate(24 140)"><rect class="node" width="54" height="40" rx="10"/><path class="glyph" d="M15 17 27 11l12 6M17 18v10M23 18v10M31 18v10M37 18v10M14 30h26"/></g>
+            <g transform="translate(24 220)"><rect class="node" width="54" height="40" rx="10"/><path class="glyph" d="M15 17 27 11l12 6M17 18v10M23 18v10M31 18v10M37 18v10M14 30h26"/></g>
+            <g transform="translate(24 300)"><rect class="node" width="54" height="40" rx="10"/><path class="glyph" d="M15 17 27 11l12 6M17 18v10M23 18v10M31 18v10M37 18v10M14 30h26"/></g>
+            <g transform="translate(442 60)"><rect class="node" width="54" height="40" rx="10"/><rect class="glyph" x="21" y="9" width="12" height="22" rx="3"/><path class="glyph" d="M25 27h4"/></g>
+            <g transform="translate(442 140)"><rect class="node" width="54" height="40" rx="10"/><rect class="glyph" x="21" y="9" width="12" height="22" rx="3"/><path class="glyph" d="M25 27h4"/></g>
+            <g transform="translate(442 220)"><rect class="node" width="54" height="40" rx="10"/><rect class="glyph" x="21" y="9" width="12" height="22" rx="3"/><path class="glyph" d="M25 27h4"/></g>
+            <g transform="translate(442 300)"><rect class="node" width="54" height="40" rx="10"/><rect class="glyph" x="21" y="9" width="12" height="22" rx="3"/><path class="glyph" d="M25 27h4"/></g>
+          </g>
+
+          <rect class="hub" x="205" y="145" width="110" height="110" rx="26"/>
+          <rect class="hub-ring" x="205" y="145" width="110" height="110" rx="26"/>
+          <g transform="translate(224.8 150) scale(1.1)">
+            <defs><clipPath id="hub-k0"><circle cx="35.14" cy="50.63" r="7.22"/></clipPath><clipPath id="hub-k1"><circle cx="31.02" cy="37.46" r="7.22"/></clipPath><mask id="hub-l" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="none"><path d="M45.04 13.17L28.97 41.01A6.43 6.43 0 0 0 40.11 47.44L56.18 19.60A6.43 6.43 0 0 0 45.04 13.17Z" stroke="#000" stroke-width="7.92" clip-path="url(#hub-k1)"/></g></mask><mask id="hub-r" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="none"><path d="M7.82 22.99L23.89 50.83A6.43 6.43 0 0 0 35.03 44.40L18.96 16.56A6.43 6.43 0 0 0 7.82 22.99Z" stroke="#000" stroke-width="7.92" clip-path="url(#hub-k0)"/></g></mask></defs>
+            <g class="hub-links" stroke-width="5.92"><path class="hub-links-r" d="M45.04 13.17L28.97 41.01A6.43 6.43 0 0 0 40.11 47.44L56.18 19.60A6.43 6.43 0 0 0 45.04 13.17Z" mask="url(#hub-r)"/><path class="hub-links-l" d="M7.82 22.99L23.89 50.83A6.43 6.43 0 0 0 35.03 44.40L18.96 16.56A6.43 6.43 0 0 0 7.82 22.99Z" mask="url(#hub-l)"/></g>
+          </g>
+          <text class="hub-label" x="260" y="240" text-anchor="middle">VOBS</text>
+
+          <text class="col-label" x="24" y="372">{{t:home.art.banks}}</text>
+          <text class="col-label" x="496" y="372" text-anchor="end">{{t:home.art.partners}}</text>
+        </svg>
+      </figure>
+    </div>
+
+    <div class="wrap">
+      <dl class="facts">
+        <div><dt>{{TT64_COVERED}}/{{TT64_TOTAL}}</dt><dd>{{t:home.fact.coverage}}</dd></div>
+        <div><dt>{{t:date.deadline}}</dt><dd>{{t:home.fact.deadline}}</dd></div>
+        <div><dt>{{MODULE_COUNT}}</dt><dd>{{t:home.fact.modules}}</dd></div>
+        <div><dt>Apache 2.0</dt><dd>{{t:home.fact.license}}</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <section id="{{t:anchor.problem}}">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker-line">{{t:home.problem.kicker}}</span>
+        <h2>{{t:home.problem.h2}}</h2>
+        <p>{{t:home.problem.lead}}</p>
+      </div>
+      <div class="grid grid-2">
+        <article class="card"><div class="kicker">{{t:home.problem.c1.kicker}}</div><h3>{{t:home.problem.c1.h3}}</h3><p>{{t:home.problem.c1.p}}</p></article>
+        <article class="card"><div class="kicker">{{t:home.problem.c2.kicker}}</div><h3>{{t:home.problem.c2.h3}}</h3><p>{{t:home.problem.c2.p}}</p></article>
+        <article class="card"><div class="kicker">{{t:home.problem.c3.kicker}}</div><h3>{{t:home.problem.c3.h3}}</h3><p>{{t:home.problem.c3.p}}</p></article>
+        <article class="card"><div class="kicker">{{t:home.problem.c4.kicker}}</div><h3>{{t:home.problem.c4.h3}}</h3><p>{{t:home.problem.c4.p}}</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="{{t:anchor.arch}}">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker-line">{{t:home.arch.kicker}}</span>
+        <h2>{{t:home.arch.h2}}</h2>
+        <p>{{t:home.arch.lead}}</p>
+      </div>
+      <figure class="diagram" aria-labelledby="arch-caption">
+        <svg viewBox="0 0 960 370" role="img" aria-label="{{t:home.arch.alt}}">
+          <defs>
+            <linearGradient id="read-path" x1="420" y1="0" x2="940" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0" class="g-copper"/><stop offset="1" class="g-amber"/>
+            </linearGradient>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path class="arrow-head" d="M0 0 10 5 0 10z"/>
+            </marker>
+            <marker id="arrow-read" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path class="arrow-head-read" d="M0 0 10 5 0 10z"/>
+            </marker>
+          </defs>
+
+          <path class="edge" d="M170 182H226" marker-end="url(#arrow)"/>
+          <path class="edge" d="M325 238V286" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+          <path class="edge-read" d="M420 160H455V76H486" marker-end="url(#arrow-read)"/>
+          <text class="edge-label" x="428" y="120">{{t:home.arch.read}}</text>
+          <path class="edge-read" d="M760 76H694" marker-end="url(#arrow-read)"/>
+          <path class="edge-read" d="M850 165V116" marker-end="url(#arrow-read)"/>
+          <text class="edge-label" x="858" y="145">CDC</text>
+          <path class="edge" d="M420 205H455V306H486" marker-end="url(#arrow)"/>
+          <text class="edge-label" x="428" y="262">{{t:home.arch.write}}</text>
+          <path class="edge" d="M690 306H756" marker-end="url(#arrow)"/>
+          <path class="edge" d="M640 270V197H756" marker-end="url(#arrow)"/>
+          <text class="edge-label" x="652" y="190">{{t:home.arch.post}}</text>
+
+          <rect class="box" x="20" y="150" width="150" height="64" rx="10"/>
+          <text class="label" x="36" y="178">{{t:home.arch.partner}}</text>
+          <text class="sub" x="36" y="198">{{t:home.arch.partnerSub}}</text>
+
+          <rect class="box-accent" x="230" y="130" width="190" height="108" rx="10"/>
+          <text class="label" x="246" y="158">API Gateway</text>
+          <text class="sub" x="246" y="180">APISIX · FAPI 2.0 · mTLS</text>
+          <text class="sub" x="246" y="200">{{t:home.arch.rateLimit}}</text>
+          <text class="sub" x="246" y="220">{{t:home.arch.audit}}</text>
+
+          <rect class="box" x="230" y="290" width="190" height="60" rx="10"/>
+          <text class="label" x="246" y="316">Consent</text>
+          <text class="sub" x="246" y="336">{{t:home.arch.consentSub}}</text>
+
+          <rect class="box" x="490" y="40" width="200" height="72" rx="10"/>
+          <text class="label" x="506" y="70">{{t:home.arch.readStore}}</text>
+          <text class="sub" x="506" y="92">PostgreSQL · Valkey</text>
+
+          <rect class="box" x="760" y="40" width="180" height="72" rx="10"/>
+          <text class="label" x="776" y="70">Integration Hub</text>
+          <text class="sub" x="776" y="92">Debezium · Kafka</text>
+
+          <rect class="box" x="760" y="165" width="180" height="64" rx="10"/>
+          <text class="label" x="776" y="193">Core banking</text>
+          <text class="sub" x="776" y="213">T24, Flexcube, Silverlake</text>
+
+          <rect class="box" x="490" y="270" width="200" height="72" rx="10"/>
+          <text class="label" x="506" y="300">Payment hub</text>
+          <text class="sub" x="506" y="322">{{t:home.arch.paymentHubSub}}</text>
+
+          <rect class="box" x="760" y="270" width="180" height="72" rx="10"/>
+          <text class="label" x="776" y="300">{{t:home.arch.switch}}</text>
+          <text class="sub" x="776" y="322">NAPAS · MDP</text>
+        </svg>
+        <figcaption id="arch-caption" class="legend">
+          <span><i></i>{{t:home.arch.legendRead}}</span>
+          <span><i class="write"></i>{{t:home.arch.legendWrite}}</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="{{t:anchor.modules}}">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker-line">{{t:home.modules.kicker}}</span>
+        <h2>{{t:home.modules.h2}}</h2>
+        <p>{{t:home.modules.lead}}</p>
+      </div>
+      <div class="grid grid-modules">
+{{MODULE_CARDS}}
+      </div>
+    </div>
+  </section>
+
+  <section id="{{t:anchor.tt64}}">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker-line">{{t:home.tt64.kicker}}</span>
+        <h2>{{t:home.tt64.h2}}</h2>
+        <p>{{t:home.tt64.lead}}</p>
+      </div>
+      <div class="callout" role="note">
+        <span class="callout-date">{{t:date.deadline}}</span>
+        <p>{{t:home.tt64.callout}}</p>
+      </div>
+      <div class="coverage">
+        <div class="card"><strong>{{TT64_GROUP_A}}</strong><p>{{t:home.tt64.groupA}}</p></div>
+        <div class="card"><strong>{{TT64_GROUP_B}}</strong><p>{{t:home.tt64.groupB}}</p></div>
+        <div class="card"><strong>{{TT64_GROUP_C}}</strong><p>{{t:home.tt64.groupC}}</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="{{t:anchor.audience}}">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker-line">{{t:home.audience.kicker}}</span>
+        <h2>{{t:home.audience.h2}}</h2>
+      </div>
+      <div class="grid grid-4">
+        <article class="card"><h3>{{t:home.audience.bank.h3}}</h3><p>{{t:home.audience.bank.p}}</p></article>
+        <article class="card"><h3>{{t:home.audience.fintech.h3}}</h3><p>{{t:home.audience.fintech.p}}</p></article>
+        <article class="card"><h3>{{t:home.audience.si.h3}}</h3><p>{{t:home.audience.si.p}}</p></article>
+        <article class="card"><h3>{{t:home.audience.regulator.h3}}</h3><p>{{t:home.audience.regulator.p}}</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="{{t:anchor.roadmap}}">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker-line">{{t:home.roadmap.kicker}}</span>
+        <h2>{{t:home.roadmap.h2}}</h2>
+        <p>{{t:home.roadmap.lead}}</p>
+      </div>
+      <ol class="timeline">
+        <li class="phase-card">
+          <h3>{{t:home.roadmap.p1.h3}}</h3>
+          <div class="when">{{t:home.roadmap.p1.when}}</div>
+          <ul>{{t:home.roadmap.p1.items}}</ul>
+          <div class="gate"><b>{{t:home.roadmap.gate1}}</b> {{t:home.roadmap.p1.gate}}</div>
+        </li>
+        <li class="phase-card">
+          <h3>{{t:home.roadmap.p2.h3}}</h3>
+          <div class="when">{{t:home.roadmap.p2.when}}</div>
+          <ul>{{t:home.roadmap.p2.items}}</ul>
+          <div class="gate"><b>{{t:home.roadmap.gate2}}</b> {{t:home.roadmap.p2.gate}}</div>
+        </li>
+        <li class="phase-card">
+          <h3>{{t:home.roadmap.p3.h3}}</h3>
+          <div class="when">{{t:home.roadmap.p3.when}}</div>
+          <ul>{{t:home.roadmap.p3.items}}</ul>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <h2>{{t:home.cta.h2}}</h2>
+      <p>{{t:home.cta.p}}</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="https://github.com/xvalleycorp/vobs">{{t:home.cta.github}}</a>
+        <a class="btn btn-ghost" href="/spec/vobs-open-api.yaml" download>{{t:home.cta.download}}</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+</body>
+</html>

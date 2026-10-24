@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{t:api.title}}</title>
+  <meta name="description" content="{{t:api.description}}">
+  {{head:links}}
+</head>
+<body>
+<!-- HEADER -->
+
+<main id="main">
+  <div class="api-note">
+    <div class="wrap">{{t:api.note}} <a href="{{url:tt64}}">{{t:api.seeMapping}}</a> ·
+      <a href="/spec/vobs-open-api.yaml" download>{{t:api.download}}</a></div>
+  </div>
+  <div id="redoc"></div>
+</main>
+
+<script src="/api/redoc.standalone.js"></script>
+<script src="/api/init.js"></script>
+</body>
+</html>

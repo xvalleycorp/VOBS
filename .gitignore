@@ -21,3 +21,7 @@ vobs-deploy/helm/*/Chart.lock
 # Secrets: không commit file môi trường
 .env
 *.env
+
+# Log crash của JVM
+hs_err_pid*.log
+replay_pid*.log

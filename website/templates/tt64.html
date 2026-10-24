@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{t:tt64.title}}</title>
+  <meta name="description" content="{{t:tt64.description}}">
+  {{head:links}}
+</head>
+<body>
+<!-- HEADER -->
+
+<main id="main">
+  <div class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">{{t:tt64.eyebrow}}</span>
+      <h1>{{t:tt64.h1}}</h1>
+      <p>{{t:tt64.lead}}</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{{t:tt64.catalog.h2}}</h2>
+        <p>{{t:tt64.catalog.lead}}</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">{{t:tt64.col.ref}}</th><th scope="col">{{t:tt64.col.api}}</th><th scope="col">{{t:tt64.col.vobs}}</th></tr>
+          </thead>
+          <tbody>
+{{TT64_TABLE}}
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">{{t:tt64.catalog.footnote}}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{{t:tt64.provisions.h2}}</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">{{t:tt64.col.article}}</th><th scope="col">{{t:tt64.col.rule}}</th><th scope="col">VOBS</th></tr>
+          </thead>
+          <tbody>
+{{TT64_PROVISIONS}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap prose">
+      <h2>{{t:tt64.pending.h2}}</h2>
+      <p>{{t:tt64.pending.p1}}</p>
+      <p>{{t:tt64.pending.sources}}
+        <a href="https://sbv.gov.vn/en/w/press-release-on-issuance-of-circular-no.64/2024/tt-nhnn">{{t:tt64.pending.sbv}}</a>,
+        <a href="https://caselaw.vn/van-ban-phap-luat/413231-thong-tu-so-64-2024-tt-nhnn-ngay-31-12-2024-cua-thong-doc-ngan-hang-nha-nuoc-viet-nam-quy-dinh-ve-trien-khai-giao-dien-lap-trinh-ung-dung-mo-trong-nganh-ngan-hang">CaseLaw.vn</a>,
+        <a href="https://english.luatvietnam.vn/tai-chinh/circular-64-2024-tt-nhnn-deployment-of-open-application-programming-interfaces-in-the-banking-sector-387124-d1.html">LuatVietnam</a>.
+        {{t:tt64.pending.verify}}</p>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+</body>
+</html>

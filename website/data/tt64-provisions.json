@@ -1,0 +1,42 @@
+[
+  {
+    "article": "5",
+    "vi": { "rule": "Nhóm thanh toán và ví điện tử chỉ cấp cho ngân hàng, tổ chức trung gian thanh toán", "vobs": "Module consent từ chối phạm vi không được phép; API trả <code>403 scope_not_permitted</code>" },
+    "en": { "rule": "Payment and e-wallet APIs may only be offered to banks and payment intermediaries", "vobs": "The consent module rejects scopes the partner may not use; the API returns <code>403 scope_not_permitted</code>" }
+  },
+  {
+    "article": "9",
+    "vi": { "rule": "Công khai hệ thống thử nghiệm và danh mục Open API trước khi kết nối", "vobs": "Sandbox Microcks dựng từ cùng bộ đặc tả" },
+    "en": { "rule": "Publish the test environment and the Open API catalogue before connecting partners", "vobs": "Microcks sandbox generated from the same specification" }
+  },
+  {
+    "article": "11",
+    "vi": { "rule": "Thời hạn truy vấn sau khi khách hàng đồng ý không quá 180 ngày, trừ khi có thỏa thuận khác", "vobs": "Thời hạn consent mặc định tối đa 180 ngày" },
+    "en": { "rule": "Access after customer consent may not exceed 180 days unless otherwise agreed", "vobs": "Consent validity capped at 180 days by default" }
+  },
+  {
+    "article": "11",
+    "vi": { "rule": "Công cụ cho khách hàng tra cứu dữ liệu đã đồng ý chia sẻ và rút lại đồng ý", "vobs": "API xem và thu hồi consent; thu hồi từ phía khách hàng hoặc bên thứ ba" },
+    "en": { "rule": "Tools for customers to review shared data and withdraw consent", "vobs": "APIs to view and revoke consent, by the customer or the third party" }
+  },
+  {
+    "article": "11",
+    "vi": { "rule": "Giới hạn số lần truy vấn tự động", "vobs": "Giới hạn tần suất theo bên thứ ba tại gateway; vượt hạn mức trả <code>429</code>" },
+    "en": { "rule": "Limit the number of automated queries", "vobs": "Per-partner rate limits at the gateway; over-limit requests get <code>429</code>" }
+  },
+  {
+    "article": "11",
+    "vi": { "rule": "Log mọi lần sử dụng Open API, lưu tối thiểu 3 tháng, sao lưu tối thiểu 1 năm", "vobs": "Log kiểm toán ghi vào Kafka, lưu kiểu WORM, chuỗi hash phát hiện chỉnh sửa" },
+    "en": { "rule": "Log every Open API call; keep logs at least 3 months and backups at least 1 year", "vobs": "Audit log written to Kafka, WORM storage, hash chain to detect tampering" }
+  },
+  {
+    "article": "11",
+    "vi": { "rule": "Hệ thống thông tin đạt tối thiểu cấp độ 3", "vobs": "Gói tuân thủ ánh xạ kiểm soát theo Nghị định 85/2016 và Thông tư 09/2020" },
+    "en": { "rule": "Information systems must meet at least security level 3", "vobs": "Compliance pack mapping controls to Decree 85/2016 and Circular 09/2020" }
+  },
+  {
+    "article": "12",
+    "vi": { "rule": "Bên thứ ba có công cụ trực tuyến cho khách hàng tra cứu và rút lại đồng ý", "vobs": "API xem và thu hồi consent dành cho bên thứ ba" },
+    "en": { "rule": "Third parties must give customers online tools to review and withdraw consent", "vobs": "Consent view and revoke APIs for third parties" }
+  }
+]

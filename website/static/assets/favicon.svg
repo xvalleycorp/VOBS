@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="VOBS">
+  <!-- Favicon VOBS: cùng dáng logo, thanh mảnh hơn và lòng mắt rộng hơn để vẫn thấy hai mắt xích ở 16px. -->
+  <defs><clipPath id="f-k0"><circle cx="35.67" cy="50.68" r="7.04"/></clipPath><clipPath id="f-k1"><circle cx="30.93" cy="34.40" r="7.04"/></clipPath><mask id="f-l" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="none"><path d="M43.02 13.47L28.23 39.08A7.76 7.76 0 0 0 41.68 46.84L56.46 21.23A7.76 7.76 0 0 0 43.02 13.47Z" stroke="#000" stroke-width="8.59" clip-path="url(#f-k1)"/></g></mask><mask id="f-r" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="none"><path d="M7.54 24.92L22.32 50.53A7.76 7.76 0 0 0 35.77 42.77L20.98 17.16A7.76 7.76 0 0 0 7.54 24.92Z" stroke="#000" stroke-width="8.59" clip-path="url(#f-k0)"/></g></mask></defs>
+  <g fill="none" stroke-width="4.99">
+    <path d="M43.02 13.47L28.23 39.08A7.76 7.76 0 0 0 41.68 46.84L56.46 21.23A7.76 7.76 0 0 0 43.02 13.47Z" stroke="#E9A33D" mask="url(#f-r)"/>
+    <path d="M7.54 24.92L22.32 50.53A7.76 7.76 0 0 0 35.77 42.77L20.98 17.16A7.76 7.76 0 0 0 7.54 24.92Z" stroke="#C2693A" mask="url(#f-l)"/>
+  </g>
+</svg>
