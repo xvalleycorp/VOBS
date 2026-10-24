@@ -6,7 +6,8 @@ Plugin và cấu hình mẫu cho Apache APISIX, lớp API Gateway của VOBS (gi
 | --- | --- |
 | [`apisix/plugins/vobs-consent.lua`](apisix/plugins/vobs-consent.lua) — kiểm tra consent trước mỗi request, fail closed | Đã chạy trên APISIX 3.19 với Keycloak 26.8 trong [sandbox](../vobs-sandbox) |
 | [`apisix/apisix.yaml`](apisix/apisix.yaml) — route mẫu: openid-connect → limit-count → vobs-consent → upstream, log kiểm toán qua kafka-logger; route `/consents` chuyển tới service consent | Ví dụ |
-| Plugin kiểm tra token gắn chứng thư mTLS (RFC 8705) cho FAPI 2.0 | Chưa làm |
+| [`apisix/plugins/vobs-fapi.lua`](apisix/plugins/vobs-fapi.lua) — token gắn chứng thư mTLS (RFC 8705) cho FAPI 2.0: so claim `cnf.x5t#S256` với chứng thư client của kết nối | Đã chạy trong sandbox |
+| [`apisix/plugins/vobs/identity.lua`](apisix/plugins/vobs/identity.lua) — đọc claim của token đã xác thực, dùng chung cho các plugin | Đã chạy trong sandbox |
 | WAF: Coraza + OWASP Core Rule Set | Chưa làm |
 
 ## Cách plugin `vobs-consent` hoạt động
@@ -33,6 +34,7 @@ apisix:
     http: radixtree_uri_with_parameter   # cần cho route có tham số như /accounts/:account_id
 plugins:
   - openid-connect
+  - vobs-fapi
   - vobs-consent
   - kafka-logger
 ```
@@ -42,7 +44,9 @@ plugins:
 - Đã kiểm chứng trong sandbox (`vobs-sandbox/try-gateway-flow.sh`, chạy trên CI): `proxy-rewrite` đọc được biến
   `$vobs_client_id` và ghi đè header giả danh; plugin đọc đúng mã tài khoản trên đường dẫn; `limit-count` chặn ở lần
   gọi vượt hạn mức; consent chờ duyệt, sai phạm vi, sai tài khoản, đã thu hồi đều bị từ chối.
-- Đã chạy với `openid-connect` và Keycloak trong sandbox (client credentials, kiểm tra token bằng JWKS). Chưa có mTLS
-  và token gắn chứng thư (RFC 8705), chưa kiểm tra `aud` của token.
+- Đã chạy trong sandbox với Keycloak: mTLS tới cả Keycloak và gateway, client xác thực bằng X.509, token gắn chứng
+  thư (RFC 8705), kiểm tra `aud`. APISIX `openid-connect` không tự kiểm tra `cnf`, nên cần `vobs-fapi`.
+- Chưa có: luồng authorization code + PAR + PKCE cho khách hàng, chính sách FAPI 2.0 của Keycloak (client policies)
+  cho luồng đó.
 - Service Quản lý sự đồng ý đã có API HTTP và lưu trữ PostgreSQL, nhưng mỗi lúc chỉ chạy được một bản.
 - Upstream `vobs-read-api` trong route mẫu là API đọc của Integration Hub, chưa có.

@@ -1,15 +1,13 @@
-# Route của API Gateway trong sandbox. Khác môi trường thật ở ba điểm:
-# - đối tác xác thực bằng client_secret khi lấy mã truy cập (client credentials), chưa dùng mTLS và token gắn chứng
-#   thư (RFC 8705) của FAPI 2.0;
-# - Keycloak chạy chế độ dev, HTTP;
+# Route của API Gateway trong sandbox. ./pki.sh ghép thêm đối tượng SSL (chứng thư máy chủ, CA xác thực client) và
+# ghi ra pki/apisix.yaml; gateway đọc file đó. Khác môi trường thật ở hai điểm:
+# - PKI là CA tự ký của sandbox, Keycloak chạy chế độ dev;
 # - API dữ liệu (tài khoản, giao dịch) chuyển tới bản giả lập trên Microcks thay cho kho đọc của Integration Hub.
-# Xác thực mã truy cập (openid-connect), kiểm tra consent (vobs-consent) và giới hạn tần suất (limit-count) chạy giống
-# môi trường thật.
+# mTLS, mã truy cập gắn chứng thư (FAPI 2.0, RFC 8705), kiểm tra consent và giới hạn tần suất chạy giống môi trường thật.
 #
-# openid-connect kiểm tra chữ ký token bằng khóa công khai của Keycloak (use_jwks) và issuer lấy từ discovery.
-# set_userinfo_header đưa payload token đã xác thực vào header X-Userinfo; plugin vobs-consent đọc mã client (claim
-# azp) từ đó để đặt biến $vobs_client_id. client_id của gateway chỉ để khai báo: kiểm tra bằng JWKS không gọi
-# Keycloak bằng danh nghĩa client này.
+# openid-connect kiểm tra chữ ký token bằng khóa công khai của Keycloak (use_jwks), issuer lấy từ discovery, và aud
+# phải chứa client_id của gateway (vobs-gateway). set_userinfo_header đưa payload token đã xác thực vào header
+# X-Userinfo, nơi vobs-fapi đọc claim cnf và vobs-consent đọc mã client (claim azp). vobs-fapi so cnf["x5t#S256"] với
+# chứng thư client của kết nối mTLS.
 
 routes:
   # Tạo, xem, thu hồi consent. proxy-rewrite đặt mã client đã xác thực vào x-vobs-client-id, ghi đè giá trị đối tác
@@ -25,6 +23,10 @@ routes:
         bearer_only: true
         use_jwks: true
         set_userinfo_header: true
+        claim_validator:
+          audience:
+            match_with_client_id: true
+      vobs-fapi: {}
       limit-count:
         count: 30
         time_window: 60
@@ -53,6 +55,10 @@ routes:
         bearer_only: true
         use_jwks: true
         set_userinfo_header: true
+        claim_validator:
+          audience:
+            match_with_client_id: true
+      vobs-fapi: {}
       limit-count:
         count: 30
         time_window: 60
@@ -81,6 +87,10 @@ routes:
         bearer_only: true
         use_jwks: true
         set_userinfo_header: true
+        claim_validator:
+          audience:
+            match_with_client_id: true
+      vobs-fapi: {}
       limit-count:
         count: 30
         time_window: 60

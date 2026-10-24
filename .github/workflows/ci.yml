@@ -91,6 +91,8 @@ jobs:
         working-directory: vobs-sandbox
     steps:
       - uses: actions/checkout@v7
+      - name: Tạo PKI của sandbox (CA, chứng thư máy chủ, chứng thư client của đối tác mẫu)
+        run: ./pki.sh
       - name: Build image và chạy sandbox (Microcks, Quản lý sự đồng ý, Keycloak, API Gateway)
         run: docker compose up -d --build
       - name: Chạy thử trọn luồng consent

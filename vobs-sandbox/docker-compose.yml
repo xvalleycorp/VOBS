@@ -1,16 +1,17 @@
 # Sandbox cục bộ cho bên thứ ba (fintech, ví điện tử):
 # - Microcks dựng API giả lập từ bộ đặc tả trong vobs-spec;
 # - service Quản lý sự đồng ý chạy thật, lưu trong bộ nhớ, để thử trọn luồng tạo, duyệt, kiểm tra consent;
-# - Keycloak cấp mã truy cập OAuth 2.0 (client credentials) cho đối tác mẫu;
-# - API Gateway (Apache APISIX) xác thực mã truy cập và kiểm tra consent: đối tác gọi qua gateway như ở môi trường thật.
+# - Keycloak cấp mã truy cập OAuth 2.0 gắn chứng thư (client credentials, mTLS, RFC 8705) cho đối tác mẫu;
+# - API Gateway (Apache APISIX) xác thực mTLS, mã truy cập và consent: đối tác gọi qua gateway như ở môi trường thật.
 #
+#   ./pki.sh                 # tạo CA, chứng thư máy chủ và chứng thư client của đối tác mẫu (một lần)
 #   docker compose up -d --build
 #   ./import-specs.sh        # nạp đặc tả và dữ liệu mẫu vào Microcks
 #   ./try-consent-flow.sh    # chạy thử luồng consent, gọi thẳng service
 #   ./try-gateway-flow.sh    # chạy thử luồng qua API Gateway
 #   ./try-sandbox-data.sh    # kiểm tra dữ liệu mẫu
 #
-# Giao diện Microcks: http://localhost:8585; Keycloak: http://localhost:8180; API Gateway: http://localhost:9080/open-banking/v1
+# Giao diện Microcks: http://localhost:8585; Keycloak: https://localhost:8443; API Gateway: https://localhost:9443/open-banking/v1
 services:
   microcks:
     image: quay.io/microcks/microcks-uber:1.14.0
@@ -42,14 +43,21 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      # Issuer của token luôn là http://localhost:8180, địa chỉ đối tác dùng để lấy token. Gateway gọi Keycloak qua
-      # mạng nội bộ (http://keycloak:8080); với backchannel động, discovery trả jwks_uri theo địa chỉ nội bộ đó.
-      KC_HOSTNAME: http://localhost:8180
+      # HTTPS cho đối tác, kèm mTLS: đối tác xác thực bằng chứng thư client (X.509) do CA của sandbox ký
+      KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/conf/pki/keycloak.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/conf/pki/keycloak.key
+      KC_HTTPS_CLIENT_AUTH: request
+      KC_HTTPS_TRUST_STORE_FILE: /opt/keycloak/conf/pki/ca.crt
+      # Issuer của token luôn là https://localhost:8443, địa chỉ đối tác dùng để lấy token. Gateway gọi Keycloak qua
+      # mạng nội bộ (http://keycloak:8080, không mở ra ngoài); với backchannel động, discovery trả jwks_uri theo địa
+      # chỉ nội bộ đó.
+      KC_HOSTNAME: https://localhost:8443
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
     volumes:
       - ./keycloak/open-banking-realm.json:/opt/keycloak/data/import/open-banking-realm.json:ro
+      - ./pki:/opt/keycloak/conf/pki:ro
     ports:
-      - "127.0.0.1:8180:8080"
+      - "127.0.0.1:8443:8443"
     restart: unless-stopped
 
   gateway:
@@ -60,8 +68,10 @@ services:
       APISIX_STAND_ALONE: "true"
     volumes:
       - ./gateway/config.yaml:/usr/local/apisix/conf/config.yaml:ro
-      - ./gateway/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
+      # Route trong gateway/apisix.yaml, ghép thêm chứng thư máy chủ và CA xác thực client bởi ./pki.sh
+      - ./pki/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
       - ../vobs-gateway/apisix/plugins:/opt/vobs/apisix/plugins:ro
     ports:
-      - "127.0.0.1:9080:9080"
+      # Chỉ mở HTTPS với mTLS cho đối tác
+      - "127.0.0.1:9443:9443"
     restart: unless-stopped

@@ -146,7 +146,11 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
 - Lỗi đã sửa: plugin `vobs-consent` từng đọc payload token ở `ctx.external_user`, nhưng `openid-connect` của APISIX
   3.19 không đặt biến này. Nay đọc header `X-Userinfo` (bật `set_userinfo_header`), chỉ khi route có `openid-connect`
   (plugin này xóa `X-Userinfo` do client gửi); route mẫu cho môi trường thật đã bật `set_userinfo_header`.
-- Còn lại: mTLS và token gắn chứng thư (RFC 8705), kiểm tra `aud`, luồng authorization code cho khách hàng.
+- mTLS và FAPI 2.0 (client credentials): `vobs-sandbox/pki.sh` tạo CA, chứng thư máy chủ, chứng thư client (không
+  commit, `.gitignore`) và ghép đối tượng SSL vào `pki/apisix.yaml` mà gateway đọc (APISIX standalone chỉ nhận PEM
+  viết thẳng). Keycloak xác thực client bằng X.509 và cấp token gắn chứng thư; plugin `vobs-fapi` so `cnf.x5t#S256`
+  với chứng thư của kết nối; `openid-connect` kiểm tra `aud` là `vobs-gateway`.
+- Còn lại: luồng authorization code + PAR + PKCE cho khách hàng duyệt consent.
 
 ## Lưu ý khi làm tiếp
 
