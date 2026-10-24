@@ -1,52 +1,52 @@
 [
   {
-    "name": "vobs-spec", "status": "draft", "phase": "1",
-    "vi": { "label": "Nháp {{SPEC_VERSION}}", "desc": "Đặc tả Open API theo Điều 6 Thông tư 64, kiểm tra độ phủ trong CI; bộ kiểm thử tuân thủ." },
-    "en": { "label": "Draft {{SPEC_VERSION}}", "desc": "Open API specification following Article 6 of Circular 64, with coverage checked in CI; conformance suite." }
+    "name": "vobs-spec", "status": "draft",
+    "vi": {"label": "Nháp {{SPEC_VERSION}}", "desc": "Đặc tả OpenAPI 3.1 cho 23 Open API cơ bản tại Điều 6 Thông tư 64; mỗi API ghi rõ điều khoản tương ứng."},
+    "en": {"label": "Draft {{SPEC_VERSION}}", "desc": "OpenAPI 3.1 specification for the 23 basic Open APIs in Article 6 of Circular 64; each API names the clause it implements."}
   },
   {
-    "name": "vobs-vietqr", "status": "ready", "phase": "1",
-    "vi": { "label": "Dùng được", "desc": "Tạo và đọc mã VietQR chuẩn EMVCo, kiểm tra CRC; không phụ thuộc thư viện ngoài." },
-    "en": { "label": "Usable", "desc": "Create and parse EMVCo-compliant VietQR codes with CRC validation; no external dependencies." }
+    "name": "vobs-vietqr", "status": "ready",
+    "vi": {"label": "Dùng được", "desc": "Tạo và đọc mã VietQR chuẩn EMVCo, kiểm tra CRC; không phụ thuộc thư viện ngoài."},
+    "en": {"label": "Usable", "desc": "Create and parse EMVCo-compliant VietQR codes with CRC validation; no external dependencies."}
   },
   {
-    "name": "vobs-iso20022", "status": "ready", "phase": "1",
-    "vi": { "label": "Dùng được", "desc": "Dựng và kiểm tra pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022." },
-    "en": { "label": "Usable", "desc": "Build and validate pacs.008 for domestic VND transfers, on top of Prowide ISO 20022." }
+    "name": "vobs-iso20022", "status": "ready",
+    "vi": {"label": "Dùng được", "desc": "Dựng và kiểm tra pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022."},
+    "en": {"label": "Usable", "desc": "Build and validate pacs.008 for domestic VND transfers, on top of Prowide ISO 20022."}
   },
   {
-    "name": "vobs-model", "status": "ready", "phase": "1",
-    "vi": { "label": "Dùng được", "desc": "Mô hình dữ liệu theo BIAN; CCCD gắn chip, mã BIN, VND, tên tiếng Việt không dấu." },
-    "en": { "label": "Usable", "desc": "BIAN-aligned data model; chip-based citizen ID, bank BIN, VND, diacritic-free Vietnamese names." }
+    "name": "vobs-model", "status": "ready",
+    "vi": {"label": "Dùng được", "desc": "Mô hình dữ liệu theo BIAN; CCCD gắn chip, mã BIN, VND, tên tiếng Việt không dấu."},
+    "en": {"label": "Usable", "desc": "BIAN-aligned data model; chip-based citizen ID, bank BIN, VND, diacritic-free Vietnamese names."}
   },
   {
-    "name": "vobs-sandbox", "status": "draft", "phase": "1",
-    "vi": { "label": "Cục bộ", "desc": "API giả lập cho fintech, dựng tự động từ đặc tả bằng Microcks." },
-    "en": { "label": "Local", "desc": "Mock APIs for fintechs, generated from the specification with Microcks." }
+    "name": "vobs-sandbox", "status": "draft",
+    "vi": {"label": "Chạy trên máy", "desc": "API giả lập cho fintech, dựng tự động từ đặc tả bằng Microcks; chạy trên máy bằng Docker Compose."},
+    "en": {"label": "Runs locally", "desc": "Mock APIs for fintechs, generated from the specification with Microcks; runs locally with Docker Compose."}
   },
   {
-    "name": "vobs-switch", "status": "draft", "phase": "1–2",
-    "vi": { "label": "SPI + giả lập", "desc": "Một giao diện adapter cho mọi chuyển mạch. Adapter NAPAS và MDP chờ đặc tả kết nối." },
-    "en": { "label": "SPI + simulator", "desc": "One adapter interface for every payment switch. NAPAS and MDP adapters await connection specs." }
+    "name": "vobs-switch", "status": "draft",
+    "vi": {"label": "Có bộ giả lập", "desc": "Một giao diện adapter chung cho các hệ thống chuyển mạch, kèm bộ giả lập để thử. Chưa có adapter NAPAS và MDP."},
+    "en": {"label": "Simulator", "desc": "One adapter interface for payment switches, with a simulator for testing. NAPAS and MDP adapters are not available yet."}
   },
   {
-    "name": "vobs-consent", "status": "draft", "phase": "2",
-    "vi": { "label": "Lõi và API", "desc": "Vòng đời consent theo Điều 5 và 11 Thông tư 64, API cho đối tác và gateway; log kiểm toán chuỗi hash phát hiện chỉnh sửa." },
-    "en": { "label": "Core and API", "desc": "Consent lifecycle per Articles 5 and 11 of Circular 64, with HTTP APIs for partners and the gateway; hash-chained audit log that detects tampering." }
+    "name": "vobs-consent", "status": "draft",
+    "vi": {"label": "Thử nghiệm", "desc": "Quản lý consent theo Điều 5 và 11 Thông tư 64, có API cho bên thứ ba và cho gateway; log kiểm toán phát hiện chỉnh sửa. Hiện lưu trữ trong bộ nhớ."},
+    "en": {"label": "Preview", "desc": "Consent management per Articles 5 and 11 of Circular 64, with APIs for third parties and the gateway; tamper-evident audit log. In-memory storage for now."}
   },
   {
-    "name": "vobs-hub", "status": "draft", "phase": "2",
-    "vi": { "label": "Phần lõi", "desc": "Đọc sự kiện CDC từ Debezium, ánh xạ cột của core theo cấu hình, nạp vào kho đọc." },
-    "en": { "label": "Core", "desc": "Reads Debezium CDC events, maps core columns by configuration, loads the read store." }
+    "name": "vobs-hub", "status": "draft",
+    "vi": {"label": "Đang phát triển", "desc": "Đọc sự kiện CDC từ Debezium, ánh xạ cột của core theo cấu hình, nạp vào kho đọc. Chưa có connector cho từng loại core."},
+    "en": {"label": "In development", "desc": "Reads CDC events from Debezium, maps core columns by configuration and loads the read store. No connectors for specific cores yet."}
   },
   {
-    "name": "vobs-gateway", "status": "draft", "phase": "2",
-    "vi": { "label": "Bản đầu", "desc": "Plugin APISIX kiểm tra consent, giới hạn tần suất theo bên thứ ba, log kiểm toán vào Kafka." },
-    "en": { "label": "First cut", "desc": "APISIX plugins for consent checks, per-partner rate limits and audit logging to Kafka." }
+    "name": "vobs-gateway", "status": "draft",
+    "vi": {"label": "Đang phát triển", "desc": "Plugin APISIX kiểm tra consent, giới hạn tần suất theo bên thứ ba, ghi log kiểm toán vào Kafka."},
+    "en": {"label": "In development", "desc": "APISIX plugins for consent checks, per-partner rate limits and audit logging to Kafka."}
   },
   {
-    "name": "vobs-deploy", "status": "skeleton", "phase": "2",
-    "vi": { "label": "Khung", "desc": "Helm chart tổng, GitOps, bộ cài không cần Internet cho triển khai on-premise." },
-    "en": { "label": "Skeleton", "desc": "Umbrella Helm chart, GitOps and an air-gapped installer for on-premise deployment." }
+    "name": "vobs-deploy", "status": "skeleton",
+    "vi": {"label": "Đang phát triển", "desc": "Helm chart tổng, GitOps và bộ cài không cần Internet cho triển khai on-premise."},
+    "en": {"label": "In development", "desc": "Umbrella Helm chart, GitOps and an offline installer for on-premise deployments."}
   }
 ]

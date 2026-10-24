@@ -90,7 +90,6 @@ function moduleCards(list, t, lang) {
     .map((m) => `        <article class="card module">
           <header><code>${escapeHtml(m.name)}</code><span class="status status-${m.status}">${m[lang].label}</span></header>
           <p>${escapeHtml(m[lang].desc)}</p>
-          <div class="phase">${escapeHtml(t("module.phase"))} ${escapeHtml(m.phase)}</div>
         </article>`)
     .join("\n");
 }

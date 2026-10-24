@@ -47,6 +47,27 @@ Khi viết nội dung tiếng Việt:
 - Không dùng "trung lập": trong tiếng Việt từ này không mang nghĩa tốt như "neutral" trong tiếng Anh.
 - Chữ: Be Vietnam Pro, phông thiết kế cho tiếng Việt.
 
+## Nội dung website và tài liệu nội bộ
+
+Website viết cho người dùng: ngân hàng, bên thứ ba (fintech, ví điện tử), đơn vị tích hợp và cơ quan quản lý. Kế
+hoạch và cách làm việc của nhóm chỉ nằm trong markdown của repo để theo dõi.
+
+| Website (cho người dùng) | Chỉ trong repo (nội bộ) |
+| --- | --- |
+| VOBS là gì, giải quyết vấn đề gì, kiến trúc | Lộ trình, giai đoạn, cổng đi tiếp, mốc thời gian ([`docs/roadmap.md`](../docs/roadmap.md)) |
+| Module nào dùng được ngay, mức sẵn sàng hiện tại | Mô hình kinh doanh, nguồn doanh thu, kế hoạch pháp nhân ([`GOVERNANCE.md`](../GOVERNANCE.md)) |
+| Đối chiếu Thông tư 64 và giới hạn hiện có của đặc tả | Quy trình nội bộ: CI, script kiểm tra, cách build, tên file |
+| Giấy phép, an toàn chuỗi cung ứng, cách báo lỗi và đóng góp | Ý tưởng, việc cần làm, quyết định còn đang cân nhắc |
+
+Khi viết nội dung cho website:
+
+- Chỉ mô tả cái đã có. Tính năng chưa làm thì không nhắc, hoặc nói rõ "chưa có" ở đúng module; không hứa thời gian.
+- Nhãn module nói mức sẵn sàng theo góc nhìn người dùng: Dùng được, Thử nghiệm, Đang phát triển, Nháp.
+- Không nhắc công cụ nội bộ (CI, script, tên file trong repo) hay quy trình của nhóm. Viết lợi ích cho người đọc,
+  ví dụ "mỗi API ghi rõ điều khoản tương ứng" thay vì "CI kiểm tra độ phủ bằng script".
+- Đặc tả OpenAPI hiển thị trên `/api/` cũng là nội dung cho người dùng: phần `description` viết cho lập trình viên
+  của ngân hàng và bên thứ ba, không viết cho người bảo trì repo.
+
 ## Chạy và triển khai
 
 ```bash
