@@ -8,7 +8,7 @@
 set -euo pipefail
 
 RULESTONE_REPO="https://github.com/xvalleycorp/RuleStone.git"
-RULESTONE_COMMIT="45df37f43bc1348323b4ec34a4e6ae4a2de84984"
+RULESTONE_COMMIT="5a4dc73dde760501b993de38feccf1dd2004d847"
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT

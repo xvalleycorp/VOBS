@@ -2,7 +2,6 @@ package io.vobs.consent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -86,14 +85,13 @@ class ConsentPolicyTest {
     }
 
     /**
-     * Ngân hàng thêm phiên bản 2 có hiệu lực từ 01/03/2027: thời hạn tối đa 90 ngày và một quy tắc riêng. Phiên bản 1
-     * phải được đóng bằng {@code effectiveTo}, nên hash của nó đổi so với bảng mặc định.
+     * Ngân hàng thêm phiên bản 2 có hiệu lực từ 01/03/2027: thời hạn tối đa 90 ngày và một quy tắc riêng. File phiên
+     * bản 1 giữ nguyên: phiên bản 1 tự hết hiệu lực khi phiên bản 2 bắt đầu, và hash của nó không đổi, nên consent cũ
+     * vẫn khớp với file đang chạy.
      */
     @Test
     void bankPolicyFromDirectoryTakesEffectOnItsDate(@TempDir Path rules) throws IOException {
-        String v1 = builtInTable().replace("\"effectiveFrom\": \"2025-03-01\",",
-                "\"effectiveFrom\": \"2025-03-01\",\n  \"effectiveTo\": \"2027-03-01\",");
-        Files.writeString(rules.resolve("consent_request.v1.stone.json"), v1);
+        Files.writeString(rules.resolve("consent_request.v1.stone.json"), builtInTable());
         Files.writeString(rules.resolve("consent_request.v2.stone.json"), """
                 {
                   "id": "consent_request",
@@ -124,9 +122,9 @@ class ConsentPolicyTest {
         LocalDate before = LocalDate.of(2027, 2, 28);
         LocalDate after = LocalDate.of(2027, 3, 1);
 
-        String closedV1 = evaluate(policy, FINTECH, Set.of(ConsentScope.TRANSACTIONS_READ), 120, before);
-        assertTrue(closedV1.startsWith("1@sha256:"));
-        assertNotEquals(evaluate(builtIn, FINTECH, Set.of(ConsentScope.TRANSACTIONS_READ), 120, before), closedV1);
+        String v1 = evaluate(policy, FINTECH, Set.of(ConsentScope.TRANSACTIONS_READ), 120, before);
+        assertTrue(v1.startsWith("1@sha256:"));
+        assertEquals(evaluate(builtIn, FINTECH, Set.of(ConsentScope.TRANSACTIONS_READ), 120, before), v1);
 
         IllegalArgumentException tooLong = assertThrows(IllegalArgumentException.class,
                 () -> evaluate(policy, FINTECH, Set.of(ConsentScope.ACCOUNTS_READ), 120, after));
