@@ -1,7 +1,7 @@
 # Image của service Quản lý sự đồng ý. Build từ thư mục gốc repo (cần POM cha):
 #   docker build -f vobs-consent/Dockerfile -t vobs-consent .
 
-FROM maven:3.9.16-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-26 AS build
 WORKDIR /src
 COPY pom.xml LICENSE NOTICE ./
 COPY vobs-model vobs-model
