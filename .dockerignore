@@ -1,0 +1,12 @@
+# Build context là thư mục gốc repo; chỉ cần POM và mã nguồn các module Java
+.git
+.github
+.vscode
+docs
+website
+vobs-deploy
+vobs-gateway
+vobs-sandbox
+vobs-spec
+**/target
+*.log

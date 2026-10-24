@@ -74,6 +74,33 @@ jobs:
           format: spdx-json
           artifact-name: vobs-sbom.spdx.json
 
+  sandbox:
+    name: Sandbox, luồng consent
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vobs-sandbox
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image và chạy service Quản lý sự đồng ý
+        run: docker compose up -d --build consent
+      - name: Chạy thử trọn luồng consent
+        run: ./try-consent-flow.sh
+      - name: Log của service khi lỗi
+        if: failure()
+        run: docker compose logs consent
+      - name: Quét lỗ hổng image (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          scan-type: image
+          image-ref: vobs-consent:sandbox
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+      - name: Dừng sandbox
+        if: always()
+        run: docker compose down
+
   dco:
     name: Kiểm tra DCO sign-off
     if: github.event_name == 'pull_request'

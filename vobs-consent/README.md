@@ -74,6 +74,16 @@ curl -s localhost:8080/consents -H 'x-vobs-client-id: fintech-a' \
   -d '{"scopes":["ACCOUNTS_READ"],"validityDays":90}'
 ```
 
+Chạy bằng Docker (build từ thư mục gốc repo):
+
+```bash
+docker build -f vobs-consent/Dockerfile -t vobs-consent .
+docker run --rm -p 8080:8080 -p 8081:8081 -e VOBS_CONSENT_THIRD_PARTIES="fintech-a:OTHER" vobs-consent
+```
+
+Image chạy bằng user không có quyền root và nghe trên mọi địa chỉ trong container. Sandbox cho bên thứ ba dùng
+sẵn image này, kèm script chạy thử trọn luồng ([`vobs-sandbox`](../vobs-sandbox)).
+
 Việc tiếp theo của giai đoạn 2: chạy nhiều bản service cùng lúc (khóa khi ghi log kiểm toán, khóa lạc quan khi
 đổi trạng thái consent), connection pool, đẩy log kiểm toán sang Kafka, kiểm tra quyền chi tiết bằng OpenFGA,
 luồng duyệt consent trên Temporal.
