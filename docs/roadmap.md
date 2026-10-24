@@ -1,7 +1,8 @@
 # Lộ trình
 
-Mốc quan trọng nhất là một ngân hàng thí điểm chạy production, dự kiến quanh tháng 18. Chỉ sang giai đoạn tiếp
-theo khi đã qua cổng tương ứng. Thời gian là ước tính.
+Mốc quan trọng nhất là một ngân hàng thí điểm chạy production, dự kiến quanh tháng 18. Mốc bên ngoài quyết định
+nhu cầu: ngân hàng đã kết nối với bên thứ ba phải tuân thủ đầy đủ Thông tư 64 **trước 01/03/2027**
+([đối chiếu](tt64.md)). Chỉ sang giai đoạn tiếp theo khi đã qua cổng tương ứng. Thời gian là ước tính.
 
 | Giai đoạn | Thời gian | Nội dung | Cổng để đi tiếp |
 | --- | --- | --- | --- |
@@ -15,7 +16,8 @@ Giai đoạn 1 phát hành các thư viện nhỏ, hữu ích ngay, để kéo d
 
 - [ ] Hoàn thành kiểm tra tên: tên miền (vobs.vn, vobs.dev, vobs.io), namespace Maven Central và npm scope
       `@vobs`, tra cứu nhãn hiệu "VOBS" tại Cục Sở hữu trí tuệ (nhóm 9, 36, 42)
-- [ ] Đọc kỹ Thông tư 64/2024/TT-NHNN, lập danh mục nhóm API và yêu cầu bảo mật; cập nhật `vobs-spec`
+- [x] Lập danh mục Open API theo Điều 6 Thông tư 64 và đưa vào `vobs-spec` ([đối chiếu](tt64.md))
+- [ ] Lấy toàn văn Phụ lục 01, 02 của Thông tư 64; đối chiếu đường dẫn, trường dữ liệu, yêu cầu an toàn thông tin
 - [ ] Tìm hiểu đặc tả kết nối và quy trình tham gia của NAPAS và MDP
 - [ ] Phát hành bản đầu của `vobs-vietqr` và `vobs-iso20022` lên Maven Central
 - [ ] Tiếp cận 2–3 fintech và 1 ngân hàng vừa để xác nhận nhu cầu và mục tiêu phi chức năng

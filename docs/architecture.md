@@ -61,11 +61,11 @@ Mục tiêu khởi điểm, cần xác nhận với ngân hàng thí điểm.
 
 | Quy định | Cách đáp ứng |
 | --- | --- |
-| Thông tư 64/2024/TT-NHNN | Bộ đặc tả API và bộ kiểm thử tuân thủ mở, chạy tự động trong CI |
+| Thông tư 64/2024/TT-NHNN | Bộ đặc tả đủ danh mục Điều 6, kiểm tra độ phủ trong CI; bộ kiểm thử tuân thủ mở. Chi tiết: [tt64.md](tt64.md) |
 | Thông tư 09/2020/TT-NHNN, Nghị định 85/2016/NĐ-CP | Gói tuân thủ: ánh xạ kiểm soát sang cấu hình, kèm pentest độc lập |
 | Nghị định 13/2023/NĐ-CP, Luật Bảo vệ dữ liệu cá nhân 2025 | Consent theo phạm vi và thời hạn, thu hồi được; tối thiểu hóa dữ liệu tại gateway |
 | Lưu trữ dữ liệu trong nước | On-premise hoặc cloud trong nước; bộ cài air-gapped |
-| Log kiểm toán không sửa được | Ghi nối tiếp vào Kafka, lưu kiểu WORM, chuỗi hash |
+| Log kiểm toán không sửa được | Ghi nối tiếp vào Kafka, lưu kiểu WORM, chuỗi hash; giữ tối thiểu 3 tháng, sao lưu tối thiểu 1 năm (Điều 11 Thông tư 64) |
 | PCI DSS | Không lưu số thẻ; token hóa để giữ ngoài phạm vi PCI |
 
 ## Vận hành

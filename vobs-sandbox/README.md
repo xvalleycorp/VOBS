@@ -10,7 +10,7 @@ cd vobs-sandbox
 docker compose up -d
 ./import-specs.sh
 curl -H 'x-consent-id: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c' \
-  http://localhost:8585/rest/VOBS+Open+API/0.1.0-draft/accounts/acc-1001/balances
+  http://localhost:8585/rest/VOBS+Open+API/0.2.0-draft/accounts/acc-1001
 ```
 
 Phản hồi giả lập lấy từ các `examples` trong đặc tả; Microcks ghép request với phản hồi theo tên example
