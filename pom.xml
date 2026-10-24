@@ -75,7 +75,7 @@
     <prowide-iso20022.version>SRU2025-10.4.0</prowide-iso20022.version>
     <!-- Khớp với bản jaxb-impl mà Prowide kéo vào lúc chạy -->
     <jakarta-xml-bind.version>4.0.4</jakarta-xml-bind.version>
-    <jackson.version>2.18.12</jackson.version>
+    <jackson.version>2.22.4</jackson.version>
     <postgresql.version>42.7.14</postgresql.version>
   </properties>
 
