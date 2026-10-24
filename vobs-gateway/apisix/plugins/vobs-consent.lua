@@ -5,8 +5,9 @@
 --
 -- Thứ tự (priority cao chạy trước): openid-connect (2599) -> limit-count (1002) -> vobs-consent (999).
 -- Nhờ vậy request vượt hạn mức bị chặn trước khi tốn một lần gọi service consent.
--- Plugin đọc client id từ token đã được xác thực (claim azp, hoặc client_id),
--- lấy consent id từ header x-consent-id, rồi hỏi service consent qua API nội bộ
+-- Plugin đọc client id của đối tác đã được xác thực: từ token (claim azp, hoặc client_id) khi dùng openid-connect,
+-- hoặc từ tên consumer khi dùng plugin xác thực consumer như key-auth (sandbox). Sau đó lấy consent id từ header
+-- x-consent-id và hỏi service consent qua API nội bộ
 -- POST /internal/consent-checks (xem vobs-spec/openapi/internal-consent-check.yaml).
 -- Mọi lỗi khi gọi service consent đều từ chối request (fail closed).
 --
@@ -37,10 +38,11 @@ local schema = {
 local function client_id_of(ctx)
     -- openid-connect đặt payload của token đã xác thực vào ctx.external_user
     local token = ctx.external_user
-    if type(token) ~= "table" then
-        return nil
+    if type(token) == "table" and (token.azp or token.client_id) then
+        return token.azp or token.client_id
     end
-    return token.azp or token.client_id
+    -- key-auth, jwt-auth... chỉ đặt ctx.consumer_name sau khi xác thực consumer thành công
+    return ctx.consumer_name
 end
 
 -- $vobs_client_id: khóa giới hạn tần suất của limit-count và trường của log kiểm toán (kafka-logger).
@@ -85,7 +87,8 @@ function _M.access(conf, ctx)
 
     local client_id = client_id_of(ctx)
     if not client_id then
-        core.log.error("vobs-consent: không có client id; openid-connect phải chạy trước plugin này")
+        core.log.error("vobs-consent: không có client id; cần một plugin xác thực (openid-connect, key-auth...) "
+            .. "chạy trước plugin này")
         return deny(401, "client_unauthenticated")
     end
 

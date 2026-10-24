@@ -6,6 +6,7 @@ Sandbox cho đối tác, gồm hai phần:
 | --- | --- | --- |
 | API giả lập, dựng từ [bộ đặc tả](../vobs-spec/openapi) bằng [Microcks](https://microcks.io) (Apache 2.0) | `http://localhost:8585` | Viết tích hợp với tài khoản, giao dịch, thanh toán trước khi có ngân hàng thật |
 | Service [Quản lý sự đồng ý](../vobs-consent) chạy thật, lưu trong bộ nhớ | đối tác `http://localhost:8090`, nội bộ `http://localhost:8091` | Thử trọn luồng consent: tạo, khách hàng duyệt, kiểm tra quyền, thu hồi |
+| [API Gateway](../vobs-gateway) (Apache APISIX) với plugin kiểm tra consent | `http://localhost:9080/open-banking/v1` | Gọi API như ở môi trường thật: xác thực, kiểm tra consent, giới hạn tần suất |
 
 ## Chạy cục bộ
 
@@ -15,7 +16,8 @@ Cần Docker và Docker Compose. Lần đầu `--build` dựng image service con
 cd vobs-sandbox
 docker compose up -d --build
 ./import-specs.sh          # nạp đặc tả vào Microcks
-./try-consent-flow.sh      # chạy thử luồng consent, in kết quả từng bước
+./try-consent-flow.sh      # chạy thử luồng consent, gọi thẳng service
+./try-gateway-flow.sh      # chạy thử luồng qua API Gateway
 ```
 
 Gọi API giả lập:
@@ -52,6 +54,38 @@ Ví dụ tạo consent bằng tay:
 curl -s localhost:8090/consents -H 'x-vobs-client-id: fintech-a' -H 'Content-Type: application/json' \
   -d '{"scopes":["ACCOUNTS_READ"],"validityDays":90}'
 ```
+
+## Gọi qua API Gateway
+
+Đối tác mẫu xác thực bằng API key trong header `apikey`. Ở môi trường thật, đối tác dùng mã truy cập FAPI 2.0 do
+Keycloak của ngân hàng cấp.
+
+| Đối tác | API key |
+| --- | --- |
+| `fintech-a` | `sandbox-fintech-a` |
+| `wallet-b` | `sandbox-wallet-b` |
+| `bank-c` | `sandbox-bank-c` |
+
+| Đường dẫn | Gateway làm gì |
+| --- | --- |
+| `/open-banking/v1/consents`, `/consents/{id}` | Ghi đè `x-vobs-client-id` bằng đối tác đã xác thực, chuyển tới service Quản lý sự đồng ý |
+| `/open-banking/v1/accounts/{accountId}` | Kiểm tra consent có phạm vi `ACCOUNTS_READ` và tài khoản này, rồi trả dữ liệu giả lập |
+| `/open-banking/v1/accounts/{accountId}/transactions` | Như trên, với phạm vi `TRANSACTIONS_READ` |
+
+Mỗi đối tác được gọi tối đa 30 lần mỗi phút trên mỗi đường dẫn; vượt hạn mức nhận `429`.
+
+```bash
+# Tạo consent, rồi cho khách hàng duyệt qua cổng nội bộ (đóng vai kênh ngân hàng)
+curl -s localhost:9080/open-banking/v1/consents -H 'apikey: sandbox-fintech-a' -H 'Content-Type: application/json' \
+  -d '{"scopes":["ACCOUNTS_READ"],"validityDays":90}'
+curl -s localhost:8091/internal/consents/<consentId>/authorisation -H 'Content-Type: application/json' \
+  -d '{"customerId":"cif-1001","accountIds":["acc-1001"]}'
+# Đọc tài khoản qua gateway
+curl -s localhost:9080/open-banking/v1/accounts/acc-1001 -H 'apikey: sandbox-fintech-a' -H 'x-consent-id: <consentId>'
+```
+
+[`try-gateway-flow.sh`](try-gateway-flow.sh) đi qua 11 bước, gồm cả trường hợp đối tác tự gửi `x-vobs-client-id`
+để giả danh đối tác khác.
 
 ## Kiểm thử hợp đồng API
 

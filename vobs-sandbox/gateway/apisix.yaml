@@ -1,0 +1,89 @@
+# Route của API Gateway trong sandbox. Khác môi trường thật ở hai điểm:
+# - đối tác xác thực bằng API key (key-auth) thay cho mã truy cập FAPI 2.0 từ Keycloak;
+# - API dữ liệu (tài khoản, giao dịch) chuyển tới bản giả lập trên Microcks thay cho kho đọc của Integration Hub.
+# Kiểm tra consent (vobs-consent) và giới hạn tần suất (limit-count) chạy giống môi trường thật.
+
+consumers:
+  # Tên consumer là mã client của đối tác, khớp danh sách đối tác trong service Quản lý sự đồng ý
+  - username: fintech-a
+    plugins:
+      key-auth:
+        key: sandbox-fintech-a
+  - username: wallet-b
+    plugins:
+      key-auth:
+        key: sandbox-wallet-b
+  - username: bank-c
+    plugins:
+      key-auth:
+        key: sandbox-bank-c
+
+routes:
+  # Tạo, xem, thu hồi consent. proxy-rewrite đặt mã client đã xác thực vào x-vobs-client-id, ghi đè giá trị đối tác
+  # tự gửi, rồi chuyển tới cổng đối tác của service consent.
+  - id: consents
+    uris: [/open-banking/v1/consents, /open-banking/v1/consents/*]
+    methods: [GET, POST, DELETE]
+    plugins:
+      key-auth: {}
+      limit-count:
+        count: 30
+        time_window: 60
+        key_type: var
+        key: vobs_client_id
+        rejected_code: 429
+      proxy-rewrite:
+        regex_uri: ["^/open-banking/v1(/consents.*)", "$1"]
+        headers:
+          set:
+            x-vobs-client-id: $vobs_client_id
+    upstream:
+      type: roundrobin
+      nodes:
+        "consent:8080": 1
+
+  # API Lấy thông tin tài khoản và Lấy lịch sử giao dịch: kiểm tra consent theo đúng tài khoản trên đường dẫn
+  - id: account-info
+    uri: /open-banking/v1/accounts/:account_id
+    methods: [GET]
+    plugins:
+      key-auth: {}
+      limit-count:
+        count: 30
+        time_window: 60
+        key_type: var
+        key: vobs_client_id
+        rejected_code: 429
+      vobs-consent:
+        consent_service_uri: http://consent:8081
+        scope: ACCOUNTS_READ
+        account_id_param: account_id
+      proxy-rewrite:
+        regex_uri: ["^/open-banking/v1/(.*)", "/rest/VOBS+Open+API/0.2.0-draft/$1"]
+    upstream:
+      type: roundrobin
+      nodes:
+        "microcks:8080": 1
+
+  - id: account-transactions
+    uri: /open-banking/v1/accounts/:account_id/transactions
+    methods: [GET]
+    plugins:
+      key-auth: {}
+      limit-count:
+        count: 30
+        time_window: 60
+        key_type: var
+        key: vobs_client_id
+        rejected_code: 429
+      vobs-consent:
+        consent_service_uri: http://consent:8081
+        scope: TRANSACTIONS_READ
+        account_id_param: account_id
+      proxy-rewrite:
+        regex_uri: ["^/open-banking/v1/(.*)", "/rest/VOBS+Open+API/0.2.0-draft/$1"]
+    upstream:
+      type: roundrobin
+      nodes:
+        "microcks:8080": 1
+#END

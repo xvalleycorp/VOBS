@@ -21,8 +21,8 @@
   },
   {
     "name": "vobs-sandbox", "status": "draft",
-    "vi": {"title": "Sandbox cho bên thứ ba", "label": "Chạy trên máy", "desc": "API giả lập dựng từ đặc tả bằng Microcks, kèm service Quản lý sự đồng ý chạy thật để thử trọn luồng tạo, duyệt, kiểm tra và thu hồi consent; chạy trên máy bằng Docker Compose."},
-    "en": {"title": "Partner Sandbox", "label": "Runs locally", "desc": "Mock APIs generated from the specification with Microcks, plus a live Consent Manager to try the full flow: create, approve, check and revoke consent; runs locally with Docker Compose."}
+    "vi": {"title": "Sandbox cho bên thứ ba", "label": "Chạy trên máy", "desc": "API giả lập dựng từ đặc tả bằng Microcks, kèm service Quản lý sự đồng ý và API Gateway chạy thật: gọi API như ở môi trường thật, thử trọn luồng tạo, duyệt, kiểm tra và thu hồi consent; chạy trên máy bằng Docker Compose."},
+    "en": {"title": "Partner Sandbox", "label": "Runs locally", "desc": "Mock APIs generated from the specification with Microcks, plus a live Consent Manager and API gateway: call the APIs as in production and try the full flow of creating, approving, checking and revoking consent; runs locally with Docker Compose."}
   },
   {
     "name": "vobs-switch", "status": "draft",
@@ -41,8 +41,8 @@
   },
   {
     "name": "vobs-gateway", "status": "draft",
-    "vi": {"title": "API Gateway", "label": "Đang phát triển", "desc": "Plugin APISIX kiểm tra consent, giới hạn tần suất theo bên thứ ba, ghi log kiểm toán vào Kafka."},
-    "en": {"title": "API Gateway", "label": "In development", "desc": "APISIX plugins for consent checks, per-partner rate limits and audit logging to Kafka."}
+    "vi": {"title": "API Gateway", "label": "Thử nghiệm", "desc": "Plugin cho Apache APISIX kiểm tra consent theo phạm vi và từng tài khoản trước mỗi request, chặn đối tác giả danh, giới hạn tần suất theo bên thứ ba. Dùng thử được trong sandbox."},
+    "en": {"title": "API Gateway", "label": "Preview", "desc": "Apache APISIX plugin that checks consent by scope and account before every request, blocks partner impersonation and rate-limits each third party. Try it in the sandbox."}
   },
   {
     "name": "vobs-deploy", "status": "skeleton",
