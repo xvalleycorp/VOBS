@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="VOBS">
+  <!-- Open Stack: hai lớp trên (gateway, hub) mở một rãnh, lớp core dưới cùng nguyên vẹn; dòng dữ liệu đi qua rãnh và dừng trên core -->
   <defs>
-    <linearGradient id="s" x1="6" y1="8" x2="26" y2="24" gradientUnits="userSpaceOnUse">
+    <linearGradient id="flow" x1="16" y1="3.5" x2="16" y2="18.75" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#FF6B4A"/>
       <stop offset=".35" stop-color="#FFC145"/>
       <stop offset=".68" stop-color="#3DD6C6"/>
@@ -8,5 +9,8 @@
     </linearGradient>
   </defs>
   <rect width="32" height="32" rx="8" fill="#121317"/>
-  <path d="M8.5 9.5 16 23l7.5-13.5" fill="none" stroke="url(#s)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#F3F2EE">
+    <rect x="6" y="7" width="7.5" height="5" rx="1.8"/><rect x="18.5" y="7" width="7.5" height="5" rx="1.8"/><rect x="6" y="13.75" width="7.5" height="5" rx="1.8"/><rect x="18.5" y="13.75" width="7.5" height="5" rx="1.8"/><rect x="6" y="20.5" width="20" height="5" rx="1.8"/>
+  </g>
+  <rect x="14.5" y="3.5" width="3" height="15.25" rx="1.5" fill="url(#flow)"/>
 </svg>

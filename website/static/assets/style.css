@@ -193,12 +193,12 @@ p {
   fill: #121317;
 }
 
-.logo .logo-v {
-  fill: none;
-  stroke: url(#logo-spectrum);
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.logo .logo-slabs {
+  fill: #f3f2ee;
+}
+
+.logo .logo-flow {
+  fill: url(#logo-flow);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -575,12 +575,12 @@ p {
   stroke-width: 2;
 }
 
-.hero-art .hub-v {
-  fill: none;
-  stroke: url(#hub-v);
-  stroke-width: 7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.hero-art .hub-slabs {
+  fill: var(--night-ink);
+}
+
+.hero-art .hub-flow {
+  fill: url(#hub-flow);
 }
 
 .hero-art .hub-label {
