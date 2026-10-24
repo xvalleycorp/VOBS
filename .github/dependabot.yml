@@ -1,15 +1,53 @@
 version: 2
+# Gom nhóm để không tồn đọng hàng chục PR lẻ. Bản nâng lớn (major) của thư viện vẫn là PR riêng để xem kỹ.
+# Chỉ đề xuất phiên bản đã ra ít nhất 14 ngày, giảm rủi ro từ chuỗi cung ứng.
 updates:
   - package-ecosystem: maven
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 10
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 5
+    groups:
+      maven-plugins:
+        patterns: ["org.apache.maven.plugins:*", "org.codehaus.mojo:*"]
+      maven-libraries:
+        update-types: [minor, patch]
+        # Driver PostgreSQL có ngoại lệ giấy phép ghim phiên bản (docs/licensing.md): PR nâng driver cố ý dừng ở
+        # bước kiểm tra giấy phép cho tới khi có người xác nhận, nên tách riêng để không chặn cả nhóm.
+        exclude-patterns: ["org.postgresql:*"]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /website
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      website:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /vobs-consent
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+
   - package-ecosystem: docker-compose
     directory: /vobs-sandbox
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 14
