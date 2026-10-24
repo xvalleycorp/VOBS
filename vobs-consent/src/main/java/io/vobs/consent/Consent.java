@@ -9,7 +9,8 @@ import java.util.Set;
  *
  * @param consentId mã consent
  * @param clientId mã client của đối tác, cấp khi đăng ký trên Keycloak
- * @param customerId mã khách hàng cấp consent
+ * @param customerId mã khách hàng cấp consent; {@code null} khi khách hàng chưa đăng nhập ngân hàng để duyệt hay từ
+ *     chối (đối tác vừa tạo yêu cầu, hoặc consent đã hết hạn hay bị đối tác thu hồi trước đó)
  * @param scopes các phạm vi dữ liệu được phép
  * @param accountIds các tài khoản được phép; rỗng khi chưa được khách hàng chọn
  * @param createdAt thời điểm đối tác gửi yêu cầu
@@ -43,7 +44,10 @@ public record Consent(
     public Consent {
         Objects.requireNonNull(consentId, "consentId");
         Objects.requireNonNull(clientId, "clientId");
-        Objects.requireNonNull(customerId, "customerId");
+        // Chưa có khách hàng được: đối tác vừa tạo, hoặc hết hạn hay bị đối tác thu hồi trước khi khách hàng duyệt
+        if (customerId == null && (status == Status.AUTHORISED || status == Status.REJECTED)) {
+            throw new IllegalArgumentException("Consent đã được khách hàng duyệt hoặc từ chối phải có customerId");
+        }
         Objects.requireNonNull(createdAt, "createdAt");
         Objects.requireNonNull(expiresAt, "expiresAt");
         Objects.requireNonNull(status, "status");
@@ -61,6 +65,11 @@ public record Consent(
     Consent withStatus(Status newStatus, Set<String> newAccountIds, Instant at) {
         return new Consent(consentId, clientId, customerId, scopes, newAccountIds, createdAt, expiresAt, newStatus,
                 at);
+    }
+
+    Consent withCustomer(String newCustomerId) {
+        return new Consent(consentId, clientId, newCustomerId, scopes, accountIds, createdAt, expiresAt, status,
+                statusChangedAt);
     }
 
     Consent withStatus(Status newStatus, Instant at) {

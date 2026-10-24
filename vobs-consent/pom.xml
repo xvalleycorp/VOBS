@@ -16,4 +16,12 @@
     Quản lý consent theo Nghị định 13/2023/NĐ-CP và Thông tư 64/2024/TT-NHNN: cấp, xem, thu hồi theo phạm vi dữ liệu và thời hạn, có log kiểm toán chuỗi hash.
   </description>
   <url>https://github.com/xvalleycorp/vobs/tree/main/vobs-consent</url>
+
+  <dependencies>
+    <!-- Lớp HTTP dùng máy chủ HTTP có sẵn trong JDK; chỉ thêm Jackson để đọc, ghi JSON -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+  </dependencies>
 </project>

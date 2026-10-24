@@ -31,8 +31,8 @@
   },
   {
     "name": "vobs-consent", "status": "draft", "phase": "2",
-    "vi": { "label": "Phần lõi", "desc": "Vòng đời consent theo Điều 5 và 11 Thông tư 64; log kiểm toán chuỗi hash phát hiện chỉnh sửa." },
-    "en": { "label": "Core", "desc": "Consent lifecycle per Articles 5 and 11 of Circular 64; hash-chained audit log that detects tampering." }
+    "vi": { "label": "Lõi và API", "desc": "Vòng đời consent theo Điều 5 và 11 Thông tư 64, API cho đối tác và gateway; log kiểm toán chuỗi hash phát hiện chỉnh sửa." },
+    "en": { "label": "Core and API", "desc": "Consent lifecycle per Articles 5 and 11 of Circular 64, with HTTP APIs for partners and the gateway; hash-chained audit log that detects tampering." }
   },
   {
     "name": "vobs-hub", "status": "draft", "phase": "2",

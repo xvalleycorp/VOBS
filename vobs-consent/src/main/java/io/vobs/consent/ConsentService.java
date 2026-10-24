@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -40,8 +41,20 @@ public final class ConsentService {
     }
 
     /**
-     * Đối tác gửi yêu cầu consent; khách hàng duyệt sau qua kênh của ngân hàng.
+     * Đối tác gửi yêu cầu consent bằng mã truy cập của chính mình, chưa biết khách hàng là ai. Khách hàng được gắn vào
+     * consent khi đăng nhập ngân hàng để duyệt hoặc từ chối.
      *
+     * @throws ScopeNotPermittedException nếu đối tác xin phạm vi thuộc nhóm thanh toán mà không phải ngân hàng hoặc
+     *     trung gian thanh toán
+     */
+    public Consent request(ThirdParty client, Set<ConsentScope> scopes, Duration validity) {
+        return request(client, null, scopes, validity);
+    }
+
+    /**
+     * Đối tác gửi yêu cầu consent cho một khách hàng đã biết; khách hàng duyệt sau qua kênh của ngân hàng.
+     *
+     * @param customerId mã khách hàng, hoặc {@code null} nếu chưa biết
      * @throws ScopeNotPermittedException nếu đối tác xin phạm vi thuộc nhóm thanh toán mà không phải ngân hàng hoặc
      *     trung gian thanh toán
      */
@@ -64,7 +77,7 @@ public final class ConsentService {
 
     /** Khách hàng duyệt consent và chọn các tài khoản được chia sẻ. */
     public Consent authorise(String consentId, String customerId, Set<String> accountIds) {
-        Consent consent = requireOwnedBy(consentId, customerId);
+        Consent consent = requireDecidableBy(consentId, customerId);
         requireStatus(consent, Consent.Status.AWAITING_AUTHORISATION);
         boolean paymentOnly = consent.scopes().stream().allMatch(ConsentScope::isPaymentGroup);
         if (accountIds.isEmpty() && !paymentOnly) {
@@ -75,7 +88,7 @@ public final class ConsentService {
     }
 
     public Consent reject(String consentId, String customerId) {
-        Consent consent = requireOwnedBy(consentId, customerId);
+        Consent consent = requireDecidableBy(consentId, customerId);
         requireStatus(consent, Consent.Status.AWAITING_AUTHORISATION);
         return transition(consent, Consent.Status.REJECTED, consent.accountIds(), "customer:" + customerId,
                 "consent.rejected");
@@ -151,11 +164,25 @@ public final class ConsentService {
 
     private Consent requireOwnedBy(String consentId, String customerId) {
         Consent consent = require(consentId);
-        if (!consent.customerId().equals(customerId)) {
+        if (!customerId.equals(consent.customerId())) {
             // Không tiết lộ consent của khách hàng khác tồn tại hay không
             throw new NoSuchElementException("Không tìm thấy consent " + consentId);
         }
         return consent;
+    }
+
+    /**
+     * Consent mà khách hàng này được duyệt hoặc từ chối: của chính họ, hoặc chưa gắn khách hàng nào (đối tác tạo trước,
+     * khách hàng vừa đăng nhập ngân hàng qua luồng redirect). Khi chưa gắn, trả về bản đã gắn khách hàng này; bản đó
+     * chỉ được lưu nếu consent còn chờ duyệt.
+     */
+    private Consent requireDecidableBy(String consentId, String customerId) {
+        Objects.requireNonNull(customerId, "customerId");
+        Consent consent = require(consentId);
+        if (consent.customerId() == null) {
+            return consent.withCustomer(customerId);
+        }
+        return requireOwnedBy(consentId, customerId);
     }
 
     private static void requireStatus(Consent consent, Consent.Status expected) {

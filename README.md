@@ -25,7 +25,7 @@ Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintec
 | [`vobs-iso20022`](vobs-iso20022) | pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022 | 1 | Dùng được |
 | [`vobs-switch`](vobs-switch) | Adapter chung tới chuyển mạch; bộ giả lập | 1–2 | SPI và giả lập; chưa có NAPAS, MDP |
 | [`vobs-sandbox`](vobs-sandbox) | API giả lập cho fintech bằng Microcks | 1 | Cấu hình cục bộ |
-| [`vobs-consent`](vobs-consent) | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash | 2 | Phần lõi; chưa có lớp HTTP |
+| [`vobs-consent`](vobs-consent) | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi và API HTTP; lưu trữ trong bộ nhớ |
 | [`vobs-hub`](vobs-hub) | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
 | [`vobs-gateway`](vobs-gateway) | Plugin APISIX: consent, log kiểm toán | 2 | Plugin consent bản đầu |
 | [`vobs-deploy`](vobs-deploy) | Helm chart tổng, GitOps, bộ cài air-gapped | 2 | Khung |
