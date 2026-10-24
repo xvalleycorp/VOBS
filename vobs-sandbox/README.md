@@ -1,12 +1,13 @@
 # Sandbox cho bên thứ ba (`vobs-sandbox`)
 
-Sandbox cho đối tác, gồm hai phần:
+Sandbox cho đối tác, gồm các phần:
 
 | Phần | Địa chỉ | Dùng để |
 | --- | --- | --- |
 | API giả lập, dựng từ [bộ đặc tả](../vobs-spec/openapi) bằng [Microcks](https://microcks.io) (Apache 2.0) | `http://localhost:8585` | Viết tích hợp với tài khoản, giao dịch, thanh toán trước khi có ngân hàng thật |
 | Service [Quản lý sự đồng ý](../vobs-consent) chạy thật, lưu trong bộ nhớ | đối tác `http://localhost:8090`, nội bộ `http://localhost:8091` | Thử trọn luồng consent: tạo, khách hàng duyệt, kiểm tra quyền, thu hồi |
-| [API Gateway](../vobs-gateway) (Apache APISIX) với plugin kiểm tra consent | `http://localhost:9080/open-banking/v1` | Gọi API như ở môi trường thật: xác thực, kiểm tra consent, giới hạn tần suất |
+| [Keycloak](https://www.keycloak.org) (Apache 2.0), realm `open-banking` | `http://localhost:8180` | Cấp mã truy cập OAuth 2.0 cho đối tác mẫu |
+| [API Gateway](../vobs-gateway) (Apache APISIX) với plugin kiểm tra consent | `http://localhost:9080/open-banking/v1` | Gọi API như ở môi trường thật: xác thực mã truy cập, kiểm tra consent, giới hạn tần suất |
 
 ## Chạy cục bộ
 
@@ -94,14 +95,19 @@ curl -s localhost:8090/consents -H 'x-vobs-client-id: fintech-a' -H 'Content-Typ
 
 ## Gọi qua API Gateway
 
-Đối tác mẫu xác thực bằng API key trong header `apikey`. Ở môi trường thật, đối tác dùng mã truy cập FAPI 2.0 do
-Keycloak của ngân hàng cấp.
+Đối tác lấy mã truy cập từ Keycloak bằng client credentials, rồi gửi kèm header `Authorization: Bearer <token>`.
+Gateway kiểm tra chữ ký và issuer của token bằng khóa công khai của Keycloak, lấy mã client từ claim `azp`. Token có
+hiệu lực 10 phút.
 
-| Đối tác | API key |
+| Đối tác (client id) | Client secret |
 | --- | --- |
-| `fintech-a` | `sandbox-fintech-a` |
-| `wallet-b` | `sandbox-wallet-b` |
-| `bank-c` | `sandbox-bank-c` |
+| `fintech-a` | `sandbox-fintech-a-secret` |
+| `wallet-b` | `sandbox-wallet-b-secret` |
+| `bank-c` | `sandbox-bank-c-secret` |
+
+Khác môi trường thật: ở môi trường thật, đối tác xác thực bằng chứng thư mTLS và token gắn với chứng thư (FAPI 2.0,
+RFC 8705); sandbox dùng client secret và HTTP. Keycloak chạy chế độ dev, dữ liệu mất khi dừng; trang quản trị tại
+`http://localhost:8180/admin`, tài khoản `admin`/`admin`.
 
 | Đường dẫn | Gateway làm gì |
 | --- | --- |
@@ -112,17 +118,20 @@ Keycloak của ngân hàng cấp.
 Mỗi đối tác được gọi tối đa 30 lần mỗi phút trên mỗi đường dẫn; vượt hạn mức nhận `429`.
 
 ```bash
+# Lấy mã truy cập
+TOKEN=$(curl -s -u fintech-a:sandbox-fintech-a-secret -d grant_type=client_credentials \
+  localhost:8180/realms/open-banking/protocol/openid-connect/token | sed -E 's/.*"access_token":"([^"]+)".*/\1/')
 # Tạo consent, rồi cho khách hàng duyệt qua cổng nội bộ (đóng vai kênh ngân hàng)
-curl -s localhost:9080/open-banking/v1/consents -H 'apikey: sandbox-fintech-a' -H 'Content-Type: application/json' \
+curl -s localhost:9080/open-banking/v1/consents -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
   -d '{"scopes":["ACCOUNTS_READ"],"validityDays":90}'
 curl -s localhost:8091/internal/consents/<consentId>/authorisation -H 'Content-Type: application/json' \
   -d '{"customerId":"cif-1001","accountIds":["acc-1001"]}'
 # Đọc tài khoản qua gateway
-curl -s localhost:9080/open-banking/v1/accounts/acc-1001 -H 'apikey: sandbox-fintech-a' -H 'x-consent-id: <consentId>'
+curl -s localhost:9080/open-banking/v1/accounts/acc-1001 -H "Authorization: Bearer $TOKEN" -H 'x-consent-id: <consentId>'
 ```
 
-[`try-gateway-flow.sh`](try-gateway-flow.sh) đi qua 11 bước, gồm cả trường hợp đối tác tự gửi `x-vobs-client-id`
-để giả danh đối tác khác.
+[`try-gateway-flow.sh`](try-gateway-flow.sh) đi qua 12 bước, gồm cả token giả (ghép payload của đối tác khác) và
+trường hợp đối tác tự gửi `x-vobs-client-id`, `X-Userinfo` để giả danh đối tác khác.
 
 ## Kiểm thử hợp đồng API
 

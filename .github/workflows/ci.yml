@@ -91,7 +91,7 @@ jobs:
         working-directory: vobs-sandbox
     steps:
       - uses: actions/checkout@v7
-      - name: Build image và chạy sandbox (Microcks, Quản lý sự đồng ý, API Gateway)
+      - name: Build image và chạy sandbox (Microcks, Quản lý sự đồng ý, Keycloak, API Gateway)
         run: docker compose up -d --build
       - name: Chạy thử trọn luồng consent
         run: ./try-consent-flow.sh
@@ -115,7 +115,7 @@ jobs:
         if: failure()
         run: |
           docker compose ps
-          docker compose logs consent gateway
+          docker compose logs consent gateway keycloak
           docker compose exec -T gateway sh -c 'cat /usr/local/apisix/logs/error.log' || true
       - name: Quét lỗ hổng image (Trivy)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0

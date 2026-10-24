@@ -137,6 +137,17 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
 - Ví dụ, kiểm thử, đặc tả và dữ liệu mẫu dùng BIN giả `999901`, `999902` và BIC giả `ZZZZVNVX`, không dùng mã của
   ngân hàng thật (chủ dự án quyết định 24/10/2026; quy ước ghi trong CONTRIBUTING.md).
 
+## Keycloak trong sandbox
+
+- Keycloak 26.8.0 chế độ dev, realm `open-banking` nạp từ `vobs-sandbox/keycloak/open-banking-realm.json`; 3 đối tác
+  mẫu là client dùng client credentials, secret `sandbox-<client>-secret`. API key (`key-auth`) đã bỏ khỏi sandbox.
+- Issuer cố định `http://localhost:8180` (`KC_HOSTNAME`), backchannel động để gateway lấy JWKS qua
+  `http://keycloak:8080`.
+- Lỗi đã sửa: plugin `vobs-consent` từng đọc payload token ở `ctx.external_user`, nhưng `openid-connect` của APISIX
+  3.19 không đặt biến này. Nay đọc header `X-Userinfo` (bật `set_userinfo_header`), chỉ khi route có `openid-connect`
+  (plugin này xóa `X-Userinfo` do client gửi); route mẫu cho môi trường thật đã bật `set_userinfo_header`.
+- Còn lại: mTLS và token gắn chứng thư (RFC 8705), kiểm tra `aud`, luồng authorization code cho khách hàng.
+
 ## Lưu ý khi làm tiếp
 
 - **Kiểm tra trước khi push:**

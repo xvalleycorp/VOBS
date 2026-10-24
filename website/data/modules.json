@@ -41,8 +41,8 @@
   },
   {
     "name": "vobs-gateway", "status": "draft",
-    "vi": {"title": "API Gateway", "label": "Thử nghiệm", "desc": "Plugin cho Apache APISIX kiểm tra consent theo phạm vi và từng tài khoản trước mỗi request, chặn đối tác giả danh, giới hạn tần suất theo bên thứ ba. Dùng thử được trong sandbox."},
-    "en": {"title": "API Gateway", "label": "Preview", "desc": "Apache APISIX plugin that checks consent by scope and account before every request, blocks partner impersonation and rate-limits each third party. Try it in the sandbox."}
+    "vi": {"title": "API Gateway", "label": "Thử nghiệm", "desc": "Plugin cho Apache APISIX kiểm tra consent theo phạm vi và từng tài khoản trước mỗi request, chặn đối tác giả danh, giới hạn tần suất theo bên thứ ba. Dùng thử được trong sandbox, với mã truy cập do Keycloak cấp."},
+    "en": {"title": "API Gateway", "label": "Preview", "desc": "Apache APISIX plugin that checks consent by scope and account before every request, blocks partner impersonation and rate-limits each third party. Try it in the sandbox, with access tokens issued by Keycloak."}
   },
   {
     "name": "vobs-deploy", "status": "skeleton",

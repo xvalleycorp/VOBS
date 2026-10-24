@@ -1,22 +1,15 @@
-# Route của API Gateway trong sandbox. Khác môi trường thật ở hai điểm:
-# - đối tác xác thực bằng API key (key-auth) thay cho mã truy cập FAPI 2.0 từ Keycloak;
+# Route của API Gateway trong sandbox. Khác môi trường thật ở ba điểm:
+# - đối tác xác thực bằng client_secret khi lấy mã truy cập (client credentials), chưa dùng mTLS và token gắn chứng
+#   thư (RFC 8705) của FAPI 2.0;
+# - Keycloak chạy chế độ dev, HTTP;
 # - API dữ liệu (tài khoản, giao dịch) chuyển tới bản giả lập trên Microcks thay cho kho đọc của Integration Hub.
-# Kiểm tra consent (vobs-consent) và giới hạn tần suất (limit-count) chạy giống môi trường thật.
-
-consumers:
-  # Tên consumer là mã client của đối tác, khớp danh sách đối tác trong service Quản lý sự đồng ý
-  - username: fintech-a
-    plugins:
-      key-auth:
-        key: sandbox-fintech-a
-  - username: wallet-b
-    plugins:
-      key-auth:
-        key: sandbox-wallet-b
-  - username: bank-c
-    plugins:
-      key-auth:
-        key: sandbox-bank-c
+# Xác thực mã truy cập (openid-connect), kiểm tra consent (vobs-consent) và giới hạn tần suất (limit-count) chạy giống
+# môi trường thật.
+#
+# openid-connect kiểm tra chữ ký token bằng khóa công khai của Keycloak (use_jwks) và issuer lấy từ discovery.
+# set_userinfo_header đưa payload token đã xác thực vào header X-Userinfo; plugin vobs-consent đọc mã client (claim
+# azp) từ đó để đặt biến $vobs_client_id. client_id của gateway chỉ để khai báo: kiểm tra bằng JWKS không gọi
+# Keycloak bằng danh nghĩa client này.
 
 routes:
   # Tạo, xem, thu hồi consent. proxy-rewrite đặt mã client đã xác thực vào x-vobs-client-id, ghi đè giá trị đối tác
@@ -25,7 +18,13 @@ routes:
     uris: [/open-banking/v1/consents, /open-banking/v1/consents/*]
     methods: [GET, POST, DELETE]
     plugins:
-      key-auth: {}
+      openid-connect:
+        discovery: http://keycloak:8080/realms/open-banking/.well-known/openid-configuration
+        client_id: vobs-gateway
+        realm: open-banking
+        bearer_only: true
+        use_jwks: true
+        set_userinfo_header: true
       limit-count:
         count: 30
         time_window: 60
@@ -47,7 +46,13 @@ routes:
     uri: /open-banking/v1/accounts/:account_id
     methods: [GET]
     plugins:
-      key-auth: {}
+      openid-connect:
+        discovery: http://keycloak:8080/realms/open-banking/.well-known/openid-configuration
+        client_id: vobs-gateway
+        realm: open-banking
+        bearer_only: true
+        use_jwks: true
+        set_userinfo_header: true
       limit-count:
         count: 30
         time_window: 60
@@ -69,7 +74,13 @@ routes:
     uri: /open-banking/v1/accounts/:account_id/transactions
     methods: [GET]
     plugins:
-      key-auth: {}
+      openid-connect:
+        discovery: http://keycloak:8080/realms/open-banking/.well-known/openid-configuration
+        client_id: vobs-gateway
+        realm: open-banking
+        bearer_only: true
+        use_jwks: true
+        set_userinfo_header: true
       limit-count:
         count: 30
         time_window: 60

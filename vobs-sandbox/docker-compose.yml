@@ -1,7 +1,8 @@
 # Sandbox cục bộ cho bên thứ ba (fintech, ví điện tử):
 # - Microcks dựng API giả lập từ bộ đặc tả trong vobs-spec;
 # - service Quản lý sự đồng ý chạy thật, lưu trong bộ nhớ, để thử trọn luồng tạo, duyệt, kiểm tra consent;
-# - API Gateway (Apache APISIX) với plugin vobs-consent: đối tác gọi qua gateway như ở môi trường thật.
+# - Keycloak cấp mã truy cập OAuth 2.0 (client credentials) cho đối tác mẫu;
+# - API Gateway (Apache APISIX) xác thực mã truy cập và kiểm tra consent: đối tác gọi qua gateway như ở môi trường thật.
 #
 #   docker compose up -d --build
 #   ./import-specs.sh        # nạp đặc tả và dữ liệu mẫu vào Microcks
@@ -9,7 +10,7 @@
 #   ./try-gateway-flow.sh    # chạy thử luồng qua API Gateway
 #   ./try-sandbox-data.sh    # kiểm tra dữ liệu mẫu
 #
-# Giao diện Microcks: http://localhost:8585; API Gateway: http://localhost:9080/open-banking/v1
+# Giao diện Microcks: http://localhost:8585; Keycloak: http://localhost:8180; API Gateway: http://localhost:9080/open-banking/v1
 services:
   microcks:
     image: quay.io/microcks/microcks-uber:1.14.0
@@ -34,9 +35,26 @@ services:
       - "127.0.0.1:8091:8081"
     restart: unless-stopped
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.0
+    # Chế độ dev: HTTP, lưu trong bộ nhớ; realm open-banking nạp từ keycloak/open-banking-realm.json khi khởi động
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      # Issuer của token luôn là http://localhost:8180, địa chỉ đối tác dùng để lấy token. Gateway gọi Keycloak qua
+      # mạng nội bộ (http://keycloak:8080); với backchannel động, discovery trả jwks_uri theo địa chỉ nội bộ đó.
+      KC_HOSTNAME: http://localhost:8180
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    volumes:
+      - ./keycloak/open-banking-realm.json:/opt/keycloak/data/import/open-banking-realm.json:ro
+    ports:
+      - "127.0.0.1:8180:8080"
+    restart: unless-stopped
+
   gateway:
     image: apache/apisix:3.19.0-debian
-    depends_on: [consent, microcks]
+    depends_on: [consent, microcks, keycloak]
     environment:
       # Chạy standalone: route đọc từ gateway/apisix.yaml, không cần etcd
       APISIX_STAND_ALONE: "true"

@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Chạy thử luồng của bên thứ ba qua API Gateway trên sandbox: xác thực bằng API key, tạo consent, đọc tài khoản
+# Chạy thử luồng của bên thứ ba qua API Gateway trên sandbox: lấy mã truy cập từ Keycloak, tạo consent, đọc tài khoản
 # theo phạm vi consent, giới hạn tần suất. Dữ liệu tài khoản lấy từ API giả lập trên Microcks (chạy ./import-specs.sh
 # trước). Mỗi bước in kết quả và dừng với mã lỗi nếu kết quả khác mong đợi.
 #
+#   KEYCLOAK_URL  Keycloak cấp mã truy cập             (mặc định http://localhost:8180)
 #   GATEWAY_URL   API Gateway                         (mặc định http://localhost:9080/open-banking/v1)
 #   INTERNAL_URL  cổng nội bộ của Quản lý sự đồng ý    (mặc định http://localhost:8091), đóng vai kênh ngân hàng
 set -euo pipefail
 
+KEYCLOAK_URL="${KEYCLOAK_URL:-http://localhost:8180}"
 GATEWAY_URL="${GATEWAY_URL:-http://localhost:9080/open-banking/v1}"
 INTERNAL_URL="${INTERNAL_URL:-http://localhost:8091}"
-FINTECH_KEY="apikey: sandbox-fintech-a"
-WALLET_KEY="apikey: sandbox-wallet-b"
 CUSTOMER="cif-2001"
 BODY="$(mktemp)"
 trap 'rm -f "$BODY"' EXIT
@@ -36,6 +36,13 @@ field() {
   sed -En "s/.*\"$1\":(\"[^\"]*\"|true|false|null).*/\1/p" "$BODY" | head -1 | tr -d '"'
 }
 
+# token CLIENT_ID -> mã truy cập client credentials từ Keycloak (secret mẫu: sandbox-<client>-secret)
+token() {
+  curl -s -u "$1:sandbox-$1-secret" -d grant_type=client_credentials \
+    "$KEYCLOAK_URL/realms/open-banking/protocol/openid-connect/token" \
+    | sed -En 's/.*"access_token":"([^"]+)".*/\1/p'
+}
+
 expect() {
   local what="$1" actual="$2" expected="$3"
   if [ "$actual" = "$expected" ]; then
@@ -46,10 +53,30 @@ expect() {
   fi
 }
 
+printf 'Chờ Keycloak sẵn sàng tại %s ' "$KEYCLOAK_URL"
+for _ in $(seq 1 90); do
+  if [ -n "$(token fintech-a || true)" ]; then
+    break
+  fi
+  printf '.'
+  sleep 2
+done
+echo
+FINTECH_TOKEN="$(token fintech-a)"
+WALLET_TOKEN="$(token wallet-b)"
+if [ -z "$FINTECH_TOKEN" ] || [ -z "$WALLET_TOKEN" ]; then
+  echo "Không lấy được mã truy cập từ Keycloak" >&2
+  exit 1
+fi
+FINTECH_KEY="Authorization: Bearer $FINTECH_TOKEN"
+WALLET_KEY="Authorization: Bearer $WALLET_TOKEN"
+
 printf 'Chờ API Gateway sẵn sàng tại %s ' "$GATEWAY_URL"
 for _ in $(seq 1 60); do
-  # Chưa có API key thì gateway trả 401: nghĩa là gateway đã chạy và đã nạp route
-  if [ "$(curl -s -o /dev/null -w '%{http_code}' "$GATEWAY_URL/consents" || true)" = "401" ]; then
+  # Xem một consent không tồn tại, có token: service consent trả 404 kèm "reason". Nghĩa là gateway đã nạp route,
+  # đọc được khóa của Keycloak để kiểm tra token và chuyển được request tới service consent.
+  if [ "$(call GET "$GATEWAY_URL/consents/khong-ton-tai" "" "$FINTECH_KEY" || true)" = "404" ] \
+    && grep -q '"reason"' "$BODY"; then
     break
   fi
   printf '.'
@@ -57,18 +84,24 @@ for _ in $(seq 1 60); do
 done
 echo
 
-step "Gọi gateway không có API key: bị từ chối"
+step "Gọi gateway không có mã truy cập: bị từ chối"
 status=$(call GET "$GATEWAY_URL/accounts/acc-1001" "" 'x-consent-id: bat-ky')
 expect "HTTP" "$status" 401
 
-step "fintech-a tạo consent qua gateway, đồng thời tự gửi x-vobs-client-id: wallet-b để giả danh"
+step "Token giả: ghép payload của wallet-b với chữ ký của fintech-a, bị từ chối"
+FORGED="$(echo "$FINTECH_TOKEN" | cut -d. -f1).$(echo "$WALLET_TOKEN" | cut -d. -f2).$(echo "$FINTECH_TOKEN" | cut -d. -f3)"
+status=$(call GET "$GATEWAY_URL/consents/bat-ky" "" "Authorization: Bearer $FORGED")
+expect "HTTP" "$status" 401
+
+step "fintech-a tạo consent qua gateway, đồng thời tự gửi x-vobs-client-id và X-Userinfo của wallet-b để giả danh"
+SPOOFED_USERINFO="$(printf '{"azp":"wallet-b","client_id":"wallet-b"}' | base64 | tr -d '\n')"
 status=$(call POST "$GATEWAY_URL/consents" '{"scopes":["ACCOUNTS_READ"],"validityDays":90}' \
-  "$FINTECH_KEY" 'x-vobs-client-id: wallet-b')
+  "$FINTECH_KEY" 'x-vobs-client-id: wallet-b' "X-Userinfo: $SPOOFED_USERINFO")
 expect "HTTP" "$status" 201
 CONSENT="$(field consentId)"
 printf '   consentId: %s\n' "$CONSENT"
 
-step "Consent thuộc fintech-a, không phải wallet-b: gateway ghi đè header giả danh"
+step "Consent thuộc fintech-a, không phải wallet-b: gateway bỏ qua các header giả danh"
 status=$(call GET "$GATEWAY_URL/consents/$CONSENT" "" "$FINTECH_KEY")
 expect "fintech-a xem consent, HTTP" "$status" 200
 status=$(call GET "$GATEWAY_URL/consents/$CONSENT" "" "$WALLET_KEY")

@@ -5,14 +5,16 @@
 --
 -- Thứ tự (priority cao chạy trước): openid-connect (2599) -> limit-count (1002) -> vobs-consent (999).
 -- Nhờ vậy request vượt hạn mức bị chặn trước khi tốn một lần gọi service consent.
--- Plugin đọc client id của đối tác đã được xác thực: từ token (claim azp, hoặc client_id) khi dùng openid-connect,
--- hoặc từ tên consumer khi dùng plugin xác thực consumer như key-auth (sandbox). Sau đó lấy consent id từ header
+-- Plugin đọc client id của đối tác đã được xác thực: từ token (claim azp, hoặc client_id) khi route dùng
+-- openid-connect với set_userinfo_header, hoặc từ tên consumer khi dùng plugin xác thực consumer như key-auth.
+-- Sau đó lấy consent id từ header
 -- x-consent-id và hỏi service consent qua API nội bộ
 -- POST /internal/consent-checks (xem vobs-spec/openapi/internal-consent-check.yaml).
 -- Mọi lỗi khi gọi service consent đều từ chối request (fail closed).
 --
 local core = require("apisix.core")
 local http = require("resty.http")
+local ngx = ngx
 
 local plugin_name = "vobs-consent"
 
@@ -35,14 +37,48 @@ local schema = {
     required = { "consent_service_uri", "scope" },
 }
 
-local function client_id_of(ctx)
-    -- openid-connect đặt payload của token đã xác thực vào ctx.external_user
-    local token = ctx.external_user
-    if type(token) == "table" and (token.azp or token.client_id) then
-        return token.azp or token.client_id
+local function runs_openid_connect(ctx)
+    -- ctx.plugins: danh sách plugin của request, dạng { plugin, conf, plugin, conf, ... }
+    local plugins = ctx.plugins
+    if not plugins then
+        return false
     end
-    -- key-auth, jwt-auth... chỉ đặt ctx.consumer_name sau khi xác thực consumer thành công
-    return ctx.consumer_name
+    for i = 1, #plugins, 2 do
+        if plugins[i].name == "openid-connect" then
+            return true
+        end
+    end
+    return false
+end
+
+local function claims_from_userinfo(ctx)
+    local encoded = core.request.header(ctx, "X-Userinfo")
+    if not encoded then
+        return nil
+    end
+    local decoded = ngx.decode_base64(encoded)
+    local claims = decoded and core.json.decode(decoded)
+    return type(claims) == "table" and claims or nil
+end
+
+local function client_id_of(ctx)
+    if ctx.vobs_client_id ~= nil then
+        return ctx.vobs_client_id or nil
+    end
+    local client_id
+    if runs_openid_connect(ctx) then
+        -- openid-connect (APISIX 3.19) không đặt payload token vào ctx. Với set_userinfo_header = true, plugin xóa
+        -- X-Userinfo do client tự gửi rồi đặt lại bằng payload (base64 JSON) của token đã xác thực. Chỉ tin header
+        -- này khi route có openid-connect; route khác thì client tự gửi được X-Userinfo để giả danh.
+        local claims = claims_from_userinfo(ctx)
+        client_id = claims and (claims.azp or claims.client_id)
+    else
+        -- key-auth, jwt-auth... chỉ đặt ctx.consumer_name sau khi xác thực consumer thành công
+        client_id = ctx.consumer_name
+    end
+    -- Ghi nhớ trong request: proxy-rewrite, limit-count, vobs-consent, kafka-logger đều đọc biến này
+    ctx.vobs_client_id = client_id or false
+    return client_id
 end
 
 -- $vobs_client_id: khóa giới hạn tần suất của limit-count và trường của log kiểm toán (kafka-logger).

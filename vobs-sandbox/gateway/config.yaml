@@ -12,7 +12,7 @@ apisix:
     http: radixtree_uri_with_parameter
 
 plugins:
-  - key-auth
+  - openid-connect
   - limit-count
   - proxy-rewrite
   - vobs-consent

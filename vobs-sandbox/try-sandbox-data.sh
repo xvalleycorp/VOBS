@@ -5,15 +5,15 @@
 # nếu kết quả khác mong đợi.
 #
 #   MOCK_URL      API giả lập trên Microcks  (mặc định http://localhost:8585/rest/VOBS+Open+API/0.2.0-draft)
+#   KEYCLOAK_URL  Keycloak cấp mã truy cập   (mặc định http://localhost:8180)
 #   GATEWAY_URL   API Gateway                (mặc định http://localhost:9080/open-banking/v1)
 #   INTERNAL_URL  cổng nội bộ của Quản lý sự đồng ý (mặc định http://localhost:8091), đóng vai kênh ngân hàng
 set -euo pipefail
 
 MOCK_URL="${MOCK_URL:-http://localhost:8585/rest/VOBS+Open+API/0.2.0-draft}"
+KEYCLOAK_URL="${KEYCLOAK_URL:-http://localhost:8180}"
 GATEWAY_URL="${GATEWAY_URL:-http://localhost:9080/open-banking/v1}"
 INTERNAL_URL="${INTERNAL_URL:-http://localhost:8091}"
-# Đối tác riêng cho script này, để không dùng chung hạn mức tần suất với ./try-gateway-flow.sh
-BANK_KEY="apikey: sandbox-bank-c"
 CONSENT_ID="6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c"
 BODY="$(mktemp)"
 trap 'rm -f "$BODY"' EXIT
@@ -107,6 +107,16 @@ expect "pay-20261024-0004, status" "$(field status)" UNKNOWN
 step "Nạp ví bị từ chối vì vượt hạn mức"
 expect "HTTP" "$(get /ewallet-topups/top-20261024-0002)" 200
 expect "reasonCode" "$(field reasonCode)" AM02
+
+# Đối tác riêng cho script này, để không dùng chung hạn mức tần suất với ./try-gateway-flow.sh
+BANK_TOKEN="$(curl -s -u bank-c:sandbox-bank-c-secret -d grant_type=client_credentials \
+  "$KEYCLOAK_URL/realms/open-banking/protocol/openid-connect/token" \
+  | sed -En 's/.*"access_token":"([^"]+)".*/\1/p')"
+if [ -z "$BANK_TOKEN" ]; then
+  echo "Không lấy được mã truy cập của bank-c từ Keycloak" >&2
+  exit 1
+fi
+BANK_KEY="Authorization: Bearer $BANK_TOKEN"
 
 step "Qua API Gateway: bank-c tạo consent đọc tài khoản và giao dịch, khách hàng chọn acc-2001"
 status=$(call POST "$GATEWAY_URL/consents" '{"scopes":["ACCOUNTS_READ","TRANSACTIONS_READ"],"validityDays":30}' \
