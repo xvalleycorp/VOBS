@@ -27,7 +27,7 @@ Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintec
 | [Sandbox cho bên thứ ba](vobs-sandbox) | `vobs-sandbox` | API giả lập bằng Microcks; service Quản lý sự đồng ý và API Gateway chạy thật để thử luồng consent | 1 | Chạy trên máy bằng Docker Compose |
 | [Quản lý sự đồng ý](vobs-consent) | `vobs-consent` | Vòng đời consent; chính sách theo Điều 5, 11 viết bằng bảng quyết định RuleStone; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi, API HTTP, lưu trữ PostgreSQL; chạy một bản |
 | [Integration Hub](vobs-hub) | `vobs-hub` | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
-| [API Gateway](vobs-gateway) | `vobs-gateway` | Plugin APISIX: consent, giới hạn tần suất, log kiểm toán | 2 | Plugin consent chạy trên APISIX 3.19 trong sandbox; chưa thử với Keycloak |
+| [API Gateway](vobs-gateway) | `vobs-gateway` | Plugin APISIX: consent, giới hạn tần suất, log kiểm toán | 2 | Plugin consent chạy trên APISIX 3.19 với Keycloak trong sandbox; chưa có mTLS |
 | [Bộ triển khai](vobs-deploy) | `vobs-deploy` | Helm chart tổng, GitOps, bộ cài air-gapped | 2 | Khung |
 
 Module Decision (trên [RuleStone](https://github.com/xvalleycorp/RuleStone)), Fraud và AML (tích hợp Tazama) thuộc giai

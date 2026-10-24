@@ -16,6 +16,8 @@ routes:
         client_secret: <từ OpenBao>
         bearer_only: true
         use_jwks: true
+        # Bắt buộc: vobs-consent đọc mã client (claim azp) từ X-Userinfo do openid-connect đặt
+        set_userinfo_header: true
       limit-count:
         count: 60
         time_window: 60
@@ -63,6 +65,8 @@ routes:
         client_secret: <từ OpenBao>
         bearer_only: true
         use_jwks: true
+        # Bắt buộc: $vobs_client_id lấy mã client (claim azp) từ X-Userinfo do openid-connect đặt
+        set_userinfo_header: true
       limit-count:
         count: 60
         time_window: 60
