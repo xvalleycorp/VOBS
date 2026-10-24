@@ -231,7 +231,6 @@
                     <licenseMerge>EDL-1.0|EDL 1.0|Eclipse Distribution License - v 1.0</licenseMerge>
                     <licenseMerge>MIT|MIT License|The MIT License</licenseMerge>
                     <licenseMerge>BSD-3-Clause|BSD 3-Clause|BSD-3-Clause License|The BSD 3-Clause License</licenseMerge>
-                    <licenseMerge>BSD-2-Clause|BSD 2-Clause|BSD-2-Clause License|The BSD 2-Clause License</licenseMerge>
                   </licenseMerges>
                   <!-- Danh sách cho phép: giấy phép nào nằm ngoài danh sách này đều làm build thất bại -->
                   <includedLicenses>
@@ -239,7 +238,9 @@
                     <includedLicense>EDL-1.0</includedLicense>
                     <includedLicense>MIT</includedLicense>
                     <includedLicense>BSD-3-Clause</includedLicense>
-                    <includedLicense>BSD-2-Clause</includedLicense>
+                    <!-- Ngoại lệ theo từng artifact, khai báo trong src/license/override-THIRD-PARTY.properties
+                         của module dùng nó; xem docs/licensing.md -->
+                    <includedLicense>BSD-2-Clause (ngoại lệ: driver JDBC PostgreSQL)</includedLicense>
                   </includedLicenses>
                 </configuration>
               </execution>
