@@ -77,6 +77,8 @@
     <jakarta-xml-bind.version>4.0.5</jakarta-xml-bind.version>
     <jackson.version>2.22.4</jackson.version>
     <postgresql.version>42.7.14</postgresql.version>
+    <!-- Chưa có trên Maven Central: cài từ mã nguồn bằng scripts/install-rulestone.sh -->
+    <rulestone.version>0.1.0-SNAPSHOT</rulestone.version>
   </properties>
 
   <dependencyManagement>
@@ -100,6 +102,11 @@
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>vn.io.dxa.rulestone</groupId>
+        <artifactId>rulestone-core</artifactId>
+        <version>${rulestone.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
@@ -230,7 +237,8 @@
                     <licenseMerge>Apache-2.0|Apache 2.0|Apache License Version 2.0|Apache License, Version 2.0|The Apache Software License, Version 2.0|The Apache License, Version 2.0</licenseMerge>
                     <licenseMerge>EDL-1.0|EDL 1.0|Eclipse Distribution License - v 1.0</licenseMerge>
                     <licenseMerge>MIT|MIT License|The MIT License</licenseMerge>
-                    <licenseMerge>BSD-3-Clause|BSD 3-Clause|BSD-3-Clause License|The BSD 3-Clause License</licenseMerge>
+                    <!-- RE2/J khai báo "Go License": giấy phép của Go chính là BSD-3-Clause -->
+                    <licenseMerge>BSD-3-Clause|BSD 3-Clause|BSD 3-clause|BSD-3-Clause License|The BSD 3-Clause License|Go License</licenseMerge>
                   </licenseMerges>
                   <!-- Danh sách cho phép: giấy phép nào nằm ngoài danh sách này đều làm build thất bại -->
                   <includedLicenses>

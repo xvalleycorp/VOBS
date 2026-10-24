@@ -23,6 +23,11 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
+    <!-- Chính sách nhận yêu cầu consent viết bằng bảng quyết định (ConsentPolicy) -->
+    <dependency>
+      <groupId>vn.io.dxa.rulestone</groupId>
+      <artifactId>rulestone-core</artifactId>
+    </dependency>
     <!-- Lưu consent và log kiểm toán vào PostgreSQL bằng JDBC thuần, không dùng ORM -->
     <dependency>
       <groupId>org.postgresql</groupId>

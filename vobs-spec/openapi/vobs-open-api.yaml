@@ -182,7 +182,9 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
-          description: Bên thứ ba không được dùng phạm vi đã xin (Điều 5)
+          description: |
+            Bên thứ ba không được dùng phạm vi đã xin (Điều 5, `scope_not_permitted`), hoặc yêu cầu bị chính sách
+            riêng của ngân hàng từ chối (`reason` là mã lý do của chính sách)
           content:
             application/problem+json:
               schema:

@@ -16,6 +16,7 @@ Ngôn ngữ chính là Java 21, cùng hệ sinh thái với Keycloak, Debezium v
 | Kho đọc | PostgreSQL + CloudNativePG, Valkey | PostgreSQL, Apache 2.0, BSD-3 | Dữ liệu đã chuẩn hóa, cache |
 | Workflow | Temporal | MIT | Luồng consent, onboarding đối tác, saga thanh toán |
 | Thông điệp thanh toán | Prowide ISO 20022 | Apache 2.0 | Model và parser ISO 20022 |
+| Quy tắc nghiệp vụ | RuleStone (sản phẩm cùng nhóm phát triển) | Apache 2.0 | Bảng quyết định có phiên bản, ngày hiệu lực: chính sách nhận consent; sau này hạn mức, phí thanh toán, quy tắc Fraud và AML |
 | Sandbox | Microcks | Apache 2.0 | API giả lập, kiểm thử hợp đồng |
 | Bí mật | OpenBao | MPL 2.0 | Secret, khóa, chứng thư |
 | WAF | Coraza + OWASP CRS | Apache 2.0 | Chặn tấn công tầng ứng dụng |
@@ -57,7 +58,16 @@ thích với Apache 2.0. Nghĩa vụ duy nhất là giữ thông báo bản quy�
 ## Thông báo giấy phép khi phân phối
 
 Image Docker của dự án kèm thư mục `/app/licenses`: `LICENSE`, `NOTICE` của VOBS, danh sách `THIRD-PARTY.txt` và
-file giấy phép, thông báo lấy nguyên văn từ từng thư viện đi kèm. Build image chạy profile `license-check`, nên không
+file giấy phép, thông báo lấy nguyên văn từ từng thư viện đi kèm. Một số thư viện không đóng file giấy phép vào JAR
+(CEL, Protobuf, RE2/J, ANTLR, SnakeYAML và vài thư viện annotation, đều đến cùng RuleStone); văn bản giấy phép của
+chúng được lấy từ repo gốc đúng tag phiên bản, lưu trong
+[`vobs-consent/src/license/third-party`](../vobs-consent/src/license/third-party). Build image dừng nếu một thư viện
+không có giấy phép ở cả hai nơi.
+
+RuleStone chưa phát hành lên Maven Central nên được build từ mã nguồn tại một commit cố định
+([`scripts/install-rulestone.sh`](../scripts/install-rulestone.sh)); mã commit là hash nội dung nên không bị thay
+nội dung ngầm. Dependabot không theo dõi được commit này; đổi bằng tay. Tên giấy phép "Go License" của RE2/J được gộp
+vào BSD-3-Clause vì giấy phép của Go chính là BSD-3-Clause. Build image chạy profile `license-check`, nên không
 dựng được image khi có dependency mang giấy phép ngoài danh sách cho phép.
 
 Grafana và Loki (AGPL) dùng nguyên bản được, nhưng không nhúng vào sản phẩm. Giấy phép có thể thay đổi; kiểm tra

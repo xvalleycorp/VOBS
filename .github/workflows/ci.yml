@@ -36,6 +36,8 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      - name: Cài RuleStone từ mã nguồn (chưa có trên Maven Central)
+        run: ./scripts/install-rulestone.sh
       - name: Build và test
         run: mvn -B verify
       - name: Kiểm tra giấy phép dependency
@@ -95,7 +97,10 @@ jobs:
           docker run --rm --entrypoint sh vobs-consent:sandbox -c '
             set -e
             ls /app/licenses/LICENSE /app/licenses/NOTICE /app/licenses/third-party/THIRD-PARTY.txt
-            grep -q "PostgreSQL Global Development Group" /app/licenses/third-party/postgresql-*/META-INF/LICENSE
+            grep -q "PostgreSQL Global Development Group" /app/licenses/third-party/org.postgresql.postgresql/META-INF/LICENSE
+            # JAR không kèm giấy phép: văn bản lấy từ vobs-consent/src/license/third-party
+            grep -q "The Go Authors" /app/licenses/third-party/com.google.re2j.re2j/LICENSE
+            grep -q "Copyright 2008 Google Inc." /app/licenses/third-party/com.google.protobuf.protobuf-java/LICENSE
             echo "Thư viện có file giấy phép: $(ls /app/licenses/third-party | grep -vc THIRD-PARTY.txt)"'
       - name: Log của sandbox khi lỗi
         if: failure()

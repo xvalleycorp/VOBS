@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.vobs.consent.AuditLog;
 import io.vobs.consent.Consent;
+import io.vobs.consent.ConsentPolicy;
 import io.vobs.consent.ConsentScope;
 import io.vobs.consent.ConsentService;
 import io.vobs.consent.ThirdParty;
@@ -49,7 +50,7 @@ class PostgresStorageTest {
 
     private ConsentService service(Clock clock) {
         return new ConsentService(new PostgresConsentRepository(dataSource),
-                new AuditLog(new PostgresAuditStore(dataSource)), clock, ConsentService.TT64_MAX_VALIDITY);
+                new AuditLog(new PostgresAuditStore(dataSource)), clock, ConsentPolicy.builtIn());
     }
 
     @Test
@@ -67,6 +68,7 @@ class PostgresStorageTest {
         assertEquals("cif-1", loaded.customerId());
         assertEquals(Set.of("acc-1", "acc-2"), loaded.accountIds());
         assertEquals(Set.of(ConsentScope.ACCOUNTS_READ, ConsentScope.TRANSACTIONS_READ), loaded.scopes());
+        assertEquals(requested.policyVersion(), loaded.policyVersion());
         assertTrue(second.check(requested.consentId(), "fintech-a", ConsentScope.ACCOUNTS_READ, "acc-2").allowed());
 
         second.revokeByCustomer(requested.consentId(), "cif-1");

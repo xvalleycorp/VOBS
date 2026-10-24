@@ -13,6 +13,10 @@ CREATE TABLE IF NOT EXISTS consent (
     status_changed_at timestamptz NOT NULL
 );
 
+-- Phiên bản bảng quyết định consent_request đã nhận yêu cầu (RuleStone, dạng <version>@sha256:<hash>); trống với
+-- consent tạo trước khi có cột này
+ALTER TABLE consent ADD COLUMN IF NOT EXISTS policy_version text;
+
 CREATE INDEX IF NOT EXISTS consent_customer_idx ON consent (customer_id, created_at DESC);
 
 -- Log kiểm toán nối chuỗi hash: mỗi bản ghi chứa hash của bản ghi trước

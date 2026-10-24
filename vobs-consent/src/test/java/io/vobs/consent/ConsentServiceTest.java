@@ -49,7 +49,7 @@ class ConsentServiceTest {
     private final MutableClock clock = new MutableClock();
     private final AuditLog audit = new AuditLog();
     private final ConsentService service =
-            new ConsentService(ConsentRepository.inMemory(), audit, clock, ConsentService.TT64_MAX_VALIDITY);
+            new ConsentService(ConsentRepository.inMemory(), audit, clock, ConsentPolicy.builtIn());
 
     private Consent authorisedConsent() {
         Consent requested = service.request(FINTECH, "cif-1",
@@ -69,6 +69,12 @@ class ConsentServiceTest {
                 service.check(id, "fintech-a", ConsentScope.ACCOUNTS_READ, "acc-2").reason());
         assertEquals("consent_not_found",
                 service.check(id, "fintech-b", ConsentScope.ACCOUNTS_READ, "acc-1").reason());
+    }
+
+    @Test
+    void recordsThePolicyVersionThatAdmittedTheRequest() {
+        Consent consent = authorisedConsent();
+        assertTrue(consent.policyVersion().matches("1@sha256:[0-9a-f]{64}"), consent.policyVersion());
     }
 
     @Test
@@ -154,6 +160,8 @@ class ConsentServiceTest {
     void enforcesValidityAndAccountSelection() {
         assertThrows(IllegalArgumentException.class, () -> service.request(FINTECH, "cif-1",
                 Set.of(ConsentScope.ACCOUNTS_READ), Duration.ofDays(181)));
+        assertThrows(IllegalArgumentException.class, () -> service.request(FINTECH, "cif-1",
+                Set.of(ConsentScope.ACCOUNTS_READ), Duration.ofHours(36)));
         Consent requested = service.request(FINTECH, "cif-1", Set.of(ConsentScope.ACCOUNTS_READ),
                 Duration.ofDays(1));
         assertThrows(IllegalArgumentException.class,

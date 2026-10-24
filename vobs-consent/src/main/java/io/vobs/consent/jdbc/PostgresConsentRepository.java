@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 public final class PostgresConsentRepository implements ConsentRepository {
 
     private static final String COLUMNS = "consent_id, client_id, customer_id, scopes, account_ids, created_at, "
-            + "expires_at, status, status_changed_at";
+            + "expires_at, status, status_changed_at, policy_version";
 
     private final DataSource dataSource;
 
@@ -33,7 +33,7 @@ public final class PostgresConsentRepository implements ConsentRepository {
 
     @Override
     public void save(Consent consent) {
-        String sql = "INSERT INTO consent (" + COLUMNS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+        String sql = "INSERT INTO consent (" + COLUMNS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
                 + "ON CONFLICT (consent_id) DO UPDATE SET customer_id = EXCLUDED.customer_id, "
                 + "account_ids = EXCLUDED.account_ids, status = EXCLUDED.status, "
                 + "status_changed_at = EXCLUDED.status_changed_at";
@@ -48,6 +48,7 @@ public final class PostgresConsentRepository implements ConsentRepository {
             statement.setObject(7, timestamp(consent.expiresAt()));
             statement.setString(8, consent.status().name());
             statement.setObject(9, timestamp(consent.statusChangedAt()));
+            statement.setString(10, consent.policyVersion());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("Không lưu được consent " + consent.consentId(), e);
@@ -94,7 +95,8 @@ public final class PostgresConsentRepository implements ConsentRepository {
                 instant(row, "created_at"),
                 instant(row, "expires_at"),
                 Consent.Status.valueOf(row.getString("status")),
-                instant(row, "status_changed_at"));
+                instant(row, "status_changed_at"),
+                row.getString("policy_version"));
     }
 
     private static Array textArray(Connection connection, List<String> values) throws SQLException {

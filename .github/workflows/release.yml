@@ -20,6 +20,8 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      - name: Cài RuleStone từ mã nguồn (chưa có trên Maven Central)
+        run: ./scripts/install-rulestone.sh
       - name: Đặt phiên bản theo tag
         run: mvn -B versions:set -DnewVersion="${GITHUB_REF_NAME#v}" -DgenerateBackupPoms=false
       - name: Build

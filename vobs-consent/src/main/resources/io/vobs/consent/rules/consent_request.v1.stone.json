@@ -1,0 +1,38 @@
+{
+  "id": "consent_request",
+  "version": "1",
+  "description": "Nhận hay từ chối yêu cầu consent của bên thứ ba theo Thông tư 64/2024/TT-NHNN: phạm vi được phép theo loại tổ chức (Điều 5), thời hạn tối đa (Điều 11)",
+  "effectiveFrom": "2025-03-01",
+  "hitPolicy": "FIRST",
+  "inputs": {
+    "thirdPartyType": "string",
+    "scopes": [{ "name": "string", "paymentGroup": "bool" }],
+    "validityDays": "int"
+  },
+  "outputs": {
+    "allowed": "bool",
+    "maxValidityDays": "int",
+    "notPermittedScopes": ["string"]
+  },
+  "rules": [
+    {
+      "id": "VALIDITY",
+      "description": "Thời gian bên thứ ba được truy vấn sau khi khách hàng đồng ý không quá 180 ngày, trừ khi có thỏa thuận khác (Điều 11)",
+      "when": "validityDays < 1 || validityDays > 180",
+      "then": { "allowed": "false", "maxValidityDays": "180" },
+      "reasonCode": "VALIDITY_OUT_OF_RANGE"
+    },
+    {
+      "id": "PAYMENT_GROUP",
+      "description": "Nhóm thanh toán và ví điện tử (Điều 6 khoản 1 điểm c) chỉ dành cho ngân hàng và tổ chức trung gian thanh toán (Điều 5)",
+      "when": "!(thirdPartyType in ['BANK', 'PAYMENT_INTERMEDIARY']) && scopes.exists(s, s.paymentGroup)",
+      "then": { "allowed": "false", "notPermittedScopes": "scopes.filter(s, s.paymentGroup).map(s, s.name)" },
+      "reasonCode": "SCOPE_NOT_PERMITTED"
+    },
+    {
+      "id": "ALLOW",
+      "when": "true",
+      "then": { "allowed": "true" }
+    }
+  ]
+}

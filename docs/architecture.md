@@ -68,6 +68,23 @@ Mục tiêu khởi điểm, cần xác nhận với ngân hàng thí điểm.
 | Log kiểm toán không sửa được | Ghi nối tiếp vào Kafka, lưu kiểu WORM, chuỗi hash; giữ tối thiểu 3 tháng, sao lưu tối thiểu 1 năm (Điều 11 Thông tư 64) |
 | PCI DSS | Không lưu số thẻ; token hóa để giữ ngoài phạm vi PCI |
 
+## Quy tắc nghiệp vụ
+
+Quy tắc hay thay đổi theo quy định hoặc theo chính sách từng ngân hàng được viết bằng bảng quyết định
+[RuleStone](https://github.com/xvalleycorp/RuleStone) (Apache-2.0), không viết trong mã Java. Mỗi bảng có phiên bản và
+ngày hiệu lực, được kiểm tra kiểu khi nạp. Mỗi quyết định có bản ghi kiểm toán gồm phiên bản bảng, hash nội dung bảng
+và mã lý do, không chứa giá trị input.
+
+| Vị trí | Quy tắc | Trạng thái |
+| --- | --- | --- |
+| `vobs-consent` | Nhận yêu cầu consent: phạm vi theo loại bên thứ ba (Điều 5), thời hạn tối đa (Điều 11), chính sách riêng của ngân hàng | Đang dùng |
+| Khởi tạo thanh toán, nạp và rút ví (giai đoạn 2) | Hạn mức theo giao dịch và theo ngày, phí, mức xác thực bắt buộc theo số tiền; vi phạm trả `422` kèm mã lý do | Dự kiến, khi có service thanh toán |
+| Module Decision, Fraud và AML (giai đoạn 3) | Quy tắc giám sát giao dịch, so khớp tên tiếng Việt với danh sách cần sàng lọc | Dự kiến |
+| Luồng chạy trên Temporal | Quyết định gọi trong workflow, giữ cố định phiên bản bảng khi replay (`rulestone-temporal`) | Dự kiến |
+
+Hai chỗ **không** dùng bảng quyết định: kiểm tra consent tại gateway (logic trạng thái của consent, giữ trong mã) và
+giới hạn tần suất (cấu hình của gateway).
+
 ## Vận hành
 
 - Quan sát: OpenTelemetry cho trace, metric và log; Prometheus, Jaeger; Grafana dùng nguyên bản (AGPL, không nhúng).

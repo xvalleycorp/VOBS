@@ -3,17 +3,17 @@ package io.vobs.consent;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Vòng đời consent: đối tác yêu cầu, khách hàng duyệt hoặc từ chối, khách hàng hoặc đối tác thu hồi, tự hết hạn.
- * Mọi lần đổi trạng thái đều ghi vào {@link AuditLog}.
+ * Mọi lần đổi trạng thái đều ghi vào {@link AuditLog}. Yêu cầu mới được xét theo {@link ConsentPolicy}.
  *
  * <pre>
  * AWAITING_AUTHORISATION --authorise--> AUTHORISED --revoke--> REVOKED
@@ -23,22 +23,16 @@ import java.util.stream.Collectors;
  */
 public final class ConsentService {
 
-    /**
-     * Thời hạn tối đa mặc định: thời gian bên thứ ba được truy vấn thông tin sau khi khách hàng đồng ý không quá 180
-     * ngày, trừ khi có thỏa thuận khác (Điều 11 Thông tư 64/2024/TT-NHNN).
-     */
-    public static final Duration TT64_MAX_VALIDITY = Duration.ofDays(180);
-
     private final ConsentRepository repository;
     private final AuditLog auditLog;
     private final Clock clock;
-    private final Duration maxValidity;
+    private final ConsentPolicy policy;
 
-    public ConsentService(ConsentRepository repository, AuditLog auditLog, Clock clock, Duration maxValidity) {
+    public ConsentService(ConsentRepository repository, AuditLog auditLog, Clock clock, ConsentPolicy policy) {
         this.repository = repository;
         this.auditLog = auditLog;
         this.clock = clock;
-        this.maxValidity = maxValidity;
+        this.policy = policy;
     }
 
     /**
@@ -47,6 +41,7 @@ public final class ConsentService {
      *
      * @throws ScopeNotPermittedException nếu đối tác xin phạm vi thuộc nhóm thanh toán mà không phải ngân hàng hoặc
      *     trung gian thanh toán
+     * @throws ConsentRejectedException nếu chính sách riêng của ngân hàng từ chối
      */
     public Consent request(ThirdParty client, Set<ConsentScope> scopes, Duration validity) {
         return request(client, null, scopes, validity);
@@ -58,19 +53,19 @@ public final class ConsentService {
      * @param customerId mã khách hàng, hoặc {@code null} nếu chưa biết
      * @throws ScopeNotPermittedException nếu đối tác xin phạm vi thuộc nhóm thanh toán mà không phải ngân hàng hoặc
      *     trung gian thanh toán
+     * @throws ConsentRejectedException nếu chính sách riêng của ngân hàng từ chối
      */
     public Consent request(ThirdParty client, String customerId, Set<ConsentScope> scopes, Duration validity) {
-        if (validity.isNegative() || validity.isZero() || validity.compareTo(maxValidity) > 0) {
-            throw new IllegalArgumentException("Thời hạn consent phải trong khoảng (0, %s]".formatted(maxValidity));
-        }
-        Set<ConsentScope> notPermitted = scopes.stream().filter(scope -> !client.mayUse(scope))
-                .collect(Collectors.toSet());
-        if (!notPermitted.isEmpty()) {
-            throw new ScopeNotPermittedException(client, notPermitted);
+        long validityDays = validity.toDays();
+        if (!validity.equals(Duration.ofDays(validityDays))) {
+            throw new IllegalArgumentException("Thời hạn consent tính bằng số ngày nguyên");
         }
         Instant now = clock.instant();
-        Consent consent = new Consent(UUID.randomUUID().toString(), client.clientId(), customerId, scopes, Set.of(),
-                now, now.plus(validity), Consent.Status.AWAITING_AUTHORISATION, now);
+        String consentId = UUID.randomUUID().toString();
+        String policyVersion = policy.evaluate(client, scopes, validityDays,
+                LocalDate.ofInstant(now, ConsentPolicy.BUSINESS_ZONE), consentId);
+        Consent consent = new Consent(consentId, client.clientId(), customerId, scopes, Set.of(), now,
+                now.plus(validity), Consent.Status.AWAITING_AUTHORISATION, now, policyVersion);
         repository.save(consent);
         auditLog.append(now, "client:" + client.clientId(), "consent.requested", consent.consentId());
         return consent;
