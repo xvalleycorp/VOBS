@@ -54,6 +54,13 @@ jobs:
       - run: npx --yes @redocly/cli@1.25.0 lint vobs-spec/openapi/*.yaml
       - name: Kiểm tra đủ danh mục Open API theo Điều 6 Thông tư 64
         run: python3 vobs-spec/scripts/check_tt64_coverage.py
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Dữ liệu mẫu của sandbox khớp đặc tả
+        run: |
+          python3 -m pip install --quiet jsonschema==4.23.0 PyYAML==6.0.2
+          python3 vobs-sandbox/check-data.py
 
   security:
     name: Quét lỗ hổng và SBOM
@@ -92,6 +99,8 @@ jobs:
         run: ./import-specs.sh
       - name: Chạy thử luồng qua API Gateway
         run: ./try-gateway-flow.sh
+      - name: Kiểm tra dữ liệu mẫu của API giả lập
+        run: ./try-sandbox-data.sh
       - name: Image kèm thông báo giấy phép của thư viện bên thứ ba
         run: |
           docker run --rm --entrypoint sh vobs-consent:sandbox -c '

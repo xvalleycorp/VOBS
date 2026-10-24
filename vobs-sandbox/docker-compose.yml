@@ -4,9 +4,10 @@
 # - API Gateway (Apache APISIX) với plugin vobs-consent: đối tác gọi qua gateway như ở môi trường thật.
 #
 #   docker compose up -d --build
-#   ./import-specs.sh        # nạp đặc tả vào Microcks
+#   ./import-specs.sh        # nạp đặc tả và dữ liệu mẫu vào Microcks
 #   ./try-consent-flow.sh    # chạy thử luồng consent, gọi thẳng service
 #   ./try-gateway-flow.sh    # chạy thử luồng qua API Gateway
+#   ./try-sandbox-data.sh    # kiểm tra dữ liệu mẫu
 #
 # Giao diện Microcks: http://localhost:8585; API Gateway: http://localhost:9080/open-banking/v1
 services:

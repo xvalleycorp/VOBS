@@ -1,0 +1,432 @@
+# Dữ liệu mẫu cho API giả lập trên Microcks (artifact phụ, nạp sau đặc tả bằng ../import-specs.sh). Bổ sung cho các
+# `examples` trong đặc tả: đặc tả giữ mỗi API một ví dụ để làm tài liệu, file này thêm khách hàng, tài khoản, giao dịch
+# và tình huống lỗi để bên thứ ba thử tích hợp.
+#
+# Mọi số liệu là giả: số tài khoản, số dư, lãi suất, tỷ giá không phản ánh ngân hàng nào. Danh mục dữ liệu ở
+# ../README.md. Tên example phải khác với tên trong đặc tả cho cùng một bộ tham số, để Microcks không có hai phản hồi
+# cho một request.
+#
+# metadata.version phải trùng info.version của vobs-spec/openapi/vobs-open-api.yaml, nếu không Microcks bỏ qua file.
+apiVersion: mocks.microcks.io/v1alpha1
+kind: APIExamples
+metadata:
+  name: VOBS Open API
+  version: 0.2.0-draft
+operations:
+  # ------------------------------------------------------------------ Điểm a: lãi suất, tỷ giá
+  'GET /interest-rates':
+    term-deposit:
+      request:
+        parameters:
+          productType: TERM_DEPOSIT
+      response:
+        mediaType: application/json
+        body:
+          effectiveAt: '2026-10-24T00:00:00+07:00'
+          data:
+            - { productType: TERM_DEPOSIT, term: P1M, currency: VND, annualRatePercent: '2.10' }
+            - { productType: TERM_DEPOSIT, term: P3M, currency: VND, annualRatePercent: '2.40' }
+            - { productType: TERM_DEPOSIT, term: P6M, currency: VND, annualRatePercent: '4.70' }
+            - { productType: TERM_DEPOSIT, term: P12M, currency: VND, annualRatePercent: '5.20' }
+            - { productType: TERM_DEPOSIT, term: P24M, currency: VND, annualRatePercent: '5.40' }
+            - { productType: TERM_DEPOSIT, term: P12M, currency: USD, annualRatePercent: '0.00' }
+    savings-account:
+      request:
+        parameters:
+          productType: SAVINGS
+      response:
+        mediaType: application/json
+        body:
+          effectiveAt: '2026-10-24T00:00:00+07:00'
+          data:
+            - { productType: SAVINGS, currency: VND, annualRatePercent: '0.10' }
+    loan:
+      request:
+        parameters:
+          productType: LOAN
+      response:
+        mediaType: application/json
+        body:
+          effectiveAt: '2026-10-24T00:00:00+07:00'
+          data:
+            - { productType: LOAN, term: P12M, currency: VND, annualRatePercent: '7.50' }
+            - { productType: LOAN, term: P60M, currency: VND, annualRatePercent: '9.20' }
+
+  'GET /exchange-rates':
+    currency-usd:
+      request:
+        parameters:
+          currency: USD
+      response:
+        mediaType: application/json
+        body:
+          effectiveAt: '2026-10-24T08:30:00+07:00'
+          data:
+            - { currency: USD, cashBuy: '26050', transferBuy: '26080', sell: '26420' }
+    currency-eur:
+      request:
+        parameters:
+          currency: EUR
+      response:
+        mediaType: application/json
+        body:
+          effectiveAt: '2026-10-24T08:30:00+07:00'
+          data:
+            - { currency: EUR, cashBuy: '28120', transferBuy: '28400', sell: '29650' }
+    currency-jpy:
+      request:
+        parameters:
+          currency: JPY
+      response:
+        mediaType: application/json
+        body:
+          effectiveAt: '2026-10-24T08:30:00+07:00'
+          data:
+            - { currency: JPY, cashBuy: '168.20', transferBuy: '169.90', sell: '178.30' }
+
+  # ------------------------------------------------------------------ Điểm b: tài khoản
+  'GET /accounts/{accountId}':
+    acc-1002:
+      request:
+        parameters:
+          accountId: acc-1002
+      response:
+        mediaType: application/json
+        body:
+          accountId: acc-1002
+          maskedNumber: '*********4521'
+          bankBin: '970436'
+          type: SAVINGS
+          currency: VND
+          status: ACTIVE
+          productName: Tiền gửi có kỳ hạn 12 tháng
+          openedOn: '2026-03-02'
+          balances:
+            - { type: AVAILABLE, amount: { value: '0', currency: VND }, asOf: '2026-10-24T09:59:58+07:00' }
+            - { type: BOOKED, amount: { value: '200000000', currency: VND }, asOf: '2026-10-24T09:59:58+07:00' }
+    acc-1003:
+      request:
+        parameters:
+          accountId: acc-1003
+      response:
+        mediaType: application/json
+        body:
+          accountId: acc-1003
+          maskedNumber: '*********3307'
+          bankBin: '970436'
+          type: CURRENT
+          currency: USD
+          status: ACTIVE
+          productName: Tài khoản thanh toán ngoại tệ
+          openedOn: '2023-07-11'
+          balances:
+            - { type: AVAILABLE, amount: { value: '1250.50', currency: USD }, asOf: '2026-10-24T09:59:58+07:00' }
+            - { type: BOOKED, amount: { value: '1250.50', currency: USD }, asOf: '2026-10-24T09:59:58+07:00' }
+    acc-2001:
+      request:
+        parameters:
+          accountId: acc-2001
+      response:
+        mediaType: application/json
+        body:
+          accountId: acc-2001
+          maskedNumber: '*********8812'
+          bankBin: '970436'
+          type: CURRENT
+          currency: VND
+          status: ACTIVE
+          productName: Tài khoản thanh toán
+          openedOn: '2018-05-20'
+          balances:
+            - { type: AVAILABLE, amount: { value: '48320000', currency: VND }, asOf: '2026-10-24T09:59:58+07:00' }
+            - { type: BOOKED, amount: { value: '48820000', currency: VND }, asOf: '2026-10-24T09:59:58+07:00' }
+    acc-2002:
+      request:
+        parameters:
+          accountId: acc-2002
+      response:
+        mediaType: application/json
+        body:
+          accountId: acc-2002
+          maskedNumber: '*********0645'
+          bankBin: '970436'
+          type: CURRENT
+          currency: VND
+          status: DORMANT
+          productName: Tài khoản thanh toán
+          openedOn: '2015-09-01'
+          balances:
+            - { type: AVAILABLE, amount: { value: '0', currency: VND }, asOf: '2026-10-24T09:59:58+07:00' }
+            - { type: BOOKED, amount: { value: '52000', currency: VND }, asOf: '2026-10-24T09:59:58+07:00' }
+    acc-2009:
+      request:
+        parameters:
+          accountId: acc-2009
+      response:
+        mediaType: application/json
+        body:
+          accountId: acc-2009
+          maskedNumber: '*********9090'
+          bankBin: '970436'
+          type: CURRENT
+          currency: VND
+          status: BLOCKED
+          productName: Tài khoản thanh toán
+          openedOn: '2021-12-03'
+          balances:
+            - { type: AVAILABLE, amount: { value: '0', currency: VND }, asOf: '2026-10-24T09:59:58+07:00' }
+            - { type: BOOKED, amount: { value: '3500000', currency: VND }, asOf: '2026-10-24T09:59:58+07:00' }
+    not-found:
+      request:
+        parameters:
+          accountId: acc-0000
+      response:
+        status: '404'
+        mediaType: application/problem+json
+        body:
+          type: https://vobs.io/problems/not-found
+          title: Không tìm thấy, hoặc nằm ngoài phạm vi consent
+          status: 404
+          reason: not_found
+
+  'GET /accounts/{accountId}/transactions':
+    acc-2001:
+      request:
+        parameters:
+          accountId: acc-2001
+      response:
+        mediaType: application/json
+        body:
+          data:
+            - transactionId: txn-20011
+              direction: DEBIT
+              amount: { value: '500000', currency: VND }
+              status: PENDING
+              description: Thanh toan QR cua hang tien loi
+              reference: QR-20261024-7781
+            - transactionId: txn-20010
+              direction: DEBIT
+              amount: { value: '1200000', currency: VND }
+              status: BOOKED
+              bookedAt: '2026-10-23T19:42:10+07:00'
+              valueDate: '2026-10-23'
+              description: TRAN THI BINH chuyen tien hoc phi
+              reference: FT26296000123
+            - transactionId: txn-20009
+              direction: DEBIT
+              amount: { value: '856000', currency: VND }
+              status: BOOKED
+              bookedAt: '2026-10-20T08:05:44+07:00'
+              valueDate: '2026-10-20'
+              description: Thanh toan hoa don dien thang 10
+            - transactionId: txn-20008
+              direction: DEBIT
+              amount: { value: '2000000', currency: VND }
+              status: BOOKED
+              bookedAt: '2026-10-12T17:30:02+07:00'
+              valueDate: '2026-10-12'
+              description: Rut tien mat tai ATM
+          links:
+            next: /accounts/acc-2001/transactions?cursor=acc-2001-p2
+    acc-2001-page-2:
+      request:
+        parameters:
+          accountId: acc-2001
+          cursor: acc-2001-p2
+      response:
+        mediaType: application/json
+        body:
+          data:
+            - transactionId: txn-20007
+              direction: CREDIT
+              amount: { value: '25000000', currency: VND }
+              status: BOOKED
+              bookedAt: '2026-10-05T09:00:00+07:00'
+              valueDate: '2026-10-05'
+              description: CONG TY ABC tra luong thang 9/2026
+              reference: SAL-202609-0042
+            - transactionId: txn-20006
+              direction: CREDIT
+              amount: { value: '300000', currency: VND }
+              status: REVERSED
+              bookedAt: '2026-10-03T14:12:31+07:00'
+              valueDate: '2026-10-03'
+              description: Hoan tien giao dich loi
+            - transactionId: txn-20005
+              direction: DEBIT
+              amount: { value: '150000', currency: VND }
+              status: BOOKED
+              bookedAt: '2026-10-01T07:45:00+07:00'
+              valueDate: '2026-10-01'
+              description: Phi duy tri tai khoan thang 10
+          links:
+            next: null
+    acc-1002:
+      request:
+        parameters:
+          accountId: acc-1002
+      response:
+        mediaType: application/json
+        body:
+          data:
+            - transactionId: txn-10021
+              direction: CREDIT
+              amount: { value: '200000000', currency: VND }
+              status: BOOKED
+              bookedAt: '2026-03-02T10:15:00+07:00'
+              valueDate: '2026-03-02'
+              description: Gui tien co ky han 12 thang
+          links:
+            next: null
+    acc-1003:
+      request:
+        parameters:
+          accountId: acc-1003
+      response:
+        mediaType: application/json
+        body:
+          data:
+            - transactionId: txn-10032
+              direction: DEBIT
+              amount: { value: '249.50', currency: USD }
+              status: BOOKED
+              bookedAt: '2026-10-15T21:03:12+07:00'
+              valueDate: '2026-10-15'
+              description: Thanh toan hoc phi truc tuyen
+            - transactionId: txn-10031
+              direction: CREDIT
+              amount: { value: '1500.00', currency: USD }
+              status: BOOKED
+              bookedAt: '2026-10-02T11:20:45+07:00'
+              valueDate: '2026-10-02'
+              description: Nhan kieu hoi
+          links:
+            next: null
+    acc-2002:
+      request:
+        parameters:
+          accountId: acc-2002
+      response:
+        mediaType: application/json
+        body:
+          data: []
+          links:
+            next: null
+    acc-2009:
+      request:
+        parameters:
+          accountId: acc-2009
+      response:
+        mediaType: application/json
+        body:
+          data:
+            - transactionId: txn-20091
+              direction: CREDIT
+              amount: { value: '3500000', currency: VND }
+              status: BOOKED
+              bookedAt: '2026-09-28T15:20:00+07:00'
+              valueDate: '2026-09-28'
+              description: NGUYEN VAN C chuyen tien
+          links:
+            next: null
+    not-found:
+      request:
+        parameters:
+          accountId: acc-0000
+      response:
+        status: '404'
+        mediaType: application/problem+json
+        body:
+          type: https://vobs.io/problems/not-found
+          title: Không tìm thấy, hoặc nằm ngoài phạm vi consent
+          status: 404
+          reason: not_found
+
+  # ------------------------------------------------------------------ Điểm c(i): trạng thái thanh toán
+  'GET /payments/{paymentId}':
+    rejected:
+      request:
+        parameters:
+          paymentId: pay-20261024-0002
+      response:
+        mediaType: application/json
+        body:
+          paymentId: pay-20261024-0002
+          status: REJECTED
+          authenticationFlow: REDIRECT
+          # Mã lý do ISO 20022 ExternalStatusReason1Code: AM04 là không đủ số dư
+          reasonCode: AM04
+          createdAt: '2026-10-24T10:20:00+07:00'
+    awaiting:
+      request:
+        parameters:
+          paymentId: pay-20261024-0003
+      response:
+        mediaType: application/json
+        body:
+          paymentId: pay-20261024-0003
+          status: AWAITING_AUTHENTICATION
+          authenticationFlow: DECOUPLED
+          createdAt: '2026-10-24T10:30:00+07:00'
+    unknown:
+      request:
+        parameters:
+          paymentId: pay-20261024-0004
+      response:
+        mediaType: application/json
+        body:
+          # Chưa nhận được kết quả từ hệ thống chuyển mạch; bên thứ ba hỏi lại sau, không tạo lệnh mới
+          paymentId: pay-20261024-0004
+          status: UNKNOWN
+          authenticationFlow: REDIRECT
+          createdAt: '2026-10-24T10:40:00+07:00'
+    not-found:
+      request:
+        parameters:
+          paymentId: pay-00000000-0000
+      response:
+        status: '404'
+        mediaType: application/problem+json
+        body:
+          type: https://vobs.io/problems/not-found
+          title: Không tìm thấy, hoặc nằm ngoài phạm vi consent
+          status: 404
+          reason: not_found
+
+  'GET /payments/{paymentId}/authentication':
+    awaiting:
+      request:
+        parameters:
+          paymentId: pay-20261024-0003
+      response:
+        mediaType: application/json
+        body:
+          status: PENDING
+          updatedAt: '2026-10-24T10:30:05+07:00'
+
+  # ------------------------------------------------------------------ Điểm c(ii): trạng thái nạp ví
+  'GET /ewallet-topups/{transferId}':
+    settled:
+      request:
+        parameters:
+          transferId: top-20261024-0001
+      response:
+        mediaType: application/json
+        body:
+          transferId: top-20261024-0001
+          status: SETTLED
+          authenticationFlow: OTP
+          createdAt: '2026-10-24T11:00:00+07:00'
+    rejected:
+      request:
+        parameters:
+          transferId: top-20261024-0002
+      response:
+        mediaType: application/json
+        body:
+          transferId: top-20261024-0002
+          status: REJECTED
+          authenticationFlow: OTP
+          # AM02: vượt hạn mức giao dịch
+          reasonCode: AM02
+          createdAt: '2026-10-24T11:10:00+07:00'

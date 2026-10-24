@@ -122,10 +122,19 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
 - Thư viện đến cùng RuleStone mà JAR không kèm giấy phép: văn bản lấy từ repo gốc, lưu ở
   `vobs-consent/src/license/third-party` (README trong đó ghi nguồn). Đổi commit RuleStone mà kéo theo phiên bản
   thư viện mới thì tải lại văn bản tương ứng.
-- Góp ý cho RuleStone: thêm phiên bản mới buộc sửa `effectiveTo` của phiên bản cũ, làm đổi hash của phiên bản cũ.
-- Đang dừng giữa chừng: dữ liệu mẫu phong phú cho sandbox. Đã tìm hiểu: Microcks nhận dữ liệu bổ sung dạng
-  `APIExamples` (artifact phụ, `mainArtifact=false`); request không khớp example nào bị trả `400`. API giao dịch có
-  cả tham số path lẫn query nên cần `APIMetadata` giới hạn quy tắc chọn (ví dụ chỉ `accountId` và `cursor`).
+- Góp ý cho RuleStone: thêm phiên bản mới buộc sửa `effectiveTo` của phiên bản cũ, làm đổi hash của phiên bản cũ
+  (https://github.com/xvalleycorp/RuleStone/issues/6).
+
+## Dữ liệu mẫu của sandbox
+
+- Nằm ở `vobs-sandbox/data`, nạp vào Microcks dạng artifact phụ (`mainArtifact=false`): `APIMetadata` trước rồi
+  `APIExamples`. Nạp lại đặc tả sẽ đặt lại cấu hình, nên luôn chạy cả `import-specs.sh`.
+- Microcks trả `400` khi request không khớp example nào. API giao dịch chỉ chọn theo `accountId` và `cursor`
+  (`APIMetadata`); tham số lọc khác bị bỏ qua.
+- `metadata.version` trong `data/` phải trùng `info.version` của đặc tả; đổi phiên bản đặc tả thì đổi cả hai file
+  này, đường dẫn Microcks trong `gateway/apisix.yaml` và `MOCK_URL` của các script. `check-data.py` báo khi lệch.
+- Tài khoản mẫu dùng BIN `970436` giống ví dụ trong đặc tả. BIN này là của một ngân hàng thật; cân nhắc đổi cả đặc
+  tả lẫn dữ liệu mẫu nếu muốn tránh gợi liên tưởng tới ngân hàng đó.
 
 ## Lưu ý khi làm tiếp
 
