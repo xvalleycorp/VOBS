@@ -15,9 +15,10 @@ Cần Docker và Docker Compose. Lần đầu `--build` dựng image service con
 ```bash
 cd vobs-sandbox
 docker compose up -d --build
-./import-specs.sh          # nạp đặc tả vào Microcks
+./import-specs.sh          # nạp đặc tả và dữ liệu mẫu vào Microcks
 ./try-consent-flow.sh      # chạy thử luồng consent, gọi thẳng service
 ./try-gateway-flow.sh      # chạy thử luồng qua API Gateway
+./try-sandbox-data.sh      # kiểm tra dữ liệu mẫu, trực tiếp và qua API Gateway
 ```
 
 Gọi API giả lập:
@@ -27,8 +28,44 @@ curl -H 'x-consent-id: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c' \
   http://localhost:8585/rest/VOBS+Open+API/0.2.0-draft/accounts/acc-1001
 ```
 
-Phản hồi giả lập lấy từ các `examples` trong đặc tả; Microcks ghép request với phản hồi theo tên example
-(ví dụ `acc-1001`). Thêm tình huống mới bằng cách thêm example cùng tên ở cả request và response.
+Phản hồi giả lập lấy từ hai nguồn: các `examples` trong đặc tả (mỗi API một ví dụ, làm tài liệu) và dữ liệu mẫu
+trong [`data/`](data). Microcks chọn phản hồi theo tham số path và query của request; request không khớp dữ liệu nào
+nhận `400`.
+
+## Dữ liệu mẫu
+
+Mọi số liệu là giả, không phản ánh ngân hàng nào. Gọi API giả lập với một `x-consent-id` bất kỳ; qua API Gateway
+thì cần consent thật (mục dưới).
+
+| Khách hàng | Tài khoản | Loại, tiền tệ | Trạng thái | Lịch sử giao dịch |
+| --- | --- | --- | --- | --- |
+| `cif-1001` | `acc-1001` | Thanh toán, VND | Hoạt động | 1 giao dịch |
+| | `acc-1002` | Tiền gửi có kỳ hạn 12 tháng, VND | Hoạt động | 1 giao dịch gửi tiền |
+| | `acc-1003` | Thanh toán ngoại tệ, USD | Hoạt động | 2 giao dịch |
+| `cif-2001` | `acc-2001` | Thanh toán, VND | Hoạt động | 7 giao dịch, 2 trang: đang xử lý, đã hạch toán, đã hoàn |
+| | `acc-2002` | Thanh toán, VND | Ngủ (`DORMANT`) | Không có |
+| | `acc-2009` | Thanh toán, VND | Bị phong tỏa (`BLOCKED`) | 1 giao dịch |
+| | `acc-0000` | | Không tồn tại: `404` | `404` |
+
+| API | Dữ liệu mẫu |
+| --- | --- |
+| Lãi suất | `productType=TERM_DEPOSIT`, `SAVINGS`, `LOAN`; không có tham số thì trả biểu lãi suất trong đặc tả |
+| Tỷ giá | `currency=USD`, `EUR`, `JPY` |
+| Trạng thái thanh toán | `pay-20261024-0001` đã quyết toán, `-0002` bị từ chối (`AM04`, không đủ số dư), `-0003` chờ khách hàng xác thực (luồng decoupled), `-0004` chưa rõ kết quả; `pay-00000000-0000` không tồn tại |
+| Trạng thái nạp ví | `top-20261024-0001` đã quyết toán, `-0002` bị từ chối (`AM02`, vượt hạn mức) |
+
+Lịch sử giao dịch phân trang bằng `cursor`, lấy từ `links.next`:
+
+```bash
+curl -H 'x-consent-id: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c' \
+  'http://localhost:8585/rest/VOBS+Open+API/0.2.0-draft/accounts/acc-2001/transactions?cursor=acc-2001-p2'
+```
+
+Các tham số lọc `fromDate`, `toDate`, `limit` được nhận nhưng không lọc dữ liệu giả lập.
+
+Thêm dữ liệu: thêm example vào [`data/vobs-open-api.examples.yaml`](data/vobs-open-api.examples.yaml) với tên khác
+các example sẵn có của cùng API, chạy `python3 check-data.py` để đối chiếu với đặc tả (cần `jsonschema`, `PyYAML`;
+CI chạy bước này), rồi chạy lại `./import-specs.sh`.
 
 ## Luồng consent
 
@@ -94,6 +131,6 @@ bộ kiểm thử tuân thủ trong [`vobs-spec/conformance`](../vobs-spec/confo
 
 ## Kế hoạch
 
-- Dữ liệu mẫu tiếng Việt phong phú hơn (nhiều ngân hàng, nhiều loại tài khoản, tình huống lỗi).
+- Dữ liệu cho luồng khởi tạo thanh toán và nạp ví (request `POST` chọn phản hồi theo nội dung, ví dụ vượt hạn mức).
 - Nối `SimulatorSwitch` của `vobs-switch` để thử luồng chuyển khoản đầu-cuối.
 - Sandbox đa ngân hàng dạng dịch vụ cho fintech (xem mô hình kinh doanh trong [GOVERNANCE.md](../GOVERNANCE.md)).

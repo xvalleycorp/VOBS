@@ -1,0 +1,16 @@
+# Cấu hình Microcks cho API giả lập (artifact phụ, nạp sau đặc tả bằng ../import-specs.sh).
+#
+# API lịch sử giao dịch có cả tham số path và query. Mặc định Microcks chọn phản hồi theo mọi tham số, nên request
+# có thêm fromDate, toDate hay limit không khớp example nào và nhận 400. Ở đây chỉ chọn theo accountId và cursor;
+# các tham số lọc khác được nhận nhưng bỏ qua.
+#
+# metadata.version phải trùng info.version của vobs-spec/openapi/vobs-open-api.yaml, nếu không Microcks bỏ qua file.
+apiVersion: mocks.microcks.io/v1alpha1
+kind: APIMetadata
+metadata:
+  name: VOBS Open API
+  version: 0.2.0-draft
+operations:
+  'GET /accounts/{accountId}/transactions':
+    dispatcher: URI_ELEMENTS
+    dispatcherRules: accountId ?? cursor
