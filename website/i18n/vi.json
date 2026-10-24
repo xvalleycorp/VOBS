@@ -30,7 +30,7 @@
   "home.description": "Bộ nền tảng Open Banking mã nguồn mở, phù hợp nhu cầu của mọi ngân hàng Việt Nam và tùy chỉnh được theo hệ thống của từng ngân hàng. Giúp tuân thủ Thông tư 64/2024/TT-NHNN mà không phải mở thẳng core banking: API Gateway, consent, Integration Hub, VietQR, ISO 20022.",
   "home.ogDescription": "Hạ tầng Open Banking mã nguồn mở, phù hợp nhu cầu của mọi ngân hàng Việt Nam, theo Thông tư 64/2024/TT-NHNN.",
   "home.eyebrow": "Mã nguồn mở · Apache 2.0",
-  "home.h1": "Hạ tầng Open Banking mã nguồn mở, phù hợp nhu cầu của mọi ngân hàng Việt Nam",
+  "home.h1": "Open Banking mã&nbsp;nguồn&nbsp;mở cho ngân&nbsp;hàng Việt&nbsp;Nam",
   "home.lead": "VOBS có sẵn phần mà ngân hàng nào cũng cần để triển khai Open API theo Thông tư 64/2024/TT-NHNN: API Gateway chuẩn FAPI 2.0, quản lý consent, Integration Hub đồng bộ dữ liệu từ core, thư viện VietQR và ISO 20022. Vì là mã nguồn mở, mỗi ngân hàng tự chủ tùy chỉnh theo hiện trạng hệ thống của mình, không phải mở thẳng core banking. Fintech kết nối mọi ngân hàng qua cùng một kiểu API.",
   "home.ctaApi": "Xem đặc tả API",
   "home.ctaGithub": "Mã nguồn trên GitHub",

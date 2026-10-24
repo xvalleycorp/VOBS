@@ -30,7 +30,7 @@
   "home.description": "An open-source Open Banking stack that fits the needs of every bank in Vietnam and can be customized to each bank's systems. It helps banks comply with Circular 64/2024/TT-NHNN without exposing their core banking systems: API gateway, consent, integration hub, VietQR, ISO 20022.",
   "home.ogDescription": "Open-source Open Banking infrastructure that fits the needs of every bank in Vietnam, following Circular 64/2024/TT-NHNN.",
   "home.eyebrow": "Open source · Apache 2.0",
-  "home.h1": "Open-source Open Banking infrastructure that fits every bank in Vietnam",
+  "home.h1": "Open-source Open&nbsp;Banking for Vietnamese&nbsp;banks",
   "home.lead": "VOBS ships what every bank needs to roll out Open APIs under Circular 64/2024/TT-NHNN: a FAPI 2.0 API gateway, consent management, an integration hub that syncs data from the core, plus VietQR and ISO 20022 libraries. Because it is open source, each bank tailors it to its own systems without exposing its core. Fintechs reach every bank through the same API.",
   "home.ctaApi": "Read the API spec",
   "home.ctaGithub": "Source on GitHub",
