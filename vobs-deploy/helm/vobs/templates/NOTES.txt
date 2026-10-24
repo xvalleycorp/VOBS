@@ -1,0 +1,4 @@
+VOBS {{ .Chart.AppVersion }} đã được cài vào namespace {{ .Release.Namespace }}.
+
+Chart này đang ở dạng khung: các thành phần hạ tầng sẽ được thêm ở giai đoạn 2.
+Tài liệu: https://github.com/xvalleycorp/vobs/tree/main/vobs-deploy

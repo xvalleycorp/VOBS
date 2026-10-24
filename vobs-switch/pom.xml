@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.vobs</groupId>
+    <artifactId>vobs-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>vobs-switch</artifactId>
+  <name>VOBS Switch</name>
+  <description>
+    Giao diện adapter chung tới các hệ thống chuyển mạch (NAPAS, MDP). Thêm một chuyển mạch mới chỉ cần viết một adapter.
+  </description>
+  <url>https://github.com/xvalleycorp/vobs/tree/main/vobs-switch</url>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.vobs</groupId>
+      <artifactId>vobs-model</artifactId>
+    </dependency>
+  </dependencies>
+</project>

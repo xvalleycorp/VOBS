@@ -1,0 +1,22 @@
+{
+  "name": "vobs-core-oracle",
+  "config": {
+    "connector.class": "io.debezium.connector.oracle.OracleConnector",
+    "tasks.max": "1",
+    "database.hostname": "${env:CORE_DB_HOST}",
+    "database.port": "1521",
+    "database.user": "${env:CORE_DB_CDC_USER}",
+    "database.password": "${env:CORE_DB_CDC_PASSWORD}",
+    "database.dbname": "${env:CORE_DB_NAME}",
+    "topic.prefix": "vobs.core",
+    "table.include.list": "${env:CORE_SCHEMA}.ACCOUNTS,${env:CORE_SCHEMA}.BALANCES,${env:CORE_SCHEMA}.TRANSACTIONS",
+    "log.mining.strategy": "online_catalog",
+    "snapshot.mode": "initial",
+    "schema.history.internal.kafka.bootstrap.servers": "vobs-kafka-bootstrap.vobs.svc:9093",
+    "schema.history.internal.kafka.topic": "vobs.core.schema-history",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "decimal.handling.mode": "string",
+    "time.precision.mode": "connect"
+  }
+}

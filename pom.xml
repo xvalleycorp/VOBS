@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.vobs</groupId>
+  <artifactId>vobs-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>VOBS — Vietnam Open Banking Stack</name>
+  <description>
+    Bộ nền tảng Open Banking mã nguồn mở cho Việt Nam: đặc tả Open API theo Thông tư 64/2024/TT-NHNN,
+    quản lý consent, Integration Hub, thư viện ISO 20022 và VietQR, connector chuyển mạch NAPAS và MDP.
+  </description>
+  <url>https://github.com/xvalleycorp/vobs</url>
+  <inceptionYear>2026</inceptionYear>
+
+  <organization>
+    <name>VOBS contributors</name>
+    <url>https://github.com/xvalleycorp/vobs</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>vobs</id>
+      <name>VOBS maintainers</name>
+      <url>https://github.com/xvalleycorp/vobs/blob/main/GOVERNANCE.md</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/xvalleycorp/vobs.git</connection>
+    <developerConnection>scm:git:git@github.com:xvalleycorp/vobs.git</developerConnection>
+    <url>https://github.com/xvalleycorp/vobs</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/xvalleycorp/vobs/issues</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>GitHub Actions</system>
+    <url>https://github.com/xvalleycorp/vobs/actions</url>
+  </ciManagement>
+
+  <modules>
+    <module>vobs-model</module>
+    <module>vobs-vietqr</module>
+    <module>vobs-iso20022</module>
+    <module>vobs-switch</module>
+    <module>vobs-consent</module>
+    <module>vobs-hub</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- Bản build tái lập được (reproducible build), phục vụ ký số và SBOM -->
+    <project.build.outputTimestamp>2026-10-24T00:00:00Z</project.build.outputTimestamp>
+
+    <junit.version>5.14.1</junit.version>
+    <prowide-iso20022.version>SRU2025-10.4.0</prowide-iso20022.version>
+    <!-- Khớp với bản jaxb-impl mà Prowide kéo vào lúc chạy -->
+    <jakarta-xml-bind.version>4.0.4</jakarta-xml-bind.version>
+    <jackson.version>2.18.2</jackson.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.vobs</groupId>
+        <artifactId>vobs-model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.prowidesoftware</groupId>
+        <artifactId>pw-iso20022</artifactId>
+        <version>${prowide-iso20022.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>${jakarta-xml-bind.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.13.0</version>
+          <configuration>
+            <compilerArgs>
+              <arg>-Xlint:all</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.5.6</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.4.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.3.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.11.2</version>
+          <configuration>
+            <doclint>all,-missing</doclint>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>2.4.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>enforce-build-env</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[21,)</version>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>[3.9,)</version>
+                </requireMavenVersion>
+                <dependencyConvergence/>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!--
+      Kiểm tra giấy phép của mọi dependency (chạy trong CI: mvn -Plicense-check verify).
+      Dùng danh sách cho phép thay vì danh sách chặn, để giấy phép lạ (AGPL, SSPL, BSL...) không lọt qua vì
+      khác cách viết tên. Xem docs/licensing.md.
+    -->
+    <profile>
+      <id>license-check</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>check-third-party-licenses</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>add-third-party</goal>
+                </goals>
+                <configuration>
+                  <!-- Luôn kiểm tra lại, kể cả khi file THIRD-PARTY.txt cũ còn trong target/ -->
+                  <force>true</force>
+                  <failOnBlacklist>true</failOnBlacklist>
+                  <failOnMissing>true</failOnMissing>
+                  <excludedScopes>test</excludedScopes>
+                  <excludedGroups>^io\.vobs</excludedGroups>
+                  <!-- Gộp các cách viết khác nhau của cùng một giấy phép về mã SPDX -->
+                  <licenseMerges>
+                    <licenseMerge>Apache-2.0|Apache 2.0|Apache License Version 2.0|Apache License, Version 2.0|The Apache Software License, Version 2.0|The Apache License, Version 2.0</licenseMerge>
+                    <licenseMerge>EDL-1.0|EDL 1.0|Eclipse Distribution License - v 1.0</licenseMerge>
+                    <licenseMerge>MIT|MIT License|The MIT License</licenseMerge>
+                    <licenseMerge>BSD-3-Clause|BSD 3-Clause|BSD-3-Clause License|The BSD 3-Clause License</licenseMerge>
+                  </licenseMerges>
+                  <!-- Danh sách cho phép: giấy phép nào nằm ngoài danh sách này đều làm build thất bại -->
+                  <includedLicenses>
+                    <includedLicense>Apache-2.0</includedLicense>
+                    <includedLicense>EDL-1.0</includedLicense>
+                    <includedLicense>MIT</includedLicense>
+                    <includedLicense>BSD-3-Clause</includedLicense>
+                  </includedLicenses>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Đóng gói bản phát hành: kèm sources và javadoc theo yêu cầu của Maven Central -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

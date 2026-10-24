@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build và test (Java 21)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build và test
+        run: mvn -B verify
+      - name: Kiểm tra giấy phép dependency
+        run: mvn -B -Plicense-check -DskipTests verify
+
+  spec:
+    name: Lint đặc tả OpenAPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npx --yes @redocly/cli@1.25.0 lint vobs-spec/openapi/*.yaml
+
+  security:
+    name: Quét lỗ hổng và SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Quét lỗ hổng dependency và secret (Trivy)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+      - name: Tạo SBOM (Syft, SPDX)
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          artifact-name: vobs-sbom.spdx.json
+
+  dco:
+    name: Kiểm tra DCO sign-off
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Mọi commit phải có Signed-off-by
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          missing=""
+          for commit in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            git log -1 --format=%B "$commit" | grep -q '^Signed-off-by: ' || missing="$missing $commit"
+          done
+          if [ -n "$missing" ]; then
+            echo "Các commit thiếu Signed-off-by (dùng git commit -s):"
+            echo "$missing"
+            exit 1
+          fi

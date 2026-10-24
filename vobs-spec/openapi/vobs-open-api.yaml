@@ -1,0 +1,591 @@
+openapi: 3.1.0
+info:
+  title: VOBS Open API
+  version: 0.1.0-draft
+  summary: Bộ API mở cho đối tác (fintech) theo Thông tư 64/2024/TT-NHNN — bản nháp
+  description: |
+    Bản nháp đầu tiên của bộ đặc tả Open API dùng chung cho các ngân hàng triển khai VOBS.
+
+    **Trạng thái:** nháp. Danh mục nhóm API, tên trường và yêu cầu bảo mật sẽ được rà lại theo
+    Thông tư 64/2024/TT-NHNN trước bản 1.0. Không dùng cho production.
+
+    Quy ước chung:
+    - Mọi request đều qua mTLS và mang access token FAPI 2.0 gắn chứng thư (certificate-bound).
+    - Request đọc dữ liệu khách hàng phải mang `x-consent-id` của một consent đã được duyệt.
+    - Số tiền là chuỗi thập phân; VND không có phần lẻ.
+    - Thời điểm theo RFC 3339, có múi giờ.
+  license:
+    name: Apache 2.0
+    identifier: Apache-2.0
+  contact:
+    name: VOBS
+    url: https://github.com/xvalleycorp/vobs
+externalDocs:
+  description: Mô tả giải pháp và kiến trúc VOBS
+  url: https://github.com/xvalleycorp/vobs/blob/main/docs/architecture.md
+servers:
+  - url: https://api.example-bank.vn/open-banking/v1
+    description: Ví dụ; mỗi ngân hàng công bố địa chỉ riêng
+security:
+  - mtls: []
+    fapi: []
+tags:
+  - name: Consents
+    description: Đối tác yêu cầu, xem và hủy consent
+  - name: Accounts
+    description: Thông tin tài khoản, số dư, lịch sử giao dịch
+  - name: Payments
+    description: Khởi tạo và tra cứu lệnh chuyển khoản
+
+paths:
+  /consents:
+    post:
+      tags: [Consents]
+      operationId: createConsent
+      summary: Tạo yêu cầu consent
+      description: |
+        Đối tác tạo yêu cầu; consent ở trạng thái `AWAITING_AUTHORISATION` cho tới khi khách hàng duyệt qua
+        kênh của ngân hàng (luồng redirect với Pushed Authorization Request).
+      security:
+        - mtls: []
+          fapi: [consents]
+      parameters:
+        - $ref: '#/components/parameters/InteractionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentRequest'
+            examples:
+              account-info:
+                value:
+                  scopes: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ]
+                  validityDays: 90
+      responses:
+        '201':
+          description: Đã tạo yêu cầu consent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consent'
+              examples:
+                account-info:
+                  value:
+                    consentId: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c
+                    status: AWAITING_AUTHORISATION
+                    scopes: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ]
+                    accountIds: []
+                    createdAt: '2026-10-24T10:00:00+07:00'
+                    expiresAt: '2027-01-22T10:00:00+07:00'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /consents/{consentId}:
+    parameters:
+      - $ref: '#/components/parameters/ConsentIdPath'
+    get:
+      tags: [Consents]
+      operationId: getConsent
+      summary: Xem consent
+      security:
+        - mtls: []
+          fapi: [consents]
+      responses:
+        '200':
+          description: Consent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consent'
+              examples:
+                authorised:
+                  value:
+                    consentId: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c
+                    status: AUTHORISED
+                    scopes: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ]
+                    accountIds: [acc-1001]
+                    createdAt: '2026-10-24T10:00:00+07:00'
+                    expiresAt: '2027-01-22T10:00:00+07:00'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Consents]
+      operationId: revokeConsent
+      summary: Đối tác hủy consent
+      security:
+        - mtls: []
+          fapi: [consents]
+      responses:
+        '204':
+          description: Đã hủy
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Consent đã hết hiệu lực từ trước
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /accounts:
+    get:
+      tags: [Accounts]
+      operationId: listAccounts
+      summary: Danh sách tài khoản trong phạm vi consent
+      security:
+        - mtls: []
+          fapi: [accounts]
+      parameters:
+        - $ref: '#/components/parameters/ConsentIdHeader'
+        - $ref: '#/components/parameters/InteractionId'
+      responses:
+        '200':
+          description: Danh sách tài khoản
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Account'
+              examples:
+                one-account:
+                  value:
+                    data:
+                      - accountId: acc-1001
+                        maskedNumber: '*********7890'
+                        bankBin: '970436'
+                        type: CURRENT
+                        currency: VND
+                        status: ACTIVE
+                        productName: Tài khoản thanh toán
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ConsentDenied'
+
+  /accounts/{accountId}/balances:
+    parameters:
+      - $ref: '#/components/parameters/AccountIdPath'
+      - $ref: '#/components/parameters/ConsentIdHeader'
+      - $ref: '#/components/parameters/InteractionId'
+    get:
+      tags: [Accounts]
+      operationId: getBalances
+      summary: Số dư tài khoản
+      description: Đọc từ kho đọc của Integration Hub, không gọi core. `asOf` cho biết độ mới của dữ liệu.
+      security:
+        - mtls: []
+          fapi: [accounts]
+      responses:
+        '200':
+          description: Số dư
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Balance'
+              examples:
+                acc-1001:
+                  value:
+                    data:
+                      - type: AVAILABLE
+                        amount: { value: '15250000', currency: VND }
+                        asOf: '2026-10-24T09:59:58+07:00'
+                      - type: BOOKED
+                        amount: { value: '15750000', currency: VND }
+                        asOf: '2026-10-24T09:59:58+07:00'
+        '403':
+          $ref: '#/components/responses/ConsentDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /accounts/{accountId}/transactions:
+    parameters:
+      - $ref: '#/components/parameters/AccountIdPath'
+      - $ref: '#/components/parameters/ConsentIdHeader'
+      - $ref: '#/components/parameters/InteractionId'
+    get:
+      tags: [Accounts]
+      operationId: listTransactions
+      summary: Lịch sử giao dịch
+      security:
+        - mtls: []
+          fapi: [accounts]
+      parameters:
+        - name: fromDate
+          in: query
+          schema: { type: string, format: date }
+        - name: toDate
+          in: query
+          schema: { type: string, format: date }
+        - name: cursor
+          in: query
+          description: Con trỏ trang tiếp theo, lấy từ `links.next`
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        '200':
+          description: Một trang giao dịch, mới nhất trước
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  links:
+                    type: object
+                    properties:
+                      next: { type: [string, 'null'] }
+              examples:
+                acc-1001:
+                  value:
+                    data:
+                      - transactionId: txn-88001
+                        direction: DEBIT
+                        amount: { value: '500000', currency: VND }
+                        status: BOOKED
+                        bookedAt: '2026-10-24T08:15:02+07:00'
+                        description: Thanh toan hoa don dien
+                    links:
+                      next: null
+        '403':
+          $ref: '#/components/responses/ConsentDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /payments:
+    post:
+      tags: [Payments]
+      operationId: initiatePayment
+      summary: Khởi tạo lệnh chuyển khoản
+      description: |
+        Lệnh được chuyển tới core hoặc payment hub của ngân hàng; VOBS không ghi trực tiếp vào core.
+        Kết quả cuối cùng tra bằng `GET /payments/{paymentId}`.
+      security:
+        - mtls: []
+          fapi: [payments]
+      parameters:
+        - $ref: '#/components/parameters/ConsentIdHeader'
+        - $ref: '#/components/parameters/InteractionId'
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Gửi lại cùng khóa trong 24 giờ trả về cùng kết quả, không tạo lệnh mới
+          schema: { type: string, maxLength: 64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+            examples:
+              transfer:
+                value:
+                  debtorAccountId: acc-1001
+                  creditor:
+                    bankBin: '970415'
+                    accountNumber: '113366668888'
+                    name: TRAN THI BINH
+                  amount: { value: '2500000', currency: VND }
+                  purpose: Thanh toan don 1234
+      responses:
+        '202':
+          description: Đã nhận lệnh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+              examples:
+                transfer:
+                  value:
+                    paymentId: pay-20261024-0001
+                    status: ACCEPTED
+                    createdAt: '2026-10-24T10:05:00+07:00'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/ConsentDenied'
+        '422':
+          description: Lệnh bị từ chối theo quy tắc nghiệp vụ (ví dụ vượt hạn mức)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /payments/{paymentId}:
+    get:
+      tags: [Payments]
+      operationId: getPayment
+      summary: Trạng thái lệnh chuyển khoản
+      security:
+        - mtls: []
+          fapi: [payments]
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema: { type: string }
+          examples:
+            transfer:
+              value: pay-20261024-0001
+        - $ref: '#/components/parameters/InteractionId'
+      responses:
+        '200':
+          description: Lệnh chuyển khoản
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+              examples:
+                transfer:
+                  value:
+                    paymentId: pay-20261024-0001
+                    status: SETTLED
+                    createdAt: '2026-10-24T10:05:00+07:00'
+                    switchReference: NAPAS-0000123456
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    mtls:
+      type: mutualTLS
+      description: Chứng thư client của đối tác, cấp khi đăng ký
+    fapi:
+      type: oauth2
+      description: |
+        FAPI 2.0 Security Profile trên Keycloak: Pushed Authorization Request, PKCE, access token gắn với
+        chứng thư mTLS (RFC 8705).
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect/auth
+          tokenUrl: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect/token
+          scopes:
+            consents: Quản lý consent
+            accounts: Đọc tài khoản, số dư, giao dịch
+            payments: Khởi tạo và tra cứu thanh toán
+
+  parameters:
+    ConsentIdHeader:
+      name: x-consent-id
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+      examples:
+        authorised:
+          value: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c
+    ConsentIdPath:
+      name: consentId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+      examples:
+        authorised:
+          value: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c
+    AccountIdPath:
+      name: accountId
+      in: path
+      required: true
+      schema: { type: string }
+      examples:
+        acc-1001:
+          value: acc-1001
+    InteractionId:
+      name: x-fapi-interaction-id
+      in: header
+      required: false
+      description: Mã tương quan do đối tác gửi; ngân hàng trả lại cùng giá trị
+      schema: { type: string, format: uuid }
+
+  responses:
+    BadRequest:
+      description: Request sai cấu trúc
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unauthorized:
+      description: Thiếu hoặc sai token, hoặc token không gắn với chứng thư mTLS
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    ConsentDenied:
+      description: Consent không cho phép truy cập này
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            scope:
+              value:
+                type: https://vobs.io/problems/consent-denied
+                title: Consent không cho phép truy cập
+                status: 403
+                reason: scope_not_granted
+    NotFound:
+      description: Không tìm thấy, hoặc nằm ngoài phạm vi consent
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+  schemas:
+    Amount:
+      type: object
+      required: [value, currency]
+      properties:
+        value:
+          type: string
+          pattern: '^-?\d{1,18}(\.\d{1,2})?$'
+          description: Số tiền dạng chuỗi thập phân; VND không có phần lẻ
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+
+    ConsentScope:
+      type: string
+      enum: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ, PAYMENTS_INITIATE]
+
+    ConsentRequest:
+      type: object
+      required: [scopes, validityDays]
+      properties:
+        scopes:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/ConsentScope'
+        validityDays:
+          type: integer
+          minimum: 1
+          maximum: 180
+
+    Consent:
+      type: object
+      required: [consentId, status, scopes, accountIds, createdAt, expiresAt]
+      properties:
+        consentId: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [AWAITING_AUTHORISATION, AUTHORISED, REJECTED, REVOKED, EXPIRED]
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsentScope'
+        accountIds:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+
+    Account:
+      type: object
+      required: [accountId, maskedNumber, bankBin, type, currency, status]
+      properties:
+        accountId: { type: string }
+        maskedNumber: { type: string }
+        bankBin: { type: string, pattern: '^\d{6}$' }
+        type:
+          type: string
+          enum: [CURRENT, SAVINGS, LOAN, CARD]
+        currency: { type: string, pattern: '^[A-Z]{3}$' }
+        status:
+          type: string
+          enum: [ACTIVE, DORMANT, BLOCKED, CLOSED]
+        productName: { type: string }
+
+    Balance:
+      type: object
+      required: [type, amount, asOf]
+      properties:
+        type:
+          type: string
+          enum: [AVAILABLE, BOOKED]
+        amount:
+          $ref: '#/components/schemas/Amount'
+        asOf: { type: string, format: date-time }
+
+    Transaction:
+      type: object
+      required: [transactionId, direction, amount, status]
+      properties:
+        transactionId: { type: string }
+        direction:
+          type: string
+          enum: [DEBIT, CREDIT]
+        amount:
+          $ref: '#/components/schemas/Amount'
+        status:
+          type: string
+          enum: [PENDING, BOOKED, REVERSED]
+        bookedAt: { type: string, format: date-time }
+        valueDate: { type: string, format: date }
+        description: { type: string }
+        reference: { type: string }
+
+    PaymentRequest:
+      type: object
+      required: [debtorAccountId, creditor, amount]
+      properties:
+        debtorAccountId: { type: string }
+        creditor:
+          type: object
+          required: [bankBin, accountNumber]
+          properties:
+            bankBin: { type: string, pattern: '^\d{6}$' }
+            accountNumber: { type: string, pattern: '^[0-9A-Za-z]{1,19}$' }
+            name:
+              type: string
+              description: Tên người nhận, không dấu, viết hoa; ngân hàng đối chiếu với kết quả tra tên
+        amount:
+          $ref: '#/components/schemas/Amount'
+        purpose:
+          type: string
+          maxLength: 140
+
+    Payment:
+      type: object
+      required: [paymentId, status, createdAt]
+      properties:
+        paymentId: { type: string }
+        status:
+          type: string
+          enum: [ACCEPTED, SETTLED, REJECTED, UNKNOWN]
+        reasonCode:
+          type: string
+          description: Mã lý do theo ExternalStatusReason1Code của ISO 20022 khi bị từ chối
+        createdAt: { type: string, format: date-time }
+        switchReference: { type: string }
+
+    Problem:
+      type: object
+      description: RFC 9457 Problem Details
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        reason:
+          type: string
+          description: Mã lý do máy đọc được, ví dụ `scope_not_granted`

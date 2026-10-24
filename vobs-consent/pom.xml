@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.vobs</groupId>
+    <artifactId>vobs-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>vobs-consent</artifactId>
+  <name>VOBS Consent</name>
+  <description>
+    Quản lý consent theo Nghị định 13/2023/NĐ-CP và Thông tư 64/2024/TT-NHNN: cấp, xem, thu hồi theo phạm vi dữ liệu và thời hạn, có log kiểm toán chuỗi hash.
+  </description>
+  <url>https://github.com/xvalleycorp/vobs/tree/main/vobs-consent</url>
+</project>

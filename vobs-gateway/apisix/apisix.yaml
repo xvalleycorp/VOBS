@@ -1,0 +1,40 @@
+# Ví dụ cấu hình route ở chế độ standalone của Apache APISIX cho một API đọc số dư.
+# Thứ tự plugin theo priority: openid-connect (xác thực token FAPI) -> vobs-consent -> upstream.
+# kafka-logger ghi log kiểm toán nối tiếp vào Kafka; topic này được lưu kiểu WORM.
+# Các giá trị trong <...> thay theo môi trường của ngân hàng.
+routes:
+  - id: balances
+    uri: /open-banking/v1/accounts/:account_id/balances
+    methods: [GET]
+    plugins:
+      openid-connect:
+        discovery: https://<keycloak-host>/realms/open-banking/.well-known/openid-configuration
+        client_id: vobs-gateway
+        client_secret: <từ OpenBao>
+        bearer_only: true
+        use_jwks: true
+      vobs-consent:
+        consent_service_uri: https://vobs-consent.vobs.svc:8443
+        scope: BALANCES_READ
+        account_id_param: account_id
+      kafka-logger:
+        brokers:
+          - host: vobs-kafka-bootstrap.vobs.svc
+            port: 9093
+        kafka_topic: vobs.audit.api
+        batch_max_size: 1
+        log_format:
+          ts: $time_iso8601
+          request_id: $request_id
+          interaction_id: $http_x_fapi_interaction_id
+          client_id: $vobs_client_id
+          consent_id: $vobs_consent_id
+          method: $request_method
+          uri: $uri
+          status: $status
+          latency_ms: $request_time
+    upstream:
+      type: roundrobin
+      nodes:
+        vobs-read-api.vobs.svc:8080: 1
+#END

@@ -1,0 +1,38 @@
+name: Báo lỗi
+description: Báo một lỗi trong VOBS. Lỗ hổng bảo mật xin báo riêng theo SECURITY.md.
+labels: [bug]
+body:
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      options:
+        - vobs-spec
+        - vobs-model
+        - vobs-vietqr
+        - vobs-iso20022
+        - vobs-switch
+        - vobs-consent
+        - vobs-hub
+        - vobs-gateway
+        - vobs-sandbox
+        - vobs-deploy
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Phiên bản
+      placeholder: 0.1.0 hoặc commit
+  - type: textarea
+    id: what
+    attributes:
+      label: Lỗi là gì
+      description: Mong đợi gì, thực tế ra sao. Không dán dữ liệu khách hàng thật.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Cách tái hiện
+      render: java

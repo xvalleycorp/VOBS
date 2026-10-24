@@ -1,0 +1,23 @@
+# Maven
+target/
+dependency-reduced-pom.xml
+pom.xml.versionsBackup
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+
+# Helm
+vobs-deploy/helm/*/charts/
+vobs-deploy/helm/*/Chart.lock
+
+# Secrets: không commit file môi trường
+.env
+*.env

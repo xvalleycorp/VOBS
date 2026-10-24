@@ -1,0 +1,46 @@
+name: Release
+
+# Phát hành khi đẩy tag dạng v0.1.0: build, tạo SBOM, ký các file jar bằng Sigstore cosign (keyless, qua OIDC
+# của GitHub Actions) và đính kèm vào GitHub Release. Đẩy lên Maven Central sẽ thêm khi có namespace.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Đặt phiên bản theo tag
+        run: mvn -B versions:set -DnewVersion="${GITHUB_REF_NAME#v}" -DgenerateBackupPoms=false
+      - name: Build
+        run: mvn -B -Prelease verify
+      - name: Gom artifact
+        run: |
+          mkdir -p dist
+          cp vobs-*/target/vobs-*.jar dist/
+      - name: Tạo SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: dist/vobs-sbom.spdx.json
+      - uses: sigstore/cosign-installer@v3
+      - name: Ký artifact
+        run: |
+          for f in dist/*; do
+            cosign sign-blob --yes --bundle "$f.sigstore.json" "$f"
+          done
+      - name: Tạo GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --generate-notes --verify-tag

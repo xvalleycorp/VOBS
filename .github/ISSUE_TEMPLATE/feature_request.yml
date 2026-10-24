@@ -1,0 +1,20 @@
+name: Đề xuất tính năng
+description: Đề xuất tính năng mới hoặc thay đổi đặc tả API
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Vấn đề cần giải quyết
+      description: Ai gặp vấn đề này (ngân hàng, fintech, SI), trong tình huống nào
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Đề xuất
+  - type: textarea
+    id: regulation
+    attributes:
+      label: Căn cứ quy định (nếu có)
+      description: Điều khoản của Thông tư 64, Nghị định 13... liên quan

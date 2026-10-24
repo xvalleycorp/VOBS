@@ -1,0 +1,65 @@
+openapi: 3.1.0
+info:
+  title: VOBS Internal — Consent check
+  version: 0.1.0-draft
+  summary: API nội bộ để API Gateway hỏi service consent trước mỗi request của đối tác
+  description: |
+    Chỉ mở trong mạng nội bộ giữa gateway và service consent; không công bố cho đối tác.
+    Plugin `vobs-consent` trong `vobs-gateway` gọi API này. Logic tương ứng: `ConsentService.check` trong
+    `vobs-consent`.
+  license:
+    name: Apache 2.0
+    identifier: Apache-2.0
+servers:
+  - url: https://vobs-consent.vobs.svc:8443
+    description: Service consent trong cụm Kubernetes
+security:
+  - internalMtls: []
+paths:
+  /internal/consent-checks:
+    post:
+      operationId: checkConsent
+      summary: Kiểm tra một request của đối tác theo consent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [consentId, clientId, scope]
+              properties:
+                consentId: { type: string }
+                clientId: { type: string }
+                scope:
+                  type: string
+                  enum: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ, PAYMENTS_INITIATE]
+                accountId:
+                  type: [string, 'null']
+      responses:
+        '200':
+          description: Kết quả kiểm tra; luôn 200 kể cả khi từ chối
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [allowed]
+                properties:
+                  allowed: { type: boolean }
+                  reason:
+                    type: [string, 'null']
+                    enum:
+                      - consent_not_found
+                      - consent_awaiting_authorisation
+                      - consent_rejected
+                      - consent_revoked
+                      - consent_expired
+                      - scope_not_granted
+                      - account_not_granted
+                      - null
+        '400':
+          description: Thiếu trường bắt buộc hoặc phạm vi không hợp lệ
+components:
+  securitySchemes:
+    internalMtls:
+      type: mutualTLS
+      description: mTLS nội bộ giữa gateway và service consent (TLS 1.3)

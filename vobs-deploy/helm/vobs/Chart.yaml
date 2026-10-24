@@ -1,0 +1,18 @@
+apiVersion: v2
+name: vobs
+description: Helm chart tổng của VOBS — Vietnam Open Banking Stack
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/xvalleycorp/vobs
+sources:
+  - https://github.com/xvalleycorp/vobs
+keywords:
+  - open-banking
+  - vietnam
+  - fapi
+  - iso20022
+annotations:
+  licenses: Apache-2.0
+# Các thành phần hạ tầng (APISIX, Keycloak, Strimzi, CloudNativePG, Valkey, OpenBao) sẽ được thêm vào
+# `dependencies` ở giai đoạn 2, mỗi chart ghim phiên bản cụ thể và được kiểm tra giấy phép.

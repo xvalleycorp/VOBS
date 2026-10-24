@@ -1,0 +1,9 @@
+# Sandbox cục bộ cho fintech: Microcks dựng API giả lập từ bộ đặc tả trong vobs-spec.
+#   docker compose up -d && ./import-specs.sh
+# Giao diện Microcks: http://localhost:8585
+services:
+  microcks:
+    image: quay.io/microcks/microcks-uber:1.10.0
+    ports:
+      - "8585:8080"
+    restart: unless-stopped

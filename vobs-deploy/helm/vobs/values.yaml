@@ -1,0 +1,27 @@
+# Bật/tắt từng thành phần. Mỗi module VOBS dùng riêng được, nên ngân hàng chỉ bật phần mình cần.
+
+global:
+  # Registry nội bộ của ngân hàng khi cài air-gapped; để trống để dùng registry gốc
+  imageRegistry: ""
+  # Mọi dữ liệu nằm trong cụm của ngân hàng; không gọi dịch vụ cloud bên ngoài
+  airGapped: false
+
+gateway:
+  enabled: true      # Apache APISIX + plugin vobs-consent
+
+auth:
+  enabled: true      # Keycloak, FAPI 2.0
+
+consent:
+  enabled: true      # Service quản lý consent
+  maxValidityDays: 180
+
+hub:
+  enabled: true      # Debezium + Kafka (Strimzi) + PostgreSQL (CloudNativePG) + Valkey
+  coreConnector: ""  # ví dụ: oracle-generic; connector theo từng core thêm ở giai đoạn 2
+
+sandbox:
+  enabled: false     # Microcks; thường chỉ bật ở môi trường cho đối tác
+
+observability:
+  enabled: true      # OpenTelemetry Collector, Prometheus, Jaeger
