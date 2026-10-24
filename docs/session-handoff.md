@@ -88,7 +88,9 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
   - đẩy log kiểm toán sang Kafka;
   - kiểm tra quyền chi tiết bằng OpenFGA;
   - luồng duyệt consent trên Temporal.
-- **API Gateway:** chạy thử plugin `vobs-consent` và route `/consents` trên APISIX thật. Route `/consents` cần xác nhận `proxy-rewrite` đọc được biến `$vobs_client_id`.
+- **API Gateway:** đã chạy plugin `vobs-consent` trên APISIX 3.19 trong sandbox (`try-gateway-flow.sh`, CI); `proxy-rewrite`
+  đọc được `$vobs_client_id`. Việc kế: thử với `openid-connect` và Keycloak thật, plugin token gắn chứng thư mTLS
+  (RFC 8705), WAF.
 - **Sandbox cho bên thứ ba:** đã đưa service Quản lý sự đồng ý vào `docker compose` (nhánh `feat/sandbox-consent`), kèm
   `try-consent-flow.sh` và job CI `sandbox` build image, chạy thử luồng, quét Trivy. Máy local chưa có Docker nên
   phần container chỉ được kiểm chứng trên CI. Việc kế: dữ liệu mẫu phong phú hơn, nối bộ giả lập chuyển mạch.
