@@ -12,8 +12,9 @@ AWAITING_AUTHORISATION --authorise--> AUTHORISED --revoke--> REVOKED
 | Lớp | Vai trò |
 | --- | --- |
 | `ConsentService` | Vòng đời consent và `check()` cho gateway |
+| `ConsentPolicy` | Xét yêu cầu consent mới theo bảng quyết định RuleStone `consent_request` (mục dưới) |
 | `Consent`, `ConsentScope` | Consent và phạm vi theo nhóm Open API tại Điều 6 Thông tư 64 |
-| `ThirdParty` | Bên thứ ba và loại tổ chức; nhóm thanh toán chỉ cho ngân hàng, trung gian thanh toán (Điều 5) |
+| `ThirdParty` | Bên thứ ba và loại tổ chức |
 | `AuditLog` | Log nối tiếp, mỗi bản ghi chứa hash SHA-256 của bản ghi trước; `verify()` phát hiện sửa, xóa, chèn |
 | `ConsentRepository` | Giao diện lưu trữ; bản trong bộ nhớ cho kiểm thử |
 | `jdbc.PostgresConsentRepository`, `jdbc.PostgresAuditStore` | Lưu consent và log kiểm toán vào PostgreSQL; `jdbc.ConsentSchema` tạo bảng |
@@ -25,11 +26,41 @@ Quy tắc chính:
 
 - Khách hàng chỉ thấy và thao tác consent của mình; consent của người khác trả về "không tìm thấy".
 - Phạm vi thanh toán và ví điện tử chỉ cấp cho ngân hàng và tổ chức trung gian thanh toán (Điều 5 Thông tư 64).
-- Thời hạn consent mặc định tối đa 180 ngày (`TT64_MAX_VALIDITY`, Điều 11).
+- Thời hạn consent mặc định tối đa 180 ngày (Điều 11).
+
+Hai quy tắc trên nằm trong bảng quyết định, không nằm trong mã Java (mục [Chính sách nhận consent](#chính-sách-nhận-consent)).
 - Consent đọc dữ liệu phải chọn ít nhất một tài khoản; consent chỉ gồm phạm vi thanh toán thì không bắt buộc.
 - Consent tự chuyển sang `EXPIRED` khi quá hạn, và việc chuyển này cũng được ghi log.
 - Đối tác tạo consent khi chưa biết khách hàng là ai; khách hàng được gắn vào consent khi duyệt hoặc từ chối trên
   kênh của ngân hàng.
+
+## Chính sách nhận consent
+
+Yêu cầu consent mới được xét theo bảng quyết định `consent_request` của
+[RuleStone](https://github.com/xvalleycorp/RuleStone) (Apache-2.0), bộ máy quy tắc nghiệp vụ cho ngân hàng:
+[`consent_request.v1.stone.json`](src/main/resources/io/vobs/consent/rules/consent_request.v1.stone.json).
+
+| Quy tắc | Khi nào | Kết quả |
+| --- | --- | --- |
+| `VALIDITY` | `validityDays` ngoài khoảng 1–180 (Điều 11) | `400 invalid_request` |
+| `PAYMENT_GROUP` | Bên thứ ba không phải ngân hàng hay trung gian thanh toán mà xin phạm vi nhóm thanh toán (Điều 5) | `403 scope_not_permitted` |
+| `ALLOW` | Còn lại | Tạo consent |
+
+- **Có phiên bản và ngày hiệu lực.** Bảng v1 có hiệu lực từ 01/03/2025, ngày Thông tư 64 có hiệu lực. Khi quy định
+  đổi, hoặc ngân hàng có thỏa thuận khác với đối tác, thêm phiên bản mới với `effectiveFrom` là ngày áp dụng và đóng
+  phiên bản cũ bằng `effectiveTo` cùng ngày. Phiên bản được chọn theo ngày nghiệp vụ (giờ Việt Nam) của yêu cầu.
+- **Quy tắc riêng của ngân hàng.** Quy tắc mới đặt `allowed` là `false` kèm `reasonCode`; đối tác nhận `403` với
+  `reason` là mã đó viết thường, ví dụ `TRANSACTIONS_WITHOUT_ACCOUNTS` thành `transactions_without_accounts`.
+- **Dùng bảng riêng** bằng biến môi trường `VOBS_CONSENT_RULES_DIR`: thư mục chứa mọi phiên bản bảng
+  (`*.stone.json`), kể cả phiên bản cũ. Bảng được kiểm tra kiểu khi khởi động: tên trường sai hay sai kiểu thì
+  service dừng, không để lỗi xảy ra lúc đối tác gọi.
+- **Kiểm toán được.** Mỗi consent lưu phiên bản bảng đã nhận nó (`policyVersion`, dạng `1@sha256:…`, hash nội dung
+  bảng), thấy ở API nội bộ. Mỗi lần xét, kể cả bị từ chối, ghi một bản ghi quyết định ra log của service
+  (`vobs-consent: decision {...}`): phiên bản bảng, quy tắc khớp, mã lý do, mã consent, hash của input. Bản ghi
+  không chứa giá trị input.
+
+Sửa bất kỳ chữ nào trong bảng, kể cả mô tả hay `effectiveTo`, đều đổi hash. Vì vậy đóng phiên bản cũ cũng đổi hash
+của nó; consent tạo trước đó vẫn giữ hash cũ để đối chiếu với file trong lịch sử git.
 
 ## API HTTP
 
@@ -83,6 +114,9 @@ docker run --rm -p 8080:8080 -p 8081:8081 -e VOBS_CONSENT_THIRD_PARTIES="fintech
 
 Image chạy bằng user không có quyền root và nghe trên mọi địa chỉ trong container. Sandbox cho bên thứ ba dùng
 sẵn image này, kèm script chạy thử trọn luồng ([`vobs-sandbox`](../vobs-sandbox)).
+
+Kiểm thử và build cần RuleStone trong kho Maven cục bộ: chạy `./scripts/install-rulestone.sh` ở thư mục gốc repo
+một lần. Image Docker tự cài khi build.
 
 Việc tiếp theo của giai đoạn 2: chạy nhiều bản service cùng lúc (khóa khi ghi log kiểm toán, khóa lạc quan khi
 đổi trạng thái consent), connection pool, đẩy log kiểm toán sang Kafka, kiểm tra quyền chi tiết bằng OpenFGA,

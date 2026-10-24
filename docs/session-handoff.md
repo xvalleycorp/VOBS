@@ -112,9 +112,25 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
 - Image Docker chỉ nhận bản vá trong Java 21; image build (`maven:*`) cập nhật tay cùng lúc với JDK. Đổi bản Java
   lớn (ví dụ Java 25 LTS) là quyết định riêng, đổi cùng `pom.xml` và CI.
 
+## RuleStone
+
+- Chủ dự án chọn đưa RuleStone (sản phẩm cùng nhóm, https://github.com/xvalleycorp/RuleStone) vào chính sách nhận
+  consent trước (24/10/2026), lấy bằng cách build từ mã nguồn tại commit cố định (`scripts/install-rulestone.sh`).
+  Khi RuleStone lên Maven Central: bỏ script, đặt `rulestone.version` thành bản phát hành, bỏ bước cài trong CI,
+  `release.yml` và Dockerfile.
+- Các vị trí dự kiến khác ghi trong `docs/architecture.md` (mục Quy tắc nghiệp vụ): thanh toán, Fraud và AML, Temporal.
+- Thư viện đến cùng RuleStone mà JAR không kèm giấy phép: văn bản lấy từ repo gốc, lưu ở
+  `vobs-consent/src/license/third-party` (README trong đó ghi nguồn). Đổi commit RuleStone mà kéo theo phiên bản
+  thư viện mới thì tải lại văn bản tương ứng.
+- Góp ý cho RuleStone: thêm phiên bản mới buộc sửa `effectiveTo` của phiên bản cũ, làm đổi hash của phiên bản cũ.
+- Đang dừng giữa chừng: dữ liệu mẫu phong phú cho sandbox. Đã tìm hiểu: Microcks nhận dữ liệu bổ sung dạng
+  `APIExamples` (artifact phụ, `mainArtifact=false`); request không khớp example nào bị trả `400`. API giao dịch có
+  cả tham số path lẫn query nên cần `APIMetadata` giới hạn quy tắc chọn (ví dụ chỉ `accountId` và `cursor`).
+
 ## Lưu ý khi làm tiếp
 
 - **Kiểm tra trước khi push:**
+  - `./scripts/install-rulestone.sh` (một lần, hoặc khi đổi commit RuleStone)
   - `mvn -B verify`
   - `mvn -B -Plicense-check -DskipTests verify`
   - `npx --yes @redocly/cli@1.25.0 lint vobs-spec/openapi/*.yaml`

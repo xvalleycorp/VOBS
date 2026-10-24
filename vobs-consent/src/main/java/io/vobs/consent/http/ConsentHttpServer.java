@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import io.vobs.consent.AccessDecision;
 import io.vobs.consent.Consent;
+import io.vobs.consent.ConsentRejectedException;
 import io.vobs.consent.ConsentScope;
 import io.vobs.consent.ConsentService;
 import io.vobs.consent.ScopeNotPermittedException;
@@ -22,6 +23,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -242,6 +244,8 @@ public final class ConsentHttpServer implements AutoCloseable {
         node.put("clientId", consent.clientId());
         node.put("customerId", consent.customerId());
         node.put("statusChangedAt", timestamp(consent.statusChangedAt()));
+        // Phiên bản bảng quyết định đã nhận yêu cầu, để đối chiếu khi kiểm toán; không trả cho đối tác
+        node.put("policyVersion", consent.policyVersion());
         return node;
     }
 
@@ -358,6 +362,9 @@ public final class ConsentHttpServer implements AutoCloseable {
             } catch (ScopeNotPermittedException e) {
                 response = problem(403, "scope_not_permitted",
                         "Phạm vi thuộc nhóm thanh toán chỉ dành cho ngân hàng và trung gian thanh toán", null);
+            } catch (ConsentRejectedException e) {
+                response = problem(403, e.reasonCode().toLowerCase(Locale.ROOT),
+                        "Yêu cầu consent không phù hợp chính sách của ngân hàng", null);
             } catch (NoSuchElementException e) {
                 response = problem(404, "not_found", "Không tìm thấy", null);
             } catch (IllegalStateException e) {

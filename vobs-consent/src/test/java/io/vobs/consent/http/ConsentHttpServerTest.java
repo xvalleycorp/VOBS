@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vobs.consent.AuditLog;
+import io.vobs.consent.ConsentPolicy;
 import io.vobs.consent.ConsentRepository;
 import io.vobs.consent.ConsentService;
 import java.io.IOException;
@@ -43,7 +44,7 @@ class ConsentHttpServerTest {
     @BeforeEach
     void start() throws IOException {
         ConsentService service = new ConsentService(ConsentRepository.inMemory(), audit, Clock.systemUTC(),
-                ConsentService.TT64_MAX_VALIDITY);
+                ConsentPolicy.builtIn());
         InetSocketAddress loopback = new InetSocketAddress(InetAddress.getLoopbackAddress(), 0);
         server = ConsentHttpServer.start(service,
                 ThirdPartyDirectory.parse("fintech-a:OTHER, fintech-b:OTHER, wallet-a:PAYMENT_INTERMEDIARY"),
@@ -66,6 +67,7 @@ class ConsentHttpServerTest {
         assertTrue(created.text("createdAt").matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+07:00"),
                 created.text("createdAt"));
         assertFalse(created.body().has("customerId"), "đối tác không được thấy mã khách hàng nội bộ");
+        assertFalse(created.body().has("policyVersion"), "đối tác không cần thấy phiên bản chính sách nội bộ");
         String id = created.text("consentId");
 
         assertEquals("consent_awaiting_authorisation", check(id, "fintech-a", "ACCOUNTS_READ", "acc-1").text("reason"));
@@ -75,6 +77,7 @@ class ConsentHttpServerTest {
         assertEquals(200, authorised.status());
         assertEquals("AUTHORISED", authorised.text("status"));
         assertEquals("cif-1", authorised.text("customerId"));
+        assertTrue(authorised.text("policyVersion").startsWith("1@sha256:"), authorised.text("policyVersion"));
 
         Reply allowed = check(id, "fintech-a", "ACCOUNTS_READ", "acc-1");
         assertTrue(allowed.body().get("allowed").asBoolean());

@@ -6,7 +6,7 @@ import java.util.Objects;
  * Bên thứ ba (đối tác) đã ký hợp đồng kết nối Open API với ngân hàng.
  *
  * @param clientId mã client cấp khi đăng ký trên Keycloak
- * @param type loại tổ chức, quyết định nhóm API được phép dùng
+ * @param type loại tổ chức, quyết định nhóm API được phép dùng (xem {@link ConsentPolicy})
  */
 public record ThirdParty(String clientId, Type type) {
 
@@ -21,10 +21,5 @@ public record ThirdParty(String clientId, Type type) {
     public ThirdParty {
         Objects.requireNonNull(clientId, "clientId");
         Objects.requireNonNull(type, "type");
-    }
-
-    /** Theo Điều 5 Thông tư 64/2024/TT-NHNN, chỉ ngân hàng và trung gian thanh toán được dùng nhóm điểm c. */
-    public boolean mayUse(ConsentScope scope) {
-        return !scope.isPaymentGroup() || type == Type.BANK || type == Type.PAYMENT_INTERMEDIARY;
     }
 }

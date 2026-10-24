@@ -25,18 +25,21 @@ Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintec
 | [Thư viện ISO 20022](vobs-iso20022) | `vobs-iso20022` | pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022 | 1 | Dùng được |
 | [Kết nối chuyển mạch](vobs-switch) | `vobs-switch` | Adapter chung tới chuyển mạch; bộ giả lập | 1–2 | SPI và giả lập; chưa có NAPAS, MDP |
 | [Sandbox cho bên thứ ba](vobs-sandbox) | `vobs-sandbox` | API giả lập bằng Microcks; service Quản lý sự đồng ý và API Gateway chạy thật để thử luồng consent | 1 | Chạy trên máy bằng Docker Compose |
-| [Quản lý sự đồng ý](vobs-consent) | `vobs-consent` | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi, API HTTP, lưu trữ PostgreSQL; chạy một bản |
+| [Quản lý sự đồng ý](vobs-consent) | `vobs-consent` | Vòng đời consent; chính sách theo Điều 5, 11 viết bằng bảng quyết định RuleStone; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi, API HTTP, lưu trữ PostgreSQL; chạy một bản |
 | [Integration Hub](vobs-hub) | `vobs-hub` | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
 | [API Gateway](vobs-gateway) | `vobs-gateway` | Plugin APISIX: consent, giới hạn tần suất, log kiểm toán | 2 | Plugin consent chạy trên APISIX 3.19 trong sandbox; chưa thử với Keycloak |
 | [Bộ triển khai](vobs-deploy) | `vobs-deploy` | Helm chart tổng, GitOps, bộ cài air-gapped | 2 | Khung |
 
-Module Decision, Fraud và AML (tích hợp Tazama) thuộc giai đoạn 3.
+Module Decision (trên [RuleStone](https://github.com/xvalleycorp/RuleStone)), Fraud và AML (tích hợp Tazama) thuộc giai
+đoạn 3.
 
 ## Bắt đầu
 
-Cần JDK 21 và Maven 3.9 trở lên.
+Cần JDK 21, Maven 3.9 trở lên và git. [RuleStone](https://github.com/xvalleycorp/RuleStone) (bộ máy bảng quyết định,
+dùng trong `vobs-consent`) chưa có trên Maven Central, nên cài từ mã nguồn một lần trước khi build:
 
 ```bash
+./scripts/install-rulestone.sh  # cài RuleStone tại commit cố định vào kho Maven cục bộ
 mvn verify                      # build và chạy test mọi module Java
 mvn -pl vobs-vietqr -am verify  # chỉ một module và các module nó cần
 mvn -Plicense-check verify      # kiểm tra giấy phép của dependency

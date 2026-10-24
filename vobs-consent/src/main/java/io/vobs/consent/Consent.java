@@ -17,6 +17,8 @@ import java.util.Set;
  * @param expiresAt thời điểm hết hạn
  * @param status trạng thái
  * @param statusChangedAt thời điểm đổi trạng thái gần nhất
+ * @param policyVersion phiên bản bảng quyết định đã nhận yêu cầu ({@link ConsentPolicy}), dạng
+ *     {@code <version>@sha256:<hash>}; {@code null} với consent tạo trước khi có bảng quyết định
  */
 public record Consent(
         String consentId,
@@ -27,7 +29,8 @@ public record Consent(
         Instant createdAt,
         Instant expiresAt,
         Status status,
-        Instant statusChangedAt) {
+        Instant statusChangedAt,
+        String policyVersion) {
 
     public enum Status {
         AWAITING_AUTHORISATION,
@@ -64,12 +67,12 @@ public record Consent(
 
     Consent withStatus(Status newStatus, Set<String> newAccountIds, Instant at) {
         return new Consent(consentId, clientId, customerId, scopes, newAccountIds, createdAt, expiresAt, newStatus,
-                at);
+                at, policyVersion);
     }
 
     Consent withCustomer(String newCustomerId) {
         return new Consent(consentId, clientId, newCustomerId, scopes, accountIds, createdAt, expiresAt, status,
-                statusChangedAt);
+                statusChangedAt, policyVersion);
     }
 
     Consent withStatus(Status newStatus, Instant at) {

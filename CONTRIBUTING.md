@@ -17,7 +17,7 @@ Pull request có commit thiếu sign-off sẽ không được merge.
 
 1. Với thay đổi lớn, mở issue trước để thống nhất hướng làm.
 2. Tạo nhánh từ `main`, viết code kèm test.
-3. Chạy `mvn verify` (và `npx @redocly/cli@1.25.0 lint vobs-spec/openapi/*.yaml` nếu sửa đặc tả).
+3. Chạy `mvn verify` (lần đầu chạy `./scripts/install-rulestone.sh` trước; và `npx @redocly/cli@1.25.0 lint vobs-spec/openapi/*.yaml` nếu sửa đặc tả).
 4. Mở pull request, mô tả vấn đề và cách giải quyết.
 
 ## Quy ước
