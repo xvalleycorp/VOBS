@@ -25,7 +25,7 @@ RUN mkdir -p /licenses/third-party \
       [ -n "$(ls -A "$dir")" ] || { echo "Không tìm thấy file giấy phép trong $jar" >&2; exit 1; }; \
     done
 
-FROM eclipse-temurin:21.0.12.1_1-jre-noble
+FROM eclipse-temurin:24.0.2_12-jre-noble
 # Cài bản vá bảo mật của Ubuntu lúc build: tag base image có thể chậm hơn bản vá vài ngày (ví dụ OpenSSL),
 # và CI quét image bằng Trivy, dừng khi còn lỗ hổng HIGH, CRITICAL đã có bản vá.
 RUN apt-get update \
