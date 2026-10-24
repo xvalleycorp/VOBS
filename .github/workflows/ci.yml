@@ -86,6 +86,7 @@ jobs:
   sandbox:
     name: Sandbox, luồng consent
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: vobs-sandbox
@@ -118,7 +119,6 @@ jobs:
         run: |
           docker compose ps
           docker compose logs consent gateway keycloak
-          docker compose exec -T gateway sh -c 'cat /usr/local/apisix/logs/error.log' || true
       - name: Quét lỗ hổng image (Trivy)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:

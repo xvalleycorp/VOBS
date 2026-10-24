@@ -18,7 +18,8 @@
       "directAccessGrantsEnabled": false,
       "attributes": {
         "x509.subjectdn": "CN=fintech-a,O=VOBS Sandbox",
-        "x509.allow.regex.pattern.comparison": "true",
+        "x509.allow.regex.pattern.comparison": "false",
+        "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
         "tls.client.certificate.bound.access.tokens": "true"
       },
       "protocolMappers": [
@@ -48,7 +49,8 @@
       "directAccessGrantsEnabled": false,
       "attributes": {
         "x509.subjectdn": "CN=wallet-b,O=VOBS Sandbox",
-        "x509.allow.regex.pattern.comparison": "true",
+        "x509.allow.regex.pattern.comparison": "false",
+        "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
         "tls.client.certificate.bound.access.tokens": "true"
       },
       "protocolMappers": [
@@ -78,7 +80,8 @@
       "directAccessGrantsEnabled": false,
       "attributes": {
         "x509.subjectdn": "CN=bank-c,O=VOBS Sandbox",
-        "x509.allow.regex.pattern.comparison": "true",
+        "x509.allow.regex.pattern.comparison": "false",
+        "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
         "tls.client.certificate.bound.access.tokens": "true"
       },
       "protocolMappers": [

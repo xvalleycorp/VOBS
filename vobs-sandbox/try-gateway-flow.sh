@@ -72,7 +72,11 @@ echo
 FINTECH_TOKEN="$(token fintech-a)"
 WALLET_TOKEN="$(token wallet-b)"
 if [ -z "$FINTECH_TOKEN" ] || [ -z "$WALLET_TOKEN" ]; then
-  echo "Không lấy được mã truy cập từ Keycloak" >&2
+  echo "Không lấy được mã truy cập từ Keycloak. Phản hồi:" >&2
+  curl -s --cacert "$PKI/ca.crt" --cert "$PKI/fintech-a.crt" --key "$PKI/fintech-a.key" \
+    -d grant_type=client_credentials -d client_id=fintech-a \
+    "$KEYCLOAK_URL/realms/open-banking/protocol/openid-connect/token" >&2 || true
+  echo >&2
   exit 1
 fi
 FINTECH_KEY="Authorization: Bearer $FINTECH_TOKEN"
