@@ -133,8 +133,8 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
   (`APIMetadata`); tham số lọc khác bị bỏ qua.
 - `metadata.version` trong `data/` phải trùng `info.version` của đặc tả; đổi phiên bản đặc tả thì đổi cả hai file
   này, đường dẫn Microcks trong `gateway/apisix.yaml` và `MOCK_URL` của các script. `check-data.py` báo khi lệch.
-- Tài khoản mẫu dùng BIN `970436` giống ví dụ trong đặc tả. BIN này là của một ngân hàng thật; cân nhắc đổi cả đặc
-  tả lẫn dữ liệu mẫu nếu muốn tránh gợi liên tưởng tới ngân hàng đó.
+- Ví dụ, kiểm thử, đặc tả và dữ liệu mẫu dùng BIN giả `999901`, `999902` và BIC giả `ZZZZVNVX`, không dùng mã của
+  ngân hàng thật (chủ dự án quyết định 24/10/2026; quy ước ghi trong CONTRIBUTING.md).
 
 ## Lưu ý khi làm tiếp
 

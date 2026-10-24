@@ -66,10 +66,10 @@ class ModelTest {
 
     @Test
     void validatesBankId() {
-        assertEquals("970436", BankId.ofBin("970436").bin());
+        assertEquals("999901", BankId.ofBin("999901").bin());
         assertThrows(IllegalArgumentException.class, () -> BankId.ofBin("97043"));
-        assertThrows(IllegalArgumentException.class, () -> new BankId("970436", "bfte"));
-        assertEquals("BFTVVNVX", new BankId("970436", "BFTVVNVX").bicCode().orElseThrow());
+        assertThrows(IllegalArgumentException.class, () -> new BankId("999901", "bfte"));
+        assertEquals("ZZZZVNVX", new BankId("999901", "ZZZZVNVX").bicCode().orElseThrow());
     }
 
     @Test
@@ -84,7 +84,7 @@ class ModelTest {
 
     @Test
     void masksAccountNumber() {
-        Account account = new Account("acc-1", "0011004567890", BankId.ofBin("970436"), "cif-1", "CA01",
+        Account account = new Account("acc-1", "0011004567890", BankId.ofBin("999901"), "cif-1", "CA01",
                 Account.AccountType.CURRENT, Money.VND, Account.AccountStatus.ACTIVE, LocalDate.of(2020, 1, 1));
         assertEquals("*********7890", account.maskedNumber());
     }

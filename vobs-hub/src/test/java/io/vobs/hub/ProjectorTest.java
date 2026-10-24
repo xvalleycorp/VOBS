@@ -21,7 +21,7 @@ class ProjectorTest {
     private final ReadStore<Account> store = ReadStore.inMemory();
     private final Projector<Account> projector = new Projector<>(new AccountRowMapper(
             ACCOUNTS,
-            BankId.ofBin("970436"),
+            BankId.ofBin("999901"),
             new AccountRowMapper.Columns("ACC_ID", "ACC_NO", "CIF", "PROD", "ACC_TYPE", "CCY", "STATUS", "OPEN_DT",
                     DateTimeFormatter.BASIC_ISO_DATE),
             Map.of("CA", Account.AccountType.CURRENT, "SA", Account.AccountType.SAVINGS),

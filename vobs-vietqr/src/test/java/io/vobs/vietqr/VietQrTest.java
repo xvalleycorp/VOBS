@@ -19,19 +19,19 @@ class VietQrTest {
     void encodesStaticAccountQrFieldByField() {
         String expectedWithoutCrc = "000201"
                 + "010211"
-                + "3854" + "0010A000000727" + "0124" + "0006970436" + "0110" + "0123456789" + "0208QRIBFTTA"
+                + "3854" + "0010A000000727" + "0124" + "0006999901" + "0110" + "0123456789" + "0208QRIBFTTA"
                 + "5303704"
                 + "5802VN"
                 + "6304";
 
-        String qr = VietQr.toAccount("970436", "0123456789").encode();
+        String qr = VietQr.toAccount("999901", "0123456789").encode();
 
         assertEquals(expectedWithoutCrc + Crc16.hex(expectedWithoutCrc), qr);
     }
 
     @Test
     void roundTripsAmountPurposeAndOneTimeFlag() {
-        VietQr original = VietQr.toAccount("970415", "113366668888")
+        VietQr original = VietQr.toAccount("999902", "113366668888")
                 .withAmount(150_000)
                 .withPurpose("Thanh toan don 1234")
                 .asOneTime();
@@ -45,7 +45,7 @@ class VietQrTest {
 
     @Test
     void roundTripsCardTransfer() {
-        VietQr card = new VietQr("970436", "9704366614528181", VietQr.Service.TO_CARD, null, null, false);
+        VietQr card = new VietQr("999901", "9999016614528181", VietQr.Service.TO_CARD, null, null, false);
         VietQr parsed = VietQr.parse(card.encode());
         assertEquals(VietQr.Service.TO_CARD, parsed.service());
         assertFalse(parsed.amountVnd().isPresent());
@@ -53,7 +53,7 @@ class VietQrTest {
 
     @Test
     void rejectsTamperedPayload() {
-        String qr = VietQr.toAccount("970436", "0123456789").withAmount(10_000).encode();
+        String qr = VietQr.toAccount("999901", "0123456789").withAmount(10_000).encode();
         String tampered = qr.replace("540510000", "540590000");
 
         VietQrException error = assertThrows(VietQrException.class, () -> VietQr.parse(tampered));
@@ -62,9 +62,9 @@ class VietQrTest {
 
     @Test
     void acceptsLowercaseCrc() {
-        String qr = VietQr.toAccount("970436", "0123456789").encode();
+        String qr = VietQr.toAccount("999901", "0123456789").encode();
         String lower = qr.substring(0, qr.length() - 4) + qr.substring(qr.length() - 4).toLowerCase();
-        assertEquals(VietQr.toAccount("970436", "0123456789"), VietQr.parse(lower));
+        assertEquals(VietQr.toAccount("999901", "0123456789"), VietQr.parse(lower));
     }
 
     @Test
@@ -85,10 +85,10 @@ class VietQrTest {
     @Test
     void validatesInputs() {
         assertThrows(VietQrException.class, () -> VietQr.toAccount("97043", "0123"));
-        assertThrows(VietQrException.class, () -> VietQr.toAccount("970436", "0123-456"));
-        assertThrows(VietQrException.class, () -> VietQr.toAccount("970436", "0123").withAmount(0));
-        assertThrows(VietQrException.class, () -> VietQr.toAccount("970436", "0123").withPurpose("Chuyển tiền"));
+        assertThrows(VietQrException.class, () -> VietQr.toAccount("999901", "0123-456"));
+        assertThrows(VietQrException.class, () -> VietQr.toAccount("999901", "0123").withAmount(0));
+        assertThrows(VietQrException.class, () -> VietQr.toAccount("999901", "0123").withPurpose("Chuyển tiền"));
         assertThrows(VietQrException.class,
-                () -> VietQr.toAccount("970436", "0123").withPurpose("a".repeat(26)));
+                () -> VietQr.toAccount("999901", "0123").withPurpose("a".repeat(26)));
     }
 }

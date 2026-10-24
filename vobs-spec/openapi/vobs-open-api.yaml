@@ -401,7 +401,7 @@ paths:
                     data:
                       - accountId: acc-1001
                         maskedNumber: '*********7890'
-                        bankBin: '970436'
+                        bankBin: '999901'
                         type: CURRENT
                         currency: VND
                         status: ACTIVE
@@ -436,7 +436,7 @@ paths:
                   value:
                     accountId: acc-1001
                     maskedNumber: '*********7890'
-                    bankBin: '970436'
+                    bankBin: '999901'
                     type: CURRENT
                     currency: VND
                     status: ACTIVE
@@ -548,7 +548,7 @@ paths:
                 value:
                   debtorAccountId: acc-1001
                   creditor:
-                    bankBin: '970415'
+                    bankBin: '999902'
                     accountNumber: '113366668888'
                     name: TRAN THI BINH
                   amount: { value: '2500000', currency: VND }

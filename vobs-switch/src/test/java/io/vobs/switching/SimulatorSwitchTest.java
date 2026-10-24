@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 
 class SimulatorSwitchTest {
 
-    private static final BankId SENDER = BankId.ofBin("970436");
-    private static final BankId RECEIVER = BankId.ofBin("970415");
+    private static final BankId SENDER = BankId.ofBin("999901");
+    private static final BankId RECEIVER = BankId.ofBin("999902");
 
     private final SimulatorSwitch simulator = new SimulatorSwitch("sim", Money.vnd(500_000_000),
             Clock.fixed(Instant.parse("2026-10-24T03:00:00Z"), ZoneOffset.UTC))
