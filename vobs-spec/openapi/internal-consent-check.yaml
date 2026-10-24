@@ -1,12 +1,16 @@
 openapi: 3.1.0
 info:
-  title: VOBS Internal — Consent check
-  version: 0.1.0-draft
-  summary: API nội bộ để API Gateway hỏi service consent trước mỗi request của đối tác
+  title: VOBS Internal — Consent
+  version: 0.2.0-draft
+  summary: API nội bộ của service consent cho API Gateway và kênh của ngân hàng
   description: |
-    Chỉ mở trong mạng nội bộ giữa gateway và service consent; không công bố cho đối tác.
-    Plugin `vobs-consent` trong `vobs-gateway` gọi API này. Logic tương ứng: `ConsentService.check` trong
-    `vobs-consent`.
+    Chỉ mở trong mạng nội bộ, trên cổng riêng tách khỏi cổng API đối tác; không công bố cho đối tác.
+    - API Gateway (plugin `vobs-consent` trong `vobs-gateway`) gọi `/internal/consent-checks` trước mỗi request
+      của đối tác. Logic tương ứng: `ConsentService.check` trong `vobs-consent`.
+    - Kênh của ngân hàng (trang xác nhận trong luồng redirect, ứng dụng ngân hàng số) gọi các API xem danh sách,
+      duyệt, từ chối, thu hồi sau khi đã xác thực khách hàng. Đối tác tạo consent khi chưa biết khách hàng là ai; khách hàng được
+      gắn vào consent khi duyệt hoặc từ chối.
+    Cài đặt: `ConsentHttpServer` trong `vobs-consent`.
   license:
     name: Apache 2.0
     identifier: Apache-2.0
@@ -57,8 +61,193 @@ paths:
                       - account_not_granted
                       - null
         '400':
-          description: Thiếu trường bắt buộc hoặc phạm vi không hợp lệ
+          $ref: '#/components/responses/BadRequest'
+
+  /internal/customers/{customerId}/consents:
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        description: Mã khách hàng đã được kênh của ngân hàng xác thực
+        schema: { type: string }
+    get:
+      operationId: listCustomerConsents
+      summary: Danh sách consent của một khách hàng
+      description: |
+        Cho khách hàng tra cứu dữ liệu đã đồng ý chia sẻ và rút lại đồng ý (Điều 11, 12 Thông tư 64/2024/TT-NHNN).
+        Mới nhất trước; consent quá hạn được chuyển sang `EXPIRED`. Consent chưa được khách hàng duyệt hay từ chối
+        không thuộc khách hàng nào nên không có trong danh sách.
+      responses:
+        '200':
+          description: Danh sách consent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [consents]
+                properties:
+                  consents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InternalConsent'
+        '405':
+          description: Chỉ hỗ trợ GET
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /internal/consents/{consentId}/authorisation:
+    parameters:
+      - $ref: '#/components/parameters/ConsentIdPath'
+    post:
+      operationId: authoriseConsent
+      summary: Khách hàng duyệt consent và chọn tài khoản được chia sẻ
+      description: |
+        Gọi sau khi kênh của ngân hàng đã xác thực khách hàng. Consent đọc dữ liệu phải có ít nhất một tài khoản;
+        consent chỉ gồm phạm vi thanh toán thì không bắt buộc.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId]
+              properties:
+                customerId: { type: string }
+                accountIds:
+                  type: array
+                  uniqueItems: true
+                  items: { type: string }
+      responses:
+        '200':
+          $ref: '#/components/responses/Consent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+
+  /internal/consents/{consentId}/rejection:
+    parameters:
+      - $ref: '#/components/parameters/ConsentIdPath'
+    post:
+      operationId: rejectConsent
+      summary: Khách hàng từ chối consent
+      requestBody:
+        $ref: '#/components/requestBodies/Customer'
+      responses:
+        '200':
+          $ref: '#/components/responses/Consent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+
+  /internal/consents/{consentId}/revocation:
+    parameters:
+      - $ref: '#/components/parameters/ConsentIdPath'
+    post:
+      operationId: revokeConsentByCustomer
+      summary: Khách hàng thu hồi consent qua kênh của ngân hàng
+      description: Công cụ để khách hàng rút lại sự đồng ý (Điều 12 Thông tư 64/2024/TT-NHNN).
+      requestBody:
+        $ref: '#/components/requestBodies/Customer'
+      responses:
+        '200':
+          $ref: '#/components/responses/Consent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+
 components:
+  parameters:
+    ConsentIdPath:
+      name: consentId
+      in: path
+      required: true
+      schema: { type: string }
+
+  requestBodies:
+    Customer:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [customerId]
+            properties:
+              customerId:
+                type: string
+                description: Mã khách hàng đã được kênh của ngân hàng xác thực
+
+  responses:
+    Consent:
+      description: Consent sau khi đổi trạng thái
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalConsent'
+    BadRequest:
+      description: Thiếu trường bắt buộc hoặc giá trị không hợp lệ
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: Không có consent này, hoặc consent thuộc khách hàng khác
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    StateConflict:
+      description: Consent không ở trạng thái cho phép thao tác này (ví dụ đã hết hạn, đã thu hồi)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+  schemas:
+    InternalConsent:
+      type: object
+      required: [consentId, status, scopes, accountIds, createdAt, expiresAt, clientId, statusChangedAt]
+      properties:
+        consentId: { type: string }
+        status:
+          type: string
+          enum: [AWAITING_AUTHORISATION, AUTHORISED, REJECTED, REVOKED, EXPIRED]
+        scopes:
+          type: array
+          items:
+            type: string
+            enum: [ACCOUNTS_READ, TRANSACTIONS_READ, PAYMENTS_INITIATE, EWALLET_TOPUP, EWALLET_WITHDRAWAL]
+        accountIds:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        clientId: { type: string }
+        customerId:
+          type: [string, 'null']
+          description: Chưa có khi khách hàng chưa duyệt hay từ chối
+        statusChangedAt: { type: string, format: date-time }
+    Problem:
+      type: object
+      description: RFC 9457 Problem Details
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        reason: { type: string }
+
   securitySchemes:
     internalMtls:
       type: mutualTLS

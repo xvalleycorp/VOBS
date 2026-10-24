@@ -88,9 +88,9 @@ function provisionRows(provisions, lang) {
 function moduleCards(list, t, lang) {
   return list
     .map((m) => `        <article class="card module">
-          <header><code>${escapeHtml(m.name)}</code><span class="status status-${m.status}">${m[lang].label}</span></header>
+          <header><h3>${escapeHtml(m[lang].title)}</h3><span class="status status-${m.status}">${m[lang].label}</span></header>
+          <code class="module-id">${escapeHtml(m.name)}</code>
           <p>${escapeHtml(m[lang].desc)}</p>
-          <div class="phase">${escapeHtml(t("module.phase"))} ${escapeHtml(m.phase)}</div>
         </article>`)
     .join("\n");
 }

@@ -27,8 +27,9 @@ Ngôn ngữ chính là Java 21, cùng hệ sinh thái với Keycloak, Debezium v
 ## Giấy phép cần tránh
 
 Pháp chế ngân hàng thường chặn các giấy phép dưới đây. Profile `license-check` của Maven dùng danh sách cho phép
-(Apache-2.0, MIT, BSD-3-Clause, EDL-1.0): dependency mang giấy phép khác làm build thất bại cho tới khi được
-xem xét và thêm vào danh sách.
+(Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, EDL-1.0): dependency mang giấy phép khác làm build thất bại cho tới
+khi được xem xét và thêm vào danh sách. BSD-2-Clause được thêm cho driver JDBC của PostgreSQL; giấy phép này dễ dãi
+hơn BSD-3-Clause (chỉ bỏ điều khoản cấm dùng tên tác giả để quảng bá).
 
 | Tránh | Vì sao | Dùng thay |
 | --- | --- | --- |

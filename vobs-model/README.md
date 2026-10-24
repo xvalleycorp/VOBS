@@ -1,4 +1,4 @@
-# vobs-model
+# Mô hình dữ liệu (`vobs-model`)
 
 Mô hình dữ liệu chuẩn của VOBS, bám theo service domain của BIAN. Các module khác trao đổi dữ liệu qua những
 kiểu này thay vì dùng cấu trúc bảng của core.

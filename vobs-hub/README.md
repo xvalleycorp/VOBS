@@ -1,4 +1,4 @@
-# vobs-hub
+# Integration Hub (`vobs-hub`)
 
 Integration Hub: lấy thay đổi từ database của core bằng Debezium, chuẩn hóa về [mô hình VOBS](../vobs-model) và
 nạp vào kho đọc. API đọc (số dư, giao dịch) truy vấn kho đọc này, không gọi core (CQRS). Lệnh ghi không đi qua hub.

@@ -2,6 +2,7 @@ package io.vobs.consent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -106,6 +107,37 @@ class ConsentServiceTest {
                 Duration.ofDays(1));
         assertThrows(NoSuchElementException.class,
                 () -> service.authorise(requested.consentId(), "cif-2", Set.of("acc-9")));
+    }
+
+    @Test
+    void customerIsBoundWhenAuthorisingAConsentCreatedByThePartner() {
+        Consent requested = service.request(FINTECH, Set.of(ConsentScope.ACCOUNTS_READ), Duration.ofDays(30));
+        assertNull(requested.customerId());
+
+        Consent authorised = service.authorise(requested.consentId(), "cif-7", Set.of("acc-7"));
+        assertEquals("cif-7", authorised.customerId());
+        assertEquals("cif-7", service.find(requested.consentId()).orElseThrow().customerId());
+        assertEquals("customer:cif-7", audit.entries().getLast().actor());
+
+        // Sau khi đã gắn, khách hàng khác không thấy và không thu hồi được
+        assertThrows(NoSuchElementException.class, () -> service.revokeByCustomer(requested.consentId(), "cif-8"));
+        assertEquals(Consent.Status.REVOKED, service.revokeByCustomer(requested.consentId(), "cif-7").status());
+    }
+
+    @Test
+    void unboundConsentCanExpireOrBeWithdrawnByThePartner() {
+        Consent expiring = service.request(FINTECH, Set.of(ConsentScope.ACCOUNTS_READ), Duration.ofDays(1));
+        Consent withdrawn = service.request(FINTECH, Set.of(ConsentScope.ACCOUNTS_READ), Duration.ofDays(1));
+        // Khách hàng không thu hồi được consent chưa gắn với mình
+        assertThrows(NoSuchElementException.class, () -> service.revokeByCustomer(withdrawn.consentId(), "cif-1"));
+
+        assertEquals(Consent.Status.REVOKED, service.revokeByClient(withdrawn.consentId(), "fintech-a").status());
+        clock.advance(Duration.ofDays(1));
+        Consent expired = service.find(expiring.consentId()).orElseThrow();
+        assertEquals(Consent.Status.EXPIRED, expired.status());
+        assertNull(expired.customerId());
+        assertThrows(IllegalStateException.class,
+                () -> service.authorise(expiring.consentId(), "cif-1", Set.of("acc-1")));
     }
 
     @Test

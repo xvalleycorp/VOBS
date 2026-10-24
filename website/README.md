@@ -30,7 +30,8 @@ mà mỗi bên vẫn nguyên vẹn":
 - Logo: chữ V từ hai mắt xích dài bằng nhau móc vào nhau ở đầu dưới. Mắt trái màu Đồng là ngân hàng, mắt phải màu
   Hổ phách là bên thứ ba. Lòng mắt chỉ rộng hơn thanh một chút để xích có cảm giác chặt
   ([`static/assets/logo.svg`](static/assets/logo.svg)). Favicon có thanh mảnh hơn và lòng rộng hơn để vẫn đọc được
-  ở 16px ([`static/assets/favicon.svg`](static/assets/favicon.svg)).
+  ở 16px ([`static/assets/favicon.svg`](static/assets/favicon.svg)). Hình học của cả hai sinh bằng
+  [`tools/logo.py`](tools/logo.py); đổi tham số trong script rồi chạy lại để cập nhật logo, favicon, header và hero.
 - Màu nhận diện: Đồng `#C2693A` và Hổ phách `#E9A33D`; trên nền tối dùng `#E1884F` và `#F2B65B`. Đồng là vật liệu
   của dây dẫn, thứ nối các hệ thống với nhau.
 - Nền kem `#FBF7F1`, chữ nâu `#2A1D19`, nút chính nâu `#6B3A22`; nền tối là nâu đêm `#2A1D19`. Không dùng đen, vì
@@ -46,6 +47,30 @@ Khi viết nội dung tiếng Việt:
   hàng nào cũng cần, và mỗi ngân hàng tự chủ tùy chỉnh phần còn lại theo hiện trạng hệ thống của mình.
 - Không dùng "trung lập": trong tiếng Việt từ này không mang nghĩa tốt như "neutral" trong tiếng Anh.
 - Chữ: Be Vietnam Pro, phông thiết kế cho tiếng Việt.
+
+## Nội dung website và tài liệu nội bộ
+
+Website viết cho người dùng: ngân hàng, bên thứ ba (fintech, ví điện tử), đơn vị tích hợp và cơ quan quản lý. Kế
+hoạch và cách làm việc của nhóm chỉ nằm trong markdown của repo để theo dõi.
+
+| Website (cho người dùng) | Chỉ trong repo (nội bộ) |
+| --- | --- |
+| VOBS là gì, giải quyết vấn đề gì, kiến trúc | Lộ trình, giai đoạn, cổng đi tiếp, mốc thời gian ([`docs/roadmap.md`](../docs/roadmap.md)) |
+| Module nào dùng được ngay, mức sẵn sàng hiện tại | Mô hình kinh doanh, nguồn doanh thu, kế hoạch pháp nhân ([`GOVERNANCE.md`](../GOVERNANCE.md)) |
+| Đối chiếu Thông tư 64 và giới hạn hiện có của đặc tả | Quy trình nội bộ: CI, script kiểm tra, cách build, tên file |
+| Giấy phép, an toàn chuỗi cung ứng, cách báo lỗi và đóng góp | Ý tưởng, việc cần làm, quyết định còn đang cân nhắc |
+
+Khi viết nội dung cho website:
+
+- Chỉ mô tả cái đã có. Tính năng chưa làm thì không nhắc, hoặc nói rõ "chưa có" ở đúng module; không hứa thời gian.
+- Nhãn module nói mức sẵn sàng theo góc nhìn người dùng: Dùng được, Thử nghiệm, Đang phát triển, Nháp.
+- Gọi module bằng tên thân thiện (Thư viện VietQR, Quản lý consent, Integration Hub...). Mã `vobs-*` là tên thư
+  mục và artifact, chỉ hiện kèm để lập trình viên tra cứu. Bảng tên đầy đủ ở [README gốc](../README.md#module);
+  tên tiếng Anh nằm trong [`data/modules.json`](data/modules.json).
+- Không nhắc công cụ nội bộ (CI, script, tên file trong repo) hay quy trình của nhóm. Viết lợi ích cho người đọc,
+  ví dụ "mỗi API ghi rõ điều khoản tương ứng" thay vì "CI kiểm tra độ phủ bằng script".
+- Đặc tả OpenAPI hiển thị trên `/api/` cũng là nội dung cho người dùng: phần `description` viết cho lập trình viên
+  của ngân hàng và bên thứ ba, không viết cho người bảo trì repo.
 
 ## Chạy và triển khai
 

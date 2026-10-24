@@ -1,4 +1,4 @@
-# vobs-switch
+# Kết nối chuyển mạch (`vobs-switch`)
 
 Giao diện adapter chung tới các hệ thống chuyển mạch. Thêm một chuyển mạch mới chỉ cần viết một adapter.
 

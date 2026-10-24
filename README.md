@@ -17,18 +17,18 @@ Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintec
 
 ## Module
 
-| Module | Chức năng | Giai đoạn | Trạng thái |
-| --- | --- | --- | --- |
-| [`vobs-spec`](vobs-spec) | Đặc tả Open API theo Thông tư 64, bộ kiểm thử tuân thủ | 1 | Nháp 0.2: đủ 23 API của Điều 6; chưa đối chiếu Phụ lục 01, 02 |
-| [`vobs-model`](vobs-model) | Mô hình dữ liệu chuẩn theo BIAN; CCCD, BIN, VND, tên tiếng Việt | 1 | Dùng được |
-| [`vobs-vietqr`](vobs-vietqr) | Tạo và đọc mã VietQR | 1 | Dùng được |
-| [`vobs-iso20022`](vobs-iso20022) | pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022 | 1 | Dùng được |
-| [`vobs-switch`](vobs-switch) | Adapter chung tới chuyển mạch; bộ giả lập | 1–2 | SPI và giả lập; chưa có NAPAS, MDP |
-| [`vobs-sandbox`](vobs-sandbox) | API giả lập cho fintech bằng Microcks | 1 | Cấu hình cục bộ |
-| [`vobs-consent`](vobs-consent) | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash | 2 | Phần lõi; chưa có lớp HTTP |
-| [`vobs-hub`](vobs-hub) | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
-| [`vobs-gateway`](vobs-gateway) | Plugin APISIX: consent, log kiểm toán | 2 | Plugin consent bản đầu |
-| [`vobs-deploy`](vobs-deploy) | Helm chart tổng, GitOps, bộ cài air-gapped | 2 | Khung |
+| Module | Mã | Chức năng | Giai đoạn | Trạng thái |
+| --- | --- | --- | --- | --- |
+| [Đặc tả Open API](vobs-spec) | `vobs-spec` | Đặc tả Open API theo Thông tư 64, bộ kiểm thử tuân thủ | 1 | Nháp 0.2: đủ 23 API của Điều 6; chưa đối chiếu Phụ lục 01, 02 |
+| [Mô hình dữ liệu](vobs-model) | `vobs-model` | Mô hình dữ liệu chuẩn theo BIAN; CCCD, BIN, VND, tên tiếng Việt | 1 | Dùng được |
+| [Thư viện VietQR](vobs-vietqr) | `vobs-vietqr` | Tạo và đọc mã VietQR | 1 | Dùng được |
+| [Thư viện ISO 20022](vobs-iso20022) | `vobs-iso20022` | pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022 | 1 | Dùng được |
+| [Kết nối chuyển mạch](vobs-switch) | `vobs-switch` | Adapter chung tới chuyển mạch; bộ giả lập | 1–2 | SPI và giả lập; chưa có NAPAS, MDP |
+| [Sandbox cho bên thứ ba](vobs-sandbox) | `vobs-sandbox` | API giả lập cho fintech bằng Microcks | 1 | Cấu hình cục bộ |
+| [Quản lý consent](vobs-consent) | `vobs-consent` | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi, API HTTP, lưu trữ PostgreSQL; chạy một bản |
+| [Integration Hub](vobs-hub) | `vobs-hub` | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
+| [API Gateway](vobs-gateway) | `vobs-gateway` | Plugin APISIX: consent, log kiểm toán | 2 | Plugin consent bản đầu |
+| [Bộ triển khai](vobs-deploy) | `vobs-deploy` | Helm chart tổng, GitOps, bộ cài air-gapped | 2 | Khung |
 
 Module Decision, Fraud và AML (tích hợp Tazama) thuộc giai đoạn 3.
 
@@ -63,5 +63,5 @@ VietQr qr = VietQr.parse(payload);
 [Apache License 2.0](LICENSE). Phần lõi cam kết không đổi giấy phép.
 
 > Các văn bản pháp lý nhắc trong repo (Thông tư 64/2024/TT-NHNN, Thông tư 09/2020/TT-NHNN, Nghị định 85/2016/NĐ-CP,
-> Nghị định 13/2023/NĐ-CP, Luật Dữ liệu 2024, Luật Bảo vệ dữ liệu cá nhân 2025) cần được kiểm tra lại hiệu lực và
-> nội dung trước khi dùng chính thức.
+> Luật Dữ liệu 2024, Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 thay cho Nghị định 13/2023/NĐ-CP) cần được kiểm
+> tra lại hiệu lực và nội dung trước khi dùng chính thức.

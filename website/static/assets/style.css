@@ -599,6 +599,7 @@ p {
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
 .hero .lead {
@@ -978,12 +979,18 @@ section {
   gap: 12px;
 }
 
-.module code {
+.module h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+/* Mã module (tên artifact, thư mục trong repo) cho lập trình viên tra cứu; tên hiển thị là h3 */
+.module .module-id {
+  margin-top: 2px;
   background: none;
   padding: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--ink);
+  font-size: 0.8rem;
+  color: var(--ink-3);
 }
 
 .module p {
@@ -1021,12 +1028,6 @@ section {
 
 .status-skeleton::before {
   background: var(--dot-skeleton);
-}
-
-.module .phase {
-  margin-top: 16px;
-  font-size: 0.82rem;
-  color: var(--ink-3);
 }
 
 /* ------------------------------------------------------------ Circular 64 */
@@ -1093,73 +1094,6 @@ section {
   font-size: 2.2rem;
   line-height: 1.1;
   letter-spacing: -0.03em;
-}
-
-/* ------------------------------------------------------------ roadmap */
-.timeline {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 860px) {
-  .timeline {
-    grid-template-columns: 1fr;
-  }
-}
-
-.phase-card {
-  position: relative;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 26px 24px 24px;
-  overflow: hidden;
-}
-
-.phase-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 3px;
-  background: var(--brand);
-  opacity: 0.35;
-}
-
-.phase-card:first-child::before {
-  opacity: 1;
-}
-
-.phase-card .when {
-  color: var(--ink-3);
-  font-size: 0.9rem;
-}
-
-.phase-card ul {
-  margin: 14px 0 0;
-  padding-left: 18px;
-  color: var(--ink-2);
-}
-
-.phase-card li + li {
-  margin-top: 4px;
-}
-
-.gate {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px dashed var(--line);
-  font-size: 0.92rem;
-  color: var(--ink-2);
-}
-
-.gate b {
-  color: var(--ink);
 }
 
 /* ------------------------------------------------------------ tables */
@@ -1329,6 +1263,19 @@ a.op:hover code {
 }
 
 /* ------------------------------------------------------------ API reference */
+/* Redoc trải hết bề ngang (sidebar sát mép trái), nên header và dòng ghi chú trên trang này cũng trải hết bề ngang,
+   lề trái bằng lề sidebar của Redoc (20px) để logo thẳng hàng với ô tìm kiếm */
+.page-api .wrap {
+  max-width: none;
+  padding: 0 20px;
+}
+
+@media (max-width: 560px) {
+  .page-api .wrap {
+    padding: 0 16px;
+  }
+}
+
 .api-note {
   padding: 14px 0;
   border-bottom: 1px solid var(--line);

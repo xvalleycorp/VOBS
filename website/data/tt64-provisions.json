@@ -31,8 +31,8 @@
   },
   {
     "article": "11",
-    "vi": { "rule": "Hệ thống thông tin đạt tối thiểu cấp độ 3", "vobs": "Gói tuân thủ ánh xạ kiểm soát theo Nghị định 85/2016 và Thông tư 09/2020" },
-    "en": { "rule": "Information systems must meet at least security level 3", "vobs": "Compliance pack mapping controls to Decree 85/2016 and Circular 09/2020" }
+    "vi": { "rule": "Hệ thống thông tin đạt tối thiểu cấp độ 3", "vobs": "Thiết kế hướng tới cấp độ 3: mTLS, log kiểm toán phát hiện chỉnh sửa, không mở thẳng core; ngân hàng thực hiện việc đánh giá cấp độ theo Nghị định 85/2016 và Thông tư 09/2020" },
+    "en": { "rule": "Information systems must meet at least security level 3", "vobs": "Designed for level 3: mTLS, tamper-evident audit log, no direct core exposure; the bank carries out the level assessment under Decree 85/2016 and Circular 09/2020" }
   },
   {
     "article": "12",

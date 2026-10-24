@@ -4,13 +4,12 @@ info:
   version: 0.2.0-draft
   summary: Open API cơ bản theo Điều 6 Thông tư 64/2024/TT-NHNN — bản nháp
   description: |
-    Bộ đặc tả Open API dùng chung cho các ngân hàng triển khai VOBS, tổ chức theo danh mục Open API cơ bản tại
-    Điều 6 khoản 1 Thông tư 64/2024/TT-NHNN. Mỗi operation khai báo `x-tt64` với mã điều khoản và tên API trong
-    Thông tư; `scripts/check_tt64_coverage.py` kiểm tra đủ danh mục.
+    Đặc tả Open API cho ngân hàng triển khai VOBS, theo danh mục Open API cơ bản tại Điều 6 khoản 1 Thông tư
+    64/2024/TT-NHNN. Mỗi API có trường `x-tt64` ghi mã điều khoản và tên API trong Thông tư.
 
-    **Trạng thái:** nháp. Danh mục API theo đúng Điều 6. Đường dẫn, tên trường, mã lỗi và yêu cầu kỹ thuật chi
-    tiết quy định tại Phụ lục 01 và Phụ lục 02 của Thông tư **chưa được đối chiếu**; phần đó trong file này là thiết
-    kế của VOBS theo thông lệ quốc tế (OpenAPI 3.1, OAuth 2.0, FAPI 2.0, RFC 9457). Không dùng cho production.
+    **Trạng thái:** bản nháp. Danh mục API theo đúng Điều 6. Đường dẫn, tên trường, mã lỗi và yêu cầu kỹ thuật chi
+    tiết quy định tại Phụ lục 01 và Phụ lục 02 của Thông tư **chưa được đối chiếu**; phần đó trong đặc tả này là
+    thiết kế của VOBS theo thông lệ quốc tế (OpenAPI 3.1, OAuth 2.0, FAPI 2.0, RFC 9457). Không dùng cho production.
 
     Quy định của Thông tư phản ánh trong đặc tả:
     - Nhóm điểm c (thanh toán, ví điện tử) chỉ cấp cho bên thứ ba là ngân hàng hoặc tổ chức trung gian thanh toán

@@ -1,4 +1,4 @@
-# vobs-deploy
+# Bộ triển khai (`vobs-deploy`)
 
 Triển khai VOBS lên Kubernetes của ngân hàng: Helm chart tổng, GitOps với Argo CD, bộ cài air-gapped.
 Đang ở dạng khung; nội dung chính thuộc giai đoạn 2.

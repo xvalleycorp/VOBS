@@ -1,11 +1,11 @@
-# vobs-gateway
+# API Gateway (`vobs-gateway`)
 
 Plugin và cấu hình mẫu cho Apache APISIX, lớp API Gateway của VOBS (giai đoạn 2).
 
 | Thành phần | Trạng thái |
 | --- | --- |
 | [`apisix/plugins/vobs-consent.lua`](apisix/plugins/vobs-consent.lua) — kiểm tra consent trước mỗi request, fail closed | Bản đầu, đã kiểm cú pháp, chưa chạy thử trên APISIX |
-| [`apisix/apisix.yaml`](apisix/apisix.yaml) — route mẫu: openid-connect → limit-count → vobs-consent → upstream, log kiểm toán qua kafka-logger | Ví dụ |
+| [`apisix/apisix.yaml`](apisix/apisix.yaml) — route mẫu: openid-connect → limit-count → vobs-consent → upstream, log kiểm toán qua kafka-logger; route `/consents` chuyển tới service consent | Ví dụ |
 | Plugin kiểm tra token gắn chứng thư mTLS (RFC 8705) cho FAPI 2.0 | Chưa làm |
 | WAF: Coraza + OWASP Core Rule Set | Chưa làm |
 
@@ -35,5 +35,7 @@ plugins:
 ## Việc cần làm trước khi dùng thật
 
 - Chạy thử plugin với APISIX bằng bộ test của APISIX (`t/` dùng Test::Nginx).
-- Service consent hiện mới có phần lõi (`vobs-consent`); cần thêm lớp HTTP cho API nội bộ.
+- Service consent (`vobs-consent`) đã có API HTTP và lưu trữ PostgreSQL, nhưng mỗi lúc chỉ chạy được một bản.
+- Route `consents` chưa chạy thử: cần xác nhận `proxy-rewrite` đọc được biến `$vobs_client_id` do plugin
+  `vobs-consent` đăng ký.
 - Upstream `vobs-read-api` trong route mẫu là API đọc của Integration Hub, chưa có.

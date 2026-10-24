@@ -47,4 +47,52 @@ routes:
       type: roundrobin
       nodes:
         vobs-read-api.vobs.svc:8080: 1
+
+  # Tạo, xem, thu hồi consent (Điều 6 khoản 1 điểm b). Đối tác dùng mã truy cập client_credentials của chính mình,
+  # nên không có vobs-consent. proxy-rewrite đặt mã client đã xác thực vào x-vobs-client-id, ghi đè giá trị đối tác
+  # tự gửi, rồi bỏ tiền tố trước khi chuyển tới cổng đối tác của service consent (Service Kubernetes
+  # vobs-consent-partner). Cổng nội bộ (Service vobs-consent, nơi plugin vobs-consent gọi /internal/consent-checks)
+  # không nhận route nào từ đối tác.
+  - id: consents
+    uris: [/open-banking/v1/consents, /open-banking/v1/consents/*]
+    methods: [GET, POST, DELETE]
+    plugins:
+      openid-connect:
+        discovery: https://<keycloak-host>/realms/open-banking/.well-known/openid-configuration
+        client_id: vobs-gateway
+        client_secret: <từ OpenBao>
+        bearer_only: true
+        use_jwks: true
+      limit-count:
+        count: 60
+        time_window: 60
+        key_type: var
+        key: vobs_client_id
+        rejected_code: 429
+        show_limit_quota_header: true
+      proxy-rewrite:
+        regex_uri: ["^/open-banking/v1(/consents.*)", "$1"]
+        headers:
+          set:
+            x-vobs-client-id: $vobs_client_id
+      kafka-logger:
+        brokers:
+          - host: vobs-kafka-bootstrap.vobs.svc
+            port: 9093
+        kafka_topic: vobs.audit.api
+        batch_max_size: 1
+        log_format:
+          ts: $time_iso8601
+          request_id: $request_id
+          interaction_id: $http_x_fapi_interaction_id
+          client_id: $vobs_client_id
+          method: $request_method
+          uri: $uri
+          status: $status
+          latency_ms: $request_time
+    upstream:
+      type: roundrobin
+      scheme: https
+      nodes:
+        vobs-consent-partner.vobs.svc:8443: 1
 #END
