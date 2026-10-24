@@ -1,0 +1,18 @@
+# Cấu hình APISIX cho sandbox: chạy standalone (không cần etcd), route đọc từ apisix.yaml cùng thư mục.
+deployment:
+  role: data_plane
+  role_data_plane:
+    config_provider: yaml
+
+apisix:
+  # Plugin vobs-consent nằm ở /opt/vobs/apisix/plugins/vobs-consent.lua (mount từ vobs-gateway)
+  extra_lua_path: "/opt/vobs/?.lua"
+  router:
+    # Cần cho route có tham số trên đường dẫn, như /accounts/:account_id
+    http: radixtree_uri_with_parameter
+
+plugins:
+  - key-auth
+  - limit-count
+  - proxy-rewrite
+  - vobs-consent

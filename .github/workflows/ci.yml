@@ -82,10 +82,14 @@ jobs:
         working-directory: vobs-sandbox
     steps:
       - uses: actions/checkout@v4
-      - name: Build image và chạy service Quản lý sự đồng ý
-        run: docker compose up -d --build consent
+      - name: Build image và chạy sandbox (Microcks, Quản lý sự đồng ý, API Gateway)
+        run: docker compose up -d --build
       - name: Chạy thử trọn luồng consent
         run: ./try-consent-flow.sh
+      - name: Nạp đặc tả vào Microcks
+        run: ./import-specs.sh
+      - name: Chạy thử luồng qua API Gateway
+        run: ./try-gateway-flow.sh
       - name: Image kèm thông báo giấy phép của thư viện bên thứ ba
         run: |
           docker run --rm --entrypoint sh vobs-consent:sandbox -c '
@@ -93,9 +97,12 @@ jobs:
             ls /app/licenses/LICENSE /app/licenses/NOTICE /app/licenses/third-party/THIRD-PARTY.txt
             grep -q "PostgreSQL Global Development Group" /app/licenses/third-party/postgresql-*/META-INF/LICENSE
             echo "Thư viện có file giấy phép: $(ls /app/licenses/third-party | grep -vc THIRD-PARTY.txt)"'
-      - name: Log của service khi lỗi
+      - name: Log của sandbox khi lỗi
         if: failure()
-        run: docker compose logs consent
+        run: |
+          docker compose ps
+          docker compose logs consent gateway
+          docker compose exec -T gateway sh -c 'cat /usr/local/apisix/logs/error.log' || true
       - name: Quét lỗ hổng image (Trivy)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
