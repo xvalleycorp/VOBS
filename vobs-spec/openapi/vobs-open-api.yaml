@@ -1,19 +1,28 @@
 openapi: 3.1.0
 info:
   title: VOBS Open API
-  version: 0.1.0-draft
-  summary: Bộ API mở cho đối tác (fintech) theo Thông tư 64/2024/TT-NHNN — bản nháp
+  version: 0.2.0-draft
+  summary: Open API cơ bản theo Điều 6 Thông tư 64/2024/TT-NHNN — bản nháp
   description: |
-    Bản nháp đầu tiên của bộ đặc tả Open API dùng chung cho các ngân hàng triển khai VOBS.
+    Bộ đặc tả Open API dùng chung cho các ngân hàng triển khai VOBS, tổ chức theo danh mục Open API cơ bản tại
+    Điều 6 khoản 1 Thông tư 64/2024/TT-NHNN. Mỗi operation khai báo `x-tt64` với mã điều khoản và tên API trong
+    Thông tư; `scripts/check_tt64_coverage.py` kiểm tra đủ danh mục.
 
-    **Trạng thái:** nháp. Danh mục nhóm API, tên trường và yêu cầu bảo mật sẽ được rà lại theo
-    Thông tư 64/2024/TT-NHNN trước bản 1.0. Không dùng cho production.
+    **Trạng thái:** nháp. Danh mục API theo đúng Điều 6. Đường dẫn, tên trường, mã lỗi và yêu cầu kỹ thuật chi
+    tiết quy định tại Phụ lục 01 và Phụ lục 02 của Thông tư **chưa được đối chiếu**; phần đó trong file này là thiết
+    kế của VOBS theo thông lệ quốc tế (OpenAPI 3.1, OAuth 2.0, FAPI 2.0, RFC 9457). Không dùng cho production.
 
-    Quy ước chung:
-    - Mọi request đều qua mTLS và mang access token FAPI 2.0 gắn chứng thư (certificate-bound).
+    Quy định của Thông tư phản ánh trong đặc tả:
+    - Nhóm điểm c (thanh toán, ví điện tử) chỉ cấp cho bên thứ ba là ngân hàng hoặc tổ chức trung gian thanh toán
+      (Điều 5). Consent có phạm vi nhóm c của bên thứ ba khác bị từ chối với `403 scope_not_permitted`.
+    - Thời hạn truy vấn sau khi khách hàng đồng ý không quá 180 ngày, trừ khi có thỏa thuận khác (Điều 11).
+    - Ngân hàng giới hạn số lần truy vấn tự động (Điều 11): vượt hạn mức trả `429` kèm `Retry-After`.
+    - Mọi lần sử dụng Open API được ghi log, lưu tối thiểu 3 tháng, sao lưu tối thiểu 1 năm (Điều 11).
+
+    Quy ước chung của VOBS:
+    - Mọi request qua mTLS và mang access token gắn với chứng thư (RFC 8705).
     - Request đọc dữ liệu khách hàng phải mang `x-consent-id` của một consent đã được duyệt.
-    - Số tiền là chuỗi thập phân; VND không có phần lẻ.
-    - Thời điểm theo RFC 3339, có múi giờ.
+    - Số tiền là chuỗi thập phân; VND không có phần lẻ. Thời điểm theo RFC 3339, có múi giờ.
   license:
     name: Apache 2.0
     identifier: Apache-2.0
@@ -21,34 +30,127 @@ info:
     name: VOBS
     url: https://github.com/xvalleycorp/vobs
 externalDocs:
-  description: Mô tả giải pháp và kiến trúc VOBS
-  url: https://github.com/xvalleycorp/vobs/blob/main/docs/architecture.md
+  description: Đối chiếu Thông tư 64/2024/TT-NHNN
+  url: https://github.com/xvalleycorp/vobs/blob/main/docs/tt64.md
 servers:
   - url: https://api.example-bank.vn/open-banking/v1
-    description: Ví dụ; mỗi ngân hàng công bố địa chỉ riêng
+    description: Ví dụ; mỗi ngân hàng công bố địa chỉ riêng (Điều 9)
 security:
   - mtls: []
     fapi: []
 tags:
-  - name: Consents
-    description: Đối tác yêu cầu, xem và hủy consent
+  - name: Rates
+    description: 'Điểm a: truy vấn tỷ giá và lãi suất'
+  - name: Authorisation
+    description: 'Điểm b và c(i): consent, mã truy cập, xác nhận khách hàng'
   - name: Accounts
-    description: Thông tin tài khoản, số dư, lịch sử giao dịch
+    description: 'Điểm b: tài khoản và lịch sử giao dịch'
   - name: Payments
-    description: Khởi tạo và tra cứu lệnh chuyển khoản
+    description: 'Điểm c(i): khởi tạo thanh toán'
+  - name: E-wallet
+    description: 'Điểm c(ii), c(iii): nạp và rút ví điện tử'
 
 paths:
-  /consents:
-    post:
-      tags: [Consents]
-      operationId: createConsent
-      summary: Tạo yêu cầu consent
-      description: |
-        Đối tác tạo yêu cầu; consent ở trạng thái `AWAITING_AUTHORISATION` cho tới khi khách hàng duyệt qua
-        kênh của ngân hàng (luồng redirect với Pushed Authorization Request).
+  # ---------------------------------------------------------------- Điểm a
+  /interest-rates:
+    get:
+      tags: [Rates]
+      operationId: getInterestRates
+      summary: Lấy thông tin lãi suất
+      x-tt64: { ref: 6.1.a.1, name: API Lấy thông tin lãi suất }
       security:
         - mtls: []
-          fapi: [consents]
+          fapiClient: [rates]
+      parameters:
+        - name: productType
+          in: query
+          schema:
+            type: string
+            enum: [SAVINGS, TERM_DEPOSIT, LOAN]
+        - $ref: '#/components/parameters/InteractionId'
+      responses:
+        '200':
+          description: Biểu lãi suất đang áp dụng
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, effectiveAt]
+                properties:
+                  effectiveAt: { type: string, format: date-time }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InterestRate'
+              examples:
+                savings:
+                  value:
+                    effectiveAt: '2026-10-24T00:00:00+07:00'
+                    data:
+                      - productType: TERM_DEPOSIT
+                        term: P6M
+                        currency: VND
+                        annualRatePercent: '4.70'
+                      - productType: TERM_DEPOSIT
+                        term: P12M
+                        currency: VND
+                        annualRatePercent: '5.20'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /exchange-rates:
+    get:
+      tags: [Rates]
+      operationId: getExchangeRates
+      summary: Lấy thông tin tỷ giá
+      x-tt64: { ref: 6.1.a.2, name: API Lấy thông tin tỷ giá }
+      security:
+        - mtls: []
+          fapiClient: [rates]
+      parameters:
+        - name: currency
+          in: query
+          schema: { type: string, pattern: '^[A-Z]{3}$' }
+        - $ref: '#/components/parameters/InteractionId'
+      responses:
+        '200':
+          description: Tỷ giá niêm yết so với VND
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, effectiveAt]
+                properties:
+                  effectiveAt: { type: string, format: date-time }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExchangeRate'
+              examples:
+                usd:
+                  value:
+                    effectiveAt: '2026-10-24T08:30:00+07:00'
+                    data:
+                      - currency: USD
+                        cashBuy: '26050'
+                        transferBuy: '26080'
+                        sell: '26420'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  # ---------------------------------------------------------------- Điểm b: consent và mã truy cập
+  /consents:
+    post:
+      tags: [Authorisation]
+      operationId: createConsent
+      summary: Xác nhận và lấy sự đồng ý của khách hàng
+      description: |
+        Bên thứ ba tạo yêu cầu consent; consent ở trạng thái `AWAITING_AUTHORISATION` cho tới khi khách hàng xác
+        nhận trên kênh của ngân hàng (luồng redirect qua `/oauth2/authorize`).
+      x-tt64: { ref: 6.1.b.1, name: API Xác nhận và lấy sự đồng ý của khách hàng }
+      security:
+        - mtls: []
+          fapiClient: [consents]
       parameters:
         - $ref: '#/components/parameters/InteractionId'
       requestBody:
@@ -60,7 +162,7 @@ paths:
             examples:
               account-info:
                 value:
-                  scopes: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ]
+                  scopes: [ACCOUNTS_READ, TRANSACTIONS_READ]
                   validityDays: 90
       responses:
         '201':
@@ -74,25 +176,37 @@ paths:
                   value:
                     consentId: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c
                     status: AWAITING_AUTHORISATION
-                    scopes: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ]
+                    scopes: [ACCOUNTS_READ, TRANSACTIONS_READ]
                     accountIds: []
                     createdAt: '2026-10-24T10:00:00+07:00'
                     expiresAt: '2027-01-22T10:00:00+07:00'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Bên thứ ba không được dùng phạm vi đã xin (Điều 5)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                payment-group:
+                  value:
+                    type: https://vobs.io/problems/scope-not-permitted
+                    title: Phạm vi thuộc nhóm thanh toán chỉ dành cho ngân hàng và trung gian thanh toán
+                    status: 403
+                    reason: scope_not_permitted
 
   /consents/{consentId}:
     parameters:
       - $ref: '#/components/parameters/ConsentIdPath'
     get:
-      tags: [Consents]
+      tags: [Authorisation]
       operationId: getConsent
       summary: Xem consent
+      description: Hỗ trợ trách nhiệm cung cấp công cụ tra cứu dữ liệu khách hàng đã đồng ý chia sẻ (Điều 11, 12).
       security:
         - mtls: []
-          fapi: [consents]
+          fapiClient: [consents]
       responses:
         '200':
           description: Consent
@@ -105,22 +219,23 @@ paths:
                   value:
                     consentId: 6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c
                     status: AUTHORISED
-                    scopes: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ]
+                    scopes: [ACCOUNTS_READ, TRANSACTIONS_READ]
                     accountIds: [acc-1001]
                     createdAt: '2026-10-24T10:00:00+07:00'
                     expiresAt: '2027-01-22T10:00:00+07:00'
         '404':
           $ref: '#/components/responses/NotFound'
     delete:
-      tags: [Consents]
+      tags: [Authorisation]
       operationId: revokeConsent
-      summary: Đối tác hủy consent
+      summary: Rút lại consent
+      description: Hỗ trợ trách nhiệm cho khách hàng rút lại sự đồng ý qua công cụ của bên thứ ba (Điều 12).
       security:
         - mtls: []
-          fapi: [consents]
+          fapiClient: [consents]
       responses:
         '204':
-          description: Đã hủy
+          description: Đã thu hồi
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -130,11 +245,136 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  /oauth2/authorize:
+    servers:
+      - url: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect
+        description: Máy chủ xác thực (Keycloak) của ngân hàng
+    get:
+      tags: [Authorisation]
+      operationId: authorise
+      summary: Xác nhận khách hàng (luồng redirect)
+      description: |
+        Khách hàng được chuyển tới ngân hàng để đăng nhập và xác nhận consent hoặc lệnh thanh toán. Theo FAPI 2.0,
+        tham số ủy quyền được gửi trước qua Pushed Authorization Request; ở đây chỉ còn `client_id` và
+        `request_uri`. Đây là trang cho khách hàng, không phải API gọi bằng mTLS.
+      x-tt64: { ref: 6.1.c.i.2, name: API Xác nhận khách hàng Luồng Redirect }
+      security: []
+      parameters:
+        - name: client_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: request_uri
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Trang đăng nhập và xác nhận của ngân hàng
+          content:
+            text/html:
+              schema: { type: string }
+        '302':
+          description: Chuyển về `redirect_uri` của bên thứ ba kèm `code` hoặc `error`
+        '400':
+          description: '`client_id` hoặc `request_uri` không hợp lệ; không chuyển hướng (RFC 6749 mục 4.1.2.1)'
+          content:
+            text/html:
+              schema: { type: string }
+
+  /oauth2/token:
+    servers:
+      - url: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect
+        description: Máy chủ xác thực (Keycloak) của ngân hàng
+    post:
+      tags: [Authorisation]
+      operationId: getToken
+      summary: Lấy hoặc làm mới mã truy cập
+      description: |
+        Một endpoint phục vụ ba API của Thông tư, phân biệt bằng `grant_type`:
+        - `authorization_code`: lấy mã truy cập sau khi khách hàng xác nhận (điểm b và luồng redirect của điểm c).
+        - `refresh_token`: làm mới mã truy cập.
+        - `client_credentials`: mã truy cập cho nhóm điểm a và để tạo consent.
+        Mã truy cập gắn với chứng thư mTLS của bên thứ ba (RFC 8705).
+      x-tt64:
+        - { ref: 6.1.b.2, name: API Lấy mã truy cập }
+        - { ref: 6.1.b.3, name: API Làm mới mã truy cập }
+        - { ref: 6.1.c.i.3, name: API Lấy mã truy cập Luồng Redirect }
+      security:
+        - mtls: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [grant_type, client_id]
+              properties:
+                grant_type:
+                  type: string
+                  enum: [authorization_code, refresh_token, client_credentials]
+                client_id: { type: string }
+                code: { type: string }
+                code_verifier: { type: string }
+                redirect_uri: { type: string, format: uri }
+                refresh_token: { type: string }
+                scope: { type: string }
+      responses:
+        '200':
+          description: Mã truy cập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Lỗi theo RFC 6749 mục 5.2
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthError'
+
+  /oauth2/revoke:
+    servers:
+      - url: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect
+        description: Máy chủ xác thực (Keycloak) của ngân hàng
+    post:
+      tags: [Authorisation]
+      operationId: revokeToken
+      summary: Thu hồi mã truy cập
+      description: Theo RFC 7009. Luôn trả 200 kể cả khi token không tồn tại.
+      x-tt64: { ref: 6.1.b.4, name: API Thu hồi mã truy cập }
+      security:
+        - mtls: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [token, client_id]
+              properties:
+                token: { type: string }
+                token_type_hint:
+                  type: string
+                  enum: [access_token, refresh_token]
+                client_id: { type: string }
+      responses:
+        '200':
+          description: Đã thu hồi
+        '400':
+          description: Lỗi theo RFC 7009 mục 2.2.1, ví dụ `unsupported_token_type`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthError'
+
+  # ---------------------------------------------------------------- Điểm b: tài khoản
   /accounts:
     get:
       tags: [Accounts]
       operationId: listAccounts
-      summary: Danh sách tài khoản trong phạm vi consent
+      summary: Lấy danh sách tài khoản
+      x-tt64: { ref: 6.1.b.5, name: API Lấy danh sách tài khoản }
       security:
         - mtls: []
           fapi: [accounts]
@@ -143,7 +383,7 @@ paths:
         - $ref: '#/components/parameters/InteractionId'
       responses:
         '200':
-          description: Danh sách tài khoản
+          description: Các tài khoản khách hàng đã chọn chia sẻ
           content:
             application/json:
               schema:
@@ -153,7 +393,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Account'
+                      $ref: '#/components/schemas/AccountSummary'
               examples:
                 one-account:
                   value:
@@ -164,42 +404,44 @@ paths:
                         type: CURRENT
                         currency: VND
                         status: ACTIVE
-                        productName: Tài khoản thanh toán
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/ConsentDenied'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
-  /accounts/{accountId}/balances:
+  /accounts/{accountId}:
     parameters:
       - $ref: '#/components/parameters/AccountIdPath'
       - $ref: '#/components/parameters/ConsentIdHeader'
       - $ref: '#/components/parameters/InteractionId'
     get:
       tags: [Accounts]
-      operationId: getBalances
-      summary: Số dư tài khoản
-      description: Đọc từ kho đọc của Integration Hub, không gọi core. `asOf` cho biết độ mới của dữ liệu.
+      operationId: getAccount
+      summary: Lấy thông tin tài khoản
+      description: Gồm số dư; đọc từ kho đọc của Integration Hub, không gọi core. `asOf` cho biết độ mới.
+      x-tt64: { ref: 6.1.b.6, name: API Lấy thông tin tài khoản }
       security:
         - mtls: []
           fapi: [accounts]
       responses:
         '200':
-          description: Số dư
+          description: Thông tin tài khoản
           content:
             application/json:
               schema:
-                type: object
-                required: [data]
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Balance'
+                $ref: '#/components/schemas/Account'
               examples:
                 acc-1001:
                   value:
-                    data:
+                    accountId: acc-1001
+                    maskedNumber: '*********7890'
+                    bankBin: '970436'
+                    type: CURRENT
+                    currency: VND
+                    status: ACTIVE
+                    productName: Tài khoản thanh toán
+                    openedOn: '2020-01-15'
+                    balances:
                       - type: AVAILABLE
                         amount: { value: '15250000', currency: VND }
                         asOf: '2026-10-24T09:59:58+07:00'
@@ -210,6 +452,8 @@ paths:
           $ref: '#/components/responses/ConsentDenied'
         '404':
           $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /accounts/{accountId}/transactions:
     parameters:
@@ -219,10 +463,11 @@ paths:
     get:
       tags: [Accounts]
       operationId: listTransactions
-      summary: Lịch sử giao dịch
+      summary: Lấy lịch sử giao dịch
+      x-tt64: { ref: 6.1.b.7, name: API Lấy lịch sử giao dịch }
       security:
         - mtls: []
-          fapi: [accounts]
+          fapi: [transactions]
       parameters:
         - name: fromDate
           in: query
@@ -270,26 +515,27 @@ paths:
           $ref: '#/components/responses/ConsentDenied'
         '404':
           $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
+  # ---------------------------------------------------------------- Điểm c(i): khởi tạo thanh toán
   /payments:
     post:
       tags: [Payments]
       operationId: initiatePayment
-      summary: Khởi tạo lệnh chuyển khoản
+      summary: Khởi tạo thanh toán
       description: |
-        Lệnh được chuyển tới core hoặc payment hub của ngân hàng; VOBS không ghi trực tiếp vào core.
-        Kết quả cuối cùng tra bằng `GET /payments/{paymentId}`.
+        Tạo lệnh ở trạng thái chờ khách hàng xác thực. Khách hàng xác thực theo luồng redirect (`/oauth2/authorize`)
+        hoặc luồng decoupled (ngân hàng tự đẩy yêu cầu xác thực tới ứng dụng của khách hàng). Lệnh được chuyển tới
+        core hoặc payment hub của ngân hàng; VOBS không ghi trực tiếp vào core.
+      x-tt64: { ref: 6.1.c.i.1, name: API Khởi tạo thanh toán }
       security:
         - mtls: []
           fapi: [payments]
       parameters:
         - $ref: '#/components/parameters/ConsentIdHeader'
         - $ref: '#/components/parameters/InteractionId'
-        - name: Idempotency-Key
-          in: header
-          required: true
-          description: Gửi lại cùng khóa trong 24 giờ trả về cùng kết quả, không tạo lệnh mới
-          schema: { type: string, maxLength: 64 }
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -306,9 +552,73 @@ paths:
                     name: TRAN THI BINH
                   amount: { value: '2500000', currency: VND }
                   purpose: Thanh toan don 1234
+                  authenticationFlow: REDIRECT
+      responses:
+        '201':
+          description: Đã tạo lệnh, chờ khách hàng xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+              examples:
+                transfer:
+                  value:
+                    paymentId: pay-20261024-0001
+                    status: AWAITING_AUTHENTICATION
+                    authenticationFlow: REDIRECT
+                    createdAt: '2026-10-24T10:05:00+07:00'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/ConsentDenied'
+        '422':
+          $ref: '#/components/responses/BusinessRuleViolation'
+
+  /payments/{paymentId}/authentication:
+    parameters:
+      - $ref: '#/components/parameters/PaymentIdPath'
+      - $ref: '#/components/parameters/InteractionId'
+    get:
+      tags: [Payments]
+      operationId: getPaymentAuthentication
+      summary: Lấy trạng thái xác thực thanh toán (luồng decoupled)
+      description: Bên thứ ba hỏi định kỳ trạng thái xác thực khi không nhận thông báo qua webhook.
+      x-tt64: { ref: 6.1.c.i.7, name: API Lấy trạng thái xác thực thanh toán Luồng Decoupled }
+      security:
+        - mtls: []
+          fapi: [payments]
+      responses:
+        '200':
+          description: Trạng thái xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationStatus'
+              examples:
+                transfer:
+                  value:
+                    status: AUTHENTICATED
+                    updatedAt: '2026-10-24T10:05:40+07:00'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /payments/{paymentId}/confirmation:
+    parameters:
+      - $ref: '#/components/parameters/PaymentIdPath'
+      - $ref: '#/components/parameters/InteractionId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+    post:
+      tags: [Payments]
+      operationId: confirmPayment
+      summary: Xác nhận thanh toán
+      description: Sau khi khách hàng xác thực, bên thứ ba xác nhận để ngân hàng thực hiện lệnh.
+      x-tt64: { ref: 6.1.c.i.5, name: API Xác nhận thanh toán }
+      security:
+        - mtls: []
+          fapi: [payments]
       responses:
         '202':
-          description: Đã nhận lệnh
+          description: Đã nhận xác nhận, lệnh đang được thực hiện
           content:
             application/json:
               schema:
@@ -318,38 +628,32 @@ paths:
                   value:
                     paymentId: pay-20261024-0001
                     status: ACCEPTED
+                    authenticationFlow: REDIRECT
                     createdAt: '2026-10-24T10:05:00+07:00'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/ConsentDenied'
-        '422':
-          description: Lệnh bị từ chối theo quy tắc nghiệp vụ (ví dụ vượt hạn mức)
+        '409':
+          description: Khách hàng chưa xác thực hoặc lệnh đã được xác nhận
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        '422':
+          $ref: '#/components/responses/BusinessRuleViolation'
 
   /payments/{paymentId}:
+    parameters:
+      - $ref: '#/components/parameters/PaymentIdPath'
+      - $ref: '#/components/parameters/InteractionId'
     get:
       tags: [Payments]
       operationId: getPayment
-      summary: Trạng thái lệnh chuyển khoản
+      summary: Lấy trạng thái giao dịch thanh toán
+      x-tt64: { ref: 6.1.c.i.6, name: API Lấy trạng thái giao dịch }
       security:
         - mtls: []
           fapi: [payments]
-      parameters:
-        - name: paymentId
-          in: path
-          required: true
-          schema: { type: string }
-          examples:
-            transfer:
-              value: pay-20261024-0001
-        - $ref: '#/components/parameters/InteractionId'
       responses:
         '200':
-          description: Lệnh chuyển khoản
+          description: Lệnh thanh toán
           content:
             application/json:
               schema:
@@ -359,29 +663,289 @@ paths:
                   value:
                     paymentId: pay-20261024-0001
                     status: SETTLED
+                    authenticationFlow: REDIRECT
                     createdAt: '2026-10-24T10:05:00+07:00'
                     switchReference: NAPAS-0000123456
         '404':
           $ref: '#/components/responses/NotFound'
 
+  # ---------------------------------------------------------------- Điểm c(ii): nạp ví điện tử
+  /ewallet-topups:
+    post:
+      tags: [E-wallet]
+      operationId: createTopup
+      summary: Nạp ví điện tử
+      description: |
+        Tổ chức trung gian thanh toán yêu cầu ngân hàng trích tiền từ tài khoản liên kết của khách hàng để nạp vào ví.
+        Khách hàng xác thực bằng OTP hoặc theo luồng decoupled.
+      x-tt64: { ref: 6.1.c.ii.1, name: API Nạp ví điện tử }
+      security:
+        - mtls: []
+          fapi: [ewallet]
+      parameters:
+        - $ref: '#/components/parameters/ConsentIdHeader'
+        - $ref: '#/components/parameters/InteractionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletTransferRequest'
+            examples:
+              topup:
+                value:
+                  accountId: acc-1001
+                  walletId: W-0987654321
+                  amount: { value: '500000', currency: VND }
+                  authenticationFlow: OTP
+      responses:
+        '201':
+          description: Đã tạo yêu cầu, chờ khách hàng xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletTransfer'
+              examples:
+                topup:
+                  value:
+                    transferId: top-20261024-0001
+                    status: AWAITING_AUTHENTICATION
+                    authenticationFlow: OTP
+                    createdAt: '2026-10-24T11:00:00+07:00'
+        '403':
+          $ref: '#/components/responses/ConsentDenied'
+        '422':
+          $ref: '#/components/responses/BusinessRuleViolation'
+
+  /ewallet-topups/{transferId}/otp:
+    parameters:
+      - $ref: '#/components/parameters/TransferIdPath'
+      - $ref: '#/components/parameters/InteractionId'
+    post:
+      tags: [E-wallet]
+      operationId: confirmTopupOtp
+      summary: Xác nhận OTP
+      x-tt64: { ref: 6.1.c.ii.2, name: API Xác nhận OTP }
+      security:
+        - mtls: []
+          fapi: [ewallet]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [otp]
+              properties:
+                otp: { type: string, pattern: '^\d{6,8}$' }
+            examples:
+              topup:
+                value:
+                  otp: '123456'
+      responses:
+        '200':
+          description: OTP đúng; khách hàng đã xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationStatus'
+              examples:
+                topup:
+                  value:
+                    status: AUTHENTICATED
+                    updatedAt: '2026-10-24T11:00:30+07:00'
+        '422':
+          description: OTP sai hoặc hết hạn
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /ewallet-topups/{transferId}/authentication:
+    parameters:
+      - $ref: '#/components/parameters/TransferIdPath'
+      - $ref: '#/components/parameters/InteractionId'
+    get:
+      tags: [E-wallet]
+      operationId: getTopupAuthentication
+      summary: Lấy trạng thái xác thực nạp ví (luồng decoupled)
+      x-tt64: { ref: 6.1.c.ii.4, name: API Lấy trạng thái xác thực nạp ví điện tử Luồng Decoupled }
+      security:
+        - mtls: []
+          fapi: [ewallet]
+      responses:
+        '200':
+          description: Trạng thái xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationStatus'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /ewallet-topups/{transferId}/confirmation:
+    parameters:
+      - $ref: '#/components/parameters/TransferIdPath'
+      - $ref: '#/components/parameters/InteractionId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+    post:
+      tags: [E-wallet]
+      operationId: confirmTopup
+      summary: Xác nhận nạp ví điện tử
+      x-tt64: { ref: 6.1.c.ii.5, name: API Xác nhận nạp ví điện tử }
+      security:
+        - mtls: []
+          fapi: [ewallet]
+      responses:
+        '202':
+          description: Đã nhận xác nhận, giao dịch đang được thực hiện
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletTransfer'
+        '409':
+          description: Khách hàng chưa xác thực hoặc giao dịch đã được xác nhận
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /ewallet-topups/{transferId}:
+    parameters:
+      - $ref: '#/components/parameters/TransferIdPath'
+      - $ref: '#/components/parameters/InteractionId'
+    get:
+      tags: [E-wallet]
+      operationId: getTopup
+      summary: Lấy trạng thái giao dịch nạp ví
+      x-tt64: { ref: 6.1.c.ii.6, name: API Lấy trạng thái giao dịch }
+      security:
+        - mtls: []
+          fapi: [ewallet]
+      responses:
+        '200':
+          description: Giao dịch nạp ví
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletTransfer'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ---------------------------------------------------------------- Điểm c(iii): rút tiền khỏi ví điện tử
+  /ewallet-withdrawals:
+    post:
+      tags: [E-wallet]
+      operationId: createWithdrawal
+      summary: Rút tiền ra khỏi ví điện tử
+      description: |
+        Tổ chức trung gian thanh toán yêu cầu ngân hàng ghi có vào tài khoản liên kết của khách hàng từ tài khoản
+        đảm bảo của ví. Thông tư nêu nhóm API này nhưng không liệt kê API con trong thân văn bản; cấu trúc dưới đây
+        là đề xuất của VOBS, chờ đối chiếu Phụ lục 01.
+      x-tt64: { ref: 6.1.c.iii, name: Open API Rút tiền ra khỏi ví điện tử }
+      security:
+        - mtls: []
+          fapi: [ewallet]
+      parameters:
+        - $ref: '#/components/parameters/ConsentIdHeader'
+        - $ref: '#/components/parameters/InteractionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletTransferRequest'
+      responses:
+        '202':
+          description: Đã nhận yêu cầu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletTransfer'
+        '403':
+          $ref: '#/components/responses/ConsentDenied'
+        '422':
+          $ref: '#/components/responses/BusinessRuleViolation'
+
+webhooks:
+  paymentAuthenticationUpdated:
+    post:
+      tags: [Payments]
+      operationId: paymentAuthenticationUpdated
+      summary: Cập nhật trạng thái xác thực thanh toán (luồng decoupled)
+      description: |
+        Ngân hàng gọi tới địa chỉ bên thứ ba đăng ký khi khách hàng hoàn tất hoặc từ chối xác thực trên ứng dụng của
+        ngân hàng. Chiều gọi là giả định của VOBS (giống CIBA ping/push), chờ đối chiếu Phụ lục 01. Request được ký
+        bằng mTLS phía ngân hàng.
+      x-tt64: { ref: 6.1.c.i.4, name: API Cập nhật trạng thái xác thực thanh toán Luồng Decoupled }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  required: [paymentId]
+                  properties:
+                    paymentId: { type: string }
+                - $ref: '#/components/schemas/AuthenticationStatus'
+      responses:
+        '204':
+          description: Bên thứ ba đã nhận
+
+  topupAuthenticationUpdated:
+    post:
+      tags: [E-wallet]
+      operationId: topupAuthenticationUpdated
+      summary: Cập nhật trạng thái xác thực nạp ví (luồng decoupled)
+      description: Như `paymentAuthenticationUpdated`, cho giao dịch nạp ví. Chiều gọi chờ đối chiếu Phụ lục 01.
+      x-tt64: { ref: 6.1.c.ii.3, name: API Cập nhật trạng thái xác thực nạp ví điện tử Luồng Decoupled }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  required: [transferId]
+                  properties:
+                    transferId: { type: string }
+                - $ref: '#/components/schemas/AuthenticationStatus'
+      responses:
+        '204':
+          description: Bên thứ ba đã nhận
+
 components:
   securitySchemes:
     mtls:
       type: mutualTLS
-      description: Chứng thư client của đối tác, cấp khi đăng ký
+      description: Chứng thư client của bên thứ ba, cấp khi ký hợp đồng kết nối (Điều 8)
     fapi:
       type: oauth2
       description: |
-        FAPI 2.0 Security Profile trên Keycloak: Pushed Authorization Request, PKCE, access token gắn với
-        chứng thư mTLS (RFC 8705).
+        Mã truy cập khách hàng ủy quyền: FAPI 2.0 Security Profile trên Keycloak, Pushed Authorization Request, PKCE,
+        token gắn chứng thư mTLS (RFC 8705).
       flows:
         authorizationCode:
           authorizationUrl: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect/auth
           tokenUrl: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect/token
+          refreshUrl: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect/token
           scopes:
-            consents: Quản lý consent
-            accounts: Đọc tài khoản, số dư, giao dịch
-            payments: Khởi tạo và tra cứu thanh toán
+            accounts: Lấy danh sách và thông tin tài khoản
+            transactions: Lấy lịch sử giao dịch
+            payments: Khởi tạo và tra cứu thanh toán (chỉ ngân hàng, trung gian thanh toán)
+            ewallet: Nạp, rút ví điện tử (chỉ ngân hàng, trung gian thanh toán)
+    fapiClient:
+      type: oauth2
+      description: Mã truy cập của chính bên thứ ba, không gắn với khách hàng
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.example-bank.vn/realms/open-banking/protocol/openid-connect/token
+          scopes:
+            rates: Truy vấn tỷ giá, lãi suất
+            consents: Tạo, xem, thu hồi consent
 
   parameters:
     ConsentIdHeader:
@@ -408,22 +972,38 @@ components:
       examples:
         acc-1001:
           value: acc-1001
+    PaymentIdPath:
+      name: paymentId
+      in: path
+      required: true
+      schema: { type: string }
+      examples:
+        transfer:
+          value: pay-20261024-0001
+    TransferIdPath:
+      name: transferId
+      in: path
+      required: true
+      schema: { type: string }
+      examples:
+        topup:
+          value: top-20261024-0001
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Gửi lại cùng khóa trong 24 giờ trả về cùng kết quả, không tạo giao dịch mới
+      schema: { type: string, maxLength: 64 }
     InteractionId:
       name: x-fapi-interaction-id
       in: header
       required: false
-      description: Mã tương quan do đối tác gửi; ngân hàng trả lại cùng giá trị
+      description: Mã tương quan do bên thứ ba gửi; ngân hàng trả lại cùng giá trị
       schema: { type: string, format: uuid }
 
   responses:
     BadRequest:
       description: Request sai cấu trúc
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Problem'
-    Unauthorized:
-      description: Thiếu hoặc sai token, hoặc token không gắn với chứng thư mTLS
       content:
         application/problem+json:
           schema:
@@ -447,6 +1027,22 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/Problem'
+    BusinessRuleViolation:
+      description: Bị từ chối theo quy tắc nghiệp vụ (ví dụ vượt hạn mức, tài khoản bị phong tỏa)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    TooManyRequests:
+      description: Vượt hạn mức truy vấn của bên thứ ba (Điều 11)
+      headers:
+        Retry-After:
+          schema: { type: integer }
+          description: Số giây cần chờ
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
 
   schemas:
     Amount:
@@ -461,9 +1057,34 @@ components:
           type: string
           pattern: '^[A-Z]{3}$'
 
+    InterestRate:
+      type: object
+      required: [productType, currency, annualRatePercent]
+      properties:
+        productType:
+          type: string
+          enum: [SAVINGS, TERM_DEPOSIT, LOAN]
+        term:
+          type: string
+          description: Kỳ hạn theo ISO 8601 (ví dụ `P6M`); bỏ trống với không kỳ hạn
+        currency: { type: string, pattern: '^[A-Z]{3}$' }
+        annualRatePercent:
+          type: string
+          pattern: '^\d{1,3}(\.\d{1,4})?$'
+
+    ExchangeRate:
+      type: object
+      required: [currency]
+      properties:
+        currency: { type: string, pattern: '^[A-Z]{3}$' }
+        cashBuy: { type: string }
+        transferBuy: { type: string }
+        sell: { type: string }
+
     ConsentScope:
       type: string
-      enum: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ, PAYMENTS_INITIATE]
+      description: Phạm vi theo nhóm Open API tại Điều 6 khoản 1
+      enum: [ACCOUNTS_READ, TRANSACTIONS_READ, PAYMENTS_INITIATE, EWALLET_TOPUP, EWALLET_WITHDRAWAL]
 
     ConsentRequest:
       type: object
@@ -479,6 +1100,7 @@ components:
           type: integer
           minimum: 1
           maximum: 180
+          description: Không quá 180 ngày, trừ khi có thỏa thuận khác (Điều 11)
 
     Consent:
       type: object
@@ -498,7 +1120,28 @@ components:
         createdAt: { type: string, format: date-time }
         expiresAt: { type: string, format: date-time }
 
-    Account:
+    TokenResponse:
+      type: object
+      required: [access_token, token_type, expires_in]
+      properties:
+        access_token: { type: string }
+        token_type:
+          type: string
+          enum: [Bearer, DPoP]
+        expires_in: { type: integer }
+        refresh_token: { type: string }
+        scope: { type: string }
+
+    OAuthError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          enum: [invalid_request, invalid_client, invalid_grant, unauthorized_client, unsupported_grant_type, invalid_scope, unsupported_token_type]
+        error_description: { type: string }
+
+    AccountSummary:
       type: object
       required: [accountId, maskedNumber, bankBin, type, currency, status]
       properties:
@@ -512,7 +1155,19 @@ components:
         status:
           type: string
           enum: [ACTIVE, DORMANT, BLOCKED, CLOSED]
-        productName: { type: string }
+
+    Account:
+      allOf:
+        - $ref: '#/components/schemas/AccountSummary'
+        - type: object
+          required: [balances]
+          properties:
+            productName: { type: string }
+            openedOn: { type: string, format: date }
+            balances:
+              type: array
+              items:
+                $ref: '#/components/schemas/Balance'
 
     Balance:
       type: object
@@ -543,9 +1198,22 @@ components:
         description: { type: string }
         reference: { type: string }
 
+    AuthenticationFlow:
+      type: string
+      enum: [REDIRECT, DECOUPLED, OTP]
+
+    AuthenticationStatus:
+      type: object
+      required: [status, updatedAt]
+      properties:
+        status:
+          type: string
+          enum: [PENDING, AUTHENTICATED, REJECTED, EXPIRED]
+        updatedAt: { type: string, format: date-time }
+
     PaymentRequest:
       type: object
-      required: [debtorAccountId, creditor, amount]
+      required: [debtorAccountId, creditor, amount, authenticationFlow]
       properties:
         debtorAccountId: { type: string }
         creditor:
@@ -562,20 +1230,50 @@ components:
         purpose:
           type: string
           maxLength: 140
+        authenticationFlow:
+          $ref: '#/components/schemas/AuthenticationFlow'
 
     Payment:
       type: object
-      required: [paymentId, status, createdAt]
+      required: [paymentId, status, authenticationFlow, createdAt]
       properties:
         paymentId: { type: string }
         status:
           type: string
-          enum: [ACCEPTED, SETTLED, REJECTED, UNKNOWN]
+          enum: [AWAITING_AUTHENTICATION, AUTHENTICATED, ACCEPTED, SETTLED, REJECTED, UNKNOWN]
+        authenticationFlow:
+          $ref: '#/components/schemas/AuthenticationFlow'
         reasonCode:
           type: string
           description: Mã lý do theo ExternalStatusReason1Code của ISO 20022 khi bị từ chối
         createdAt: { type: string, format: date-time }
         switchReference: { type: string }
+
+    WalletTransferRequest:
+      type: object
+      required: [accountId, walletId, amount, authenticationFlow]
+      properties:
+        accountId:
+          type: string
+          description: Tài khoản ngân hàng liên kết với ví
+        walletId: { type: string }
+        amount:
+          $ref: '#/components/schemas/Amount'
+        authenticationFlow:
+          $ref: '#/components/schemas/AuthenticationFlow'
+
+    WalletTransfer:
+      type: object
+      required: [transferId, status, authenticationFlow, createdAt]
+      properties:
+        transferId: { type: string }
+        status:
+          type: string
+          enum: [AWAITING_AUTHENTICATION, AUTHENTICATED, ACCEPTED, SETTLED, REJECTED, UNKNOWN]
+        authenticationFlow:
+          $ref: '#/components/schemas/AuthenticationFlow'
+        reasonCode: { type: string }
+        createdAt: { type: string, format: date-time }
 
     Problem:
       type: object

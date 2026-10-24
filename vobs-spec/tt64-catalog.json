@@ -1,0 +1,32 @@
+{
+  "source": "Thông tư 64/2024/TT-NHNN, Điều 6 khoản 1",
+  "notes": [
+    "Tên tiếng Việt có verbatim=true được đối chiếu với trích dẫn văn bản; các tên còn lại dịch từ bản tiếng Anh của LuatVietnam, cần đối chiếu văn bản gốc.",
+    "Đường dẫn, trường dữ liệu và yêu cầu kỹ thuật quy định tại Phụ lục 01 và Phụ lục 02, chưa được đối chiếu."
+  ],
+  "apis": [
+    { "ref": "6.1.a.1", "group": "a", "verbatim": true, "name": "API Lấy thông tin lãi suất", "en": "Get Interest Rate Information API" },
+    { "ref": "6.1.a.2", "group": "a", "verbatim": true, "name": "API Lấy thông tin tỷ giá", "en": "Get Exchange Rate Information API" },
+    { "ref": "6.1.b.1", "group": "b", "verbatim": true, "name": "API Xác nhận và lấy sự đồng ý của khách hàng", "en": "Customer Consent and Retrieval API" },
+    { "ref": "6.1.b.2", "group": "b", "verbatim": true, "name": "API Lấy mã truy cập", "en": "Get Access Token API" },
+    { "ref": "6.1.b.3", "group": "b", "verbatim": true, "name": "API Làm mới mã truy cập", "en": "Refresh Access Token API" },
+    { "ref": "6.1.b.4", "group": "b", "verbatim": true, "name": "API Thu hồi mã truy cập", "en": "Revoke Access Token API" },
+    { "ref": "6.1.b.5", "group": "b", "verbatim": true, "name": "API Lấy danh sách tài khoản", "en": "Get Account List API" },
+    { "ref": "6.1.b.6", "group": "b", "verbatim": true, "name": "API Lấy thông tin tài khoản", "en": "Get Account Information API" },
+    { "ref": "6.1.b.7", "group": "b", "verbatim": true, "name": "API Lấy lịch sử giao dịch", "en": "Get Transaction History API" },
+    { "ref": "6.1.c.i.1", "group": "c", "verbatim": true, "name": "API Khởi tạo thanh toán", "en": "Initiate Payment API" },
+    { "ref": "6.1.c.i.2", "group": "c", "verbatim": true, "name": "API Xác nhận khách hàng Luồng Redirect", "en": "Customer Authentication Redirect Flow API" },
+    { "ref": "6.1.c.i.3", "group": "c", "verbatim": true, "name": "API Lấy mã truy cập Luồng Redirect", "en": "Get Access Token Redirect Flow API" },
+    { "ref": "6.1.c.i.4", "group": "c", "verbatim": false, "name": "API Cập nhật trạng thái xác thực thanh toán Luồng Decoupled", "en": "Update Payment Authentication Status Decoupled Flow API" },
+    { "ref": "6.1.c.i.5", "group": "c", "verbatim": false, "name": "API Xác nhận thanh toán", "en": "Confirm Payment API" },
+    { "ref": "6.1.c.i.6", "group": "c", "verbatim": false, "name": "API Lấy trạng thái giao dịch", "en": "Get Transaction Status API" },
+    { "ref": "6.1.c.i.7", "group": "c", "verbatim": false, "name": "API Lấy trạng thái xác thực thanh toán Luồng Decoupled", "en": "Get Payment Authentication Status Decoupled Flow API" },
+    { "ref": "6.1.c.ii.1", "group": "c", "verbatim": true, "name": "API Nạp ví điện tử", "en": "Top-up E-Wallet API" },
+    { "ref": "6.1.c.ii.2", "group": "c", "verbatim": true, "name": "API Xác nhận OTP", "en": "Confirm OTP API" },
+    { "ref": "6.1.c.ii.3", "group": "c", "verbatim": false, "name": "API Cập nhật trạng thái xác thực nạp ví điện tử Luồng Decoupled", "en": "Update E-Wallet Top-up Authentication Status Decoupled Flow API" },
+    { "ref": "6.1.c.ii.4", "group": "c", "verbatim": false, "name": "API Lấy trạng thái xác thực nạp ví điện tử Luồng Decoupled", "en": "Get E-Wallet Top-up Authentication Status Decoupled Flow API" },
+    { "ref": "6.1.c.ii.5", "group": "c", "verbatim": false, "name": "API Xác nhận nạp ví điện tử", "en": "Confirm E-Wallet Top-up API" },
+    { "ref": "6.1.c.ii.6", "group": "c", "verbatim": false, "name": "API Lấy trạng thái giao dịch", "en": "Get Transaction Status API" },
+    { "ref": "6.1.c.iii", "group": "c", "verbatim": true, "name": "Open API Rút tiền ra khỏi ví điện tử", "en": "Open API for e-wallet withdrawals" }
+  ]
+}

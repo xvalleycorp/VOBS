@@ -5,20 +5,24 @@ lõi của VOBS: mọi ngân hàng triển khai cùng một đặc tả, fintech
 
 | File | Nội dung | Trạng thái |
 | --- | --- | --- |
-| [`openapi/vobs-open-api.yaml`](openapi/vobs-open-api.yaml) | API cho đối tác: consent, tài khoản, số dư, giao dịch, thanh toán | Nháp 0.1.0 |
-| [`openapi/internal-consent-check.yaml`](openapi/internal-consent-check.yaml) | API nội bộ gateway → service consent | Nháp 0.1.0 |
+| [`openapi/vobs-open-api.yaml`](openapi/vobs-open-api.yaml) | Đủ 23 Open API cơ bản theo Điều 6 Thông tư 64, mỗi operation gắn `x-tt64` | Nháp 0.2.0 |
+| [`tt64-catalog.json`](tt64-catalog.json) | Danh mục Điều 6 dạng máy đọc được | |
+| [`scripts/check_tt64_coverage.py`](scripts/check_tt64_coverage.py) | Kiểm tra đặc tả phủ đủ danh mục; chạy trong CI | |
+| [`openapi/internal-consent-check.yaml`](openapi/internal-consent-check.yaml) | API nội bộ gateway → service consent | Nháp |
 | [`conformance/`](conformance) | Bộ kiểm thử tuân thủ | Chưa có |
 
-Bản nháp dựng theo kiến trúc VOBS và thông lệ Open Banking quốc tế (OpenAPI 3.1, FAPI 2.0, RFC 9457). Danh mục
-nhóm API, tên trường và yêu cầu bảo mật sẽ được đối chiếu với nội dung Thông tư 64 trước bản 1.0.
+Danh mục API bám đúng Điều 6 Thông tư 64. Đường dẫn, tên trường và yêu cầu bảo mật là thiết kế của VOBS theo thông
+lệ quốc tế (OpenAPI 3.1, FAPI 2.0, RFC 9457), chờ đối chiếu Phụ lục 01 và 02 trước bản 1.0. Xem
+[docs/tt64.md](../docs/tt64.md).
 
 ## Kiểm tra đặc tả
 
 ```bash
 npx @redocly/cli@1.25.0 lint vobs-spec/openapi/*.yaml
+python3 vobs-spec/scripts/check_tt64_coverage.py
 ```
 
-CI chạy lệnh này trên mọi pull request.
+CI chạy hai lệnh này trên mọi pull request.
 
 ## Quy tắc phiên bản
 

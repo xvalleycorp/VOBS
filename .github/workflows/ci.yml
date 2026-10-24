@@ -33,6 +33,8 @@ jobs:
         with:
           node-version: '22'
       - run: npx --yes @redocly/cli@1.25.0 lint vobs-spec/openapi/*.yaml
+      - name: Kiểm tra đủ danh mục Open API theo Điều 6 Thông tư 64
+        run: python3 vobs-spec/scripts/check_tt64_coverage.py
 
   security:
     name: Quét lỗ hổng và SBOM

@@ -32,7 +32,7 @@ paths:
                 clientId: { type: string }
                 scope:
                   type: string
-                  enum: [ACCOUNTS_READ, BALANCES_READ, TRANSACTIONS_READ, PAYMENTS_INITIATE]
+                  enum: [ACCOUNTS_READ, TRANSACTIONS_READ, PAYMENTS_INITIATE, EWALLET_TOPUP, EWALLET_WITHDRAWAL]
                 accountId:
                   type: [string, 'null']
       responses:

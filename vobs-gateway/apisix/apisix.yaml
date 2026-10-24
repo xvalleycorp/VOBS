@@ -1,10 +1,13 @@
-# Ví dụ cấu hình route ở chế độ standalone của Apache APISIX cho một API đọc số dư.
-# Thứ tự plugin theo priority: openid-connect (xác thực token FAPI) -> vobs-consent -> upstream.
-# kafka-logger ghi log kiểm toán nối tiếp vào Kafka; topic này được lưu kiểu WORM.
+# Ví dụ cấu hình route ở chế độ standalone của Apache APISIX cho API Lấy thông tin tài khoản
+# (Điều 6 khoản 1 điểm b Thông tư 64/2024/TT-NHNN).
+# Thứ tự plugin theo priority: openid-connect (2599, xác thực token FAPI) -> limit-count (1002) -> vobs-consent (999).
+# limit-count giới hạn truy vấn tự động theo từng bên thứ ba (Điều 11).
+# kafka-logger ghi log mọi lần sử dụng Open API; topic giữ tối thiểu 3 tháng và được sao lưu tối thiểu 1 năm
+# (Điều 11), lưu kiểu WORM.
 # Các giá trị trong <...> thay theo môi trường của ngân hàng.
 routes:
-  - id: balances
-    uri: /open-banking/v1/accounts/:account_id/balances
+  - id: account-info
+    uri: /open-banking/v1/accounts/:account_id
     methods: [GET]
     plugins:
       openid-connect:
@@ -13,9 +16,16 @@ routes:
         client_secret: <từ OpenBao>
         bearer_only: true
         use_jwks: true
+      limit-count:
+        count: 60
+        time_window: 60
+        key_type: var
+        key: vobs_client_id
+        rejected_code: 429
+        show_limit_quota_header: true
       vobs-consent:
         consent_service_uri: https://vobs-consent.vobs.svc:8443
-        scope: BALANCES_READ
+        scope: ACCOUNTS_READ
         account_id_param: account_id
       kafka-logger:
         brokers:

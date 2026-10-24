@@ -42,14 +42,17 @@ class ConsentServiceTest {
         }
     }
 
+    private static final ThirdParty FINTECH = new ThirdParty("fintech-a", ThirdParty.Type.OTHER);
+    private static final ThirdParty WALLET = new ThirdParty("wallet-a", ThirdParty.Type.PAYMENT_INTERMEDIARY);
+
     private final MutableClock clock = new MutableClock();
     private final AuditLog audit = new AuditLog();
     private final ConsentService service =
-            new ConsentService(ConsentRepository.inMemory(), audit, clock, Duration.ofDays(180));
+            new ConsentService(ConsentRepository.inMemory(), audit, clock, ConsentService.TT64_MAX_VALIDITY);
 
     private Consent authorisedConsent() {
-        Consent requested = service.request("fintech-a", "cif-1",
-                Set.of(ConsentScope.ACCOUNTS_READ, ConsentScope.BALANCES_READ), Duration.ofDays(90));
+        Consent requested = service.request(FINTECH, "cif-1",
+                Set.of(ConsentScope.ACCOUNTS_READ), Duration.ofDays(90));
         return service.authorise(requested.consentId(), "cif-1", Set.of("acc-1"));
     }
 
@@ -58,18 +61,30 @@ class ConsentServiceTest {
         Consent consent = authorisedConsent();
         String id = consent.consentId();
 
-        assertTrue(service.check(id, "fintech-a", ConsentScope.BALANCES_READ, "acc-1").allowed());
+        assertTrue(service.check(id, "fintech-a", ConsentScope.ACCOUNTS_READ, "acc-1").allowed());
         assertEquals("scope_not_granted",
                 service.check(id, "fintech-a", ConsentScope.TRANSACTIONS_READ, "acc-1").reason());
         assertEquals("account_not_granted",
-                service.check(id, "fintech-a", ConsentScope.BALANCES_READ, "acc-2").reason());
+                service.check(id, "fintech-a", ConsentScope.ACCOUNTS_READ, "acc-2").reason());
         assertEquals("consent_not_found",
-                service.check(id, "fintech-b", ConsentScope.BALANCES_READ, "acc-1").reason());
+                service.check(id, "fintech-b", ConsentScope.ACCOUNTS_READ, "acc-1").reason());
+    }
+
+    @Test
+    void paymentGroupIsReservedForBanksAndPaymentIntermediaries() {
+        ScopeNotPermittedException error = assertThrows(ScopeNotPermittedException.class,
+                () -> service.request(FINTECH, "cif-1",
+                        Set.of(ConsentScope.ACCOUNTS_READ, ConsentScope.EWALLET_TOPUP), Duration.ofDays(1)));
+        assertEquals(Set.of(ConsentScope.EWALLET_TOPUP), error.scopes());
+        assertTrue(audit.entries().isEmpty());
+
+        Consent topUp = service.request(WALLET, "cif-1", Set.of(ConsentScope.EWALLET_TOPUP), Duration.ofDays(1));
+        assertEquals(Consent.Status.AWAITING_AUTHORISATION, topUp.status());
     }
 
     @Test
     void pendingConsentGrantsNothing() {
-        Consent requested = service.request("fintech-a", "cif-1", Set.of(ConsentScope.ACCOUNTS_READ),
+        Consent requested = service.request(FINTECH, "cif-1", Set.of(ConsentScope.ACCOUNTS_READ),
                 Duration.ofDays(1));
         assertEquals("consent_awaiting_authorisation",
                 service.check(requested.consentId(), "fintech-a", ConsentScope.ACCOUNTS_READ, null).reason());
@@ -81,13 +96,13 @@ class ConsentServiceTest {
         service.revokeByCustomer(consent.consentId(), "cif-1");
 
         assertEquals("consent_revoked",
-                service.check(consent.consentId(), "fintech-a", ConsentScope.BALANCES_READ, "acc-1").reason());
+                service.check(consent.consentId(), "fintech-a", ConsentScope.ACCOUNTS_READ, "acc-1").reason());
         assertThrows(IllegalStateException.class, () -> service.revokeByClient(consent.consentId(), "fintech-a"));
     }
 
     @Test
     void otherCustomerCannotSeeOrChangeConsent() {
-        Consent requested = service.request("fintech-a", "cif-1", Set.of(ConsentScope.ACCOUNTS_READ),
+        Consent requested = service.request(FINTECH, "cif-1", Set.of(ConsentScope.ACCOUNTS_READ),
                 Duration.ofDays(1));
         assertThrows(NoSuchElementException.class,
                 () -> service.authorise(requested.consentId(), "cif-2", Set.of("acc-9")));
@@ -99,20 +114,20 @@ class ConsentServiceTest {
         clock.advance(Duration.ofDays(90));
 
         assertEquals("consent_expired",
-                service.check(consent.consentId(), "fintech-a", ConsentScope.BALANCES_READ, "acc-1").reason());
+                service.check(consent.consentId(), "fintech-a", ConsentScope.ACCOUNTS_READ, "acc-1").reason());
         assertEquals(Consent.Status.EXPIRED, service.find(consent.consentId()).orElseThrow().status());
     }
 
     @Test
     void enforcesValidityAndAccountSelection() {
-        assertThrows(IllegalArgumentException.class, () -> service.request("fintech-a", "cif-1",
+        assertThrows(IllegalArgumentException.class, () -> service.request(FINTECH, "cif-1",
                 Set.of(ConsentScope.ACCOUNTS_READ), Duration.ofDays(181)));
-        Consent requested = service.request("fintech-a", "cif-1", Set.of(ConsentScope.ACCOUNTS_READ),
+        Consent requested = service.request(FINTECH, "cif-1", Set.of(ConsentScope.ACCOUNTS_READ),
                 Duration.ofDays(1));
         assertThrows(IllegalArgumentException.class,
                 () -> service.authorise(requested.consentId(), "cif-1", Set.of()));
 
-        Consent paymentOnly = service.request("fintech-a", "cif-1", Set.of(ConsentScope.PAYMENTS_INITIATE),
+        Consent paymentOnly = service.request(WALLET, "cif-1", Set.of(ConsentScope.PAYMENTS_INITIATE),
                 Duration.ofDays(1));
         assertEquals(Consent.Status.AUTHORISED,
                 service.authorise(paymentOnly.consentId(), "cif-1", Set.of()).status());

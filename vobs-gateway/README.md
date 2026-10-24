@@ -4,19 +4,20 @@ Plugin và cấu hình mẫu cho Apache APISIX, lớp API Gateway của VOBS (gi
 
 | Thành phần | Trạng thái |
 | --- | --- |
-| [`apisix/plugins/vobs-consent.lua`](apisix/plugins/vobs-consent.lua) — kiểm tra consent trước mỗi request, fail closed | Bản đầu, chưa chạy thử trên APISIX |
-| [`apisix/apisix.yaml`](apisix/apisix.yaml) — route mẫu: openid-connect → vobs-consent → upstream, log kiểm toán qua kafka-logger | Ví dụ |
+| [`apisix/plugins/vobs-consent.lua`](apisix/plugins/vobs-consent.lua) — kiểm tra consent trước mỗi request, fail closed | Bản đầu, đã kiểm cú pháp, chưa chạy thử trên APISIX |
+| [`apisix/apisix.yaml`](apisix/apisix.yaml) — route mẫu: openid-connect → limit-count → vobs-consent → upstream, log kiểm toán qua kafka-logger | Ví dụ |
 | Plugin kiểm tra token gắn chứng thư mTLS (RFC 8705) cho FAPI 2.0 | Chưa làm |
 | WAF: Coraza + OWASP Core Rule Set | Chưa làm |
 
 ## Cách plugin `vobs-consent` hoạt động
 
 1. `openid-connect` xác thực access token do Keycloak cấp; payload token nằm ở `ctx.external_user`.
-2. `vobs-consent` đọc `x-consent-id`, client id (claim `azp`) và mã tài khoản trên đường dẫn, rồi gọi
+2. `limit-count` giới hạn tần suất theo bên thứ ba (Điều 11 Thông tư 64), khóa bằng biến `$vobs_client_id`.
+3. `vobs-consent` đọc `x-consent-id`, client id (claim `azp`) và mã tài khoản trên đường dẫn, rồi gọi
    `POST /internal/consent-checks` của service consent
    ([đặc tả](../vobs-spec/openapi/internal-consent-check.yaml)).
-3. Từ chối với `403` và mã lý do nếu consent không cho phép; `503` nếu không gọi được service consent.
-4. Đặt biến `$vobs_consent_id`, `$vobs_client_id` để `kafka-logger` ghi vào log kiểm toán.
+4. Từ chối với `403` và mã lý do nếu consent không cho phép; `503` nếu không gọi được service consent.
+5. Đặt biến `$vobs_consent_id`; cùng `$vobs_client_id`, để `kafka-logger` ghi vào log kiểm toán.
 
 ## Cài plugin
 

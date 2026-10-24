@@ -16,13 +16,13 @@ Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintec
 
 | Module | Chức năng | Giai đoạn | Trạng thái |
 | --- | --- | --- | --- |
-| [`vobs-spec`](vobs-spec) | Đặc tả Open API theo Thông tư 64, bộ kiểm thử tuân thủ | 1 | Đặc tả nháp 0.1 |
+| [`vobs-spec`](vobs-spec) | Đặc tả Open API theo Thông tư 64, bộ kiểm thử tuân thủ | 1 | Nháp 0.2: đủ 23 API của Điều 6; chưa đối chiếu Phụ lục 01, 02 |
 | [`vobs-model`](vobs-model) | Mô hình dữ liệu chuẩn theo BIAN; CCCD, BIN, VND, tên tiếng Việt | 1 | Dùng được |
 | [`vobs-vietqr`](vobs-vietqr) | Tạo và đọc mã VietQR | 1 | Dùng được |
 | [`vobs-iso20022`](vobs-iso20022) | pacs.008 cho chuyển khoản VND nội địa, trên Prowide ISO 20022 | 1 | Dùng được |
 | [`vobs-switch`](vobs-switch) | Adapter chung tới chuyển mạch; bộ giả lập | 1–2 | SPI và giả lập; chưa có NAPAS, MDP |
 | [`vobs-sandbox`](vobs-sandbox) | API giả lập cho fintech bằng Microcks | 1 | Cấu hình cục bộ |
-| [`vobs-consent`](vobs-consent) | Vòng đời consent, kiểm tra quyền, log kiểm toán chuỗi hash | 2 | Phần lõi; chưa có lớp HTTP |
+| [`vobs-consent`](vobs-consent) | Vòng đời consent theo Điều 5, 11; kiểm tra quyền; log kiểm toán chuỗi hash | 2 | Phần lõi; chưa có lớp HTTP |
 | [`vobs-hub`](vobs-hub) | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
 | [`vobs-gateway`](vobs-gateway) | Plugin APISIX: consent, log kiểm toán | 2 | Plugin consent bản đầu |
 | [`vobs-deploy`](vobs-deploy) | Helm chart tổng, GitOps, bộ cài air-gapped | 2 | Khung |
@@ -48,6 +48,7 @@ VietQr qr = VietQr.parse(payload);
 
 ## Tài liệu
 
+- [Đối chiếu Thông tư 64/2024/TT-NHNN](docs/tt64.md)
 - [Kiến trúc và yêu cầu phi chức năng](docs/architecture.md)
 - [Lộ trình](docs/roadmap.md)
 - [Open-source dùng lại và giấy phép cần tránh](docs/licensing.md)
