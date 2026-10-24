@@ -1,7 +1,7 @@
 @import url("/fonts/be-vietnam-pro.css");
 
 /*
-  Nhận diện VOBS: hạ tầng dùng chung cho mọi ngân hàng.
+  Nhận diện VOBS: hạ tầng Open Banking mã nguồn mở, phù hợp nhu cầu của mọi ngân hàng Việt Nam.
   - Logo là chữ V từ hai mắt xích móc vào nhau: mắt Đồng (ngân hàng) và mắt Hổ phách (bên thứ ba).
   - Màu nhận diện là Đồng và Hổ phách, đi cùng nền kem và chữ nâu. Không dùng đen: đen là màu kiêng trong tài chính
     ở Việt Nam, nên chữ, nút và nền tối đều là sắc nâu.
@@ -43,8 +43,9 @@
   color-scheme: light;
 }
 
+/* Chế độ tối: theo hệ điều hành, trừ khi người xem chọn sáng; hoặc khi người xem chủ động chọn tối (nút ở header) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --copper: #e1884f;
     --amber: #f2b65b;
     --bg: #231814;
@@ -62,6 +63,29 @@
     --dot-skeleton: #7a685d;
     color-scheme: dark;
   }
+}
+
+:root[data-theme="dark"] {
+  --copper: #e1884f;
+  --amber: #f2b65b;
+  --bg: #231814;
+  --surface: #2c1f1a;
+  --surface-2: #362720;
+  --ink: #fff8ef;
+  --ink-2: #dccbbe;
+  --ink-3: #a8968a;
+  --line: #47362d;
+  --btn: #f2b65b;
+  --btn-ink: #2a1d19;
+  --code-bg: #362720;
+  --dot-ready: #3dd6c6;
+  --dot-draft: #f2b65b;
+  --dot-skeleton: #7a685d;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
 *,
@@ -259,6 +283,64 @@ p {
   fill: currentColor;
 }
 
+/* Nút chuyển sáng/tối: hiện mặt trăng ở giao diện sáng, mặt trời ở giao diện tối */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--ink-2);
+  cursor: pointer;
+  flex: none;
+}
+
+.theme-toggle:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle .i-sun {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .i-sun {
+    display: block;
+  }
+
+  :root:not([data-theme="light"]) .theme-toggle .i-moon {
+    display: none;
+  }
+}
+
+:root[data-theme="dark"] .theme-toggle .i-sun {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-toggle .i-moon {
+  display: none;
+}
+
 .lang {
   position: relative;
 }
@@ -393,6 +475,38 @@ p {
   .nav a {
     font-size: 0.86rem;
     padding: 6px 6px;
+  }
+}
+
+/* Điện thoại hẹp: bỏ biểu tượng GitHub ở header (đã có ở hero và chân trang), thu khoảng đệm link
+   để nút ngôn ngữ không bị đẩy ra ngoài màn hình */
+@media (max-width: 460px) {
+  .site-header .wrap {
+    gap: 4px;
+  }
+
+  .gh-icon,
+  .lang .chevron {
+    display: none;
+  }
+
+  .nav a {
+    padding: 6px 3px;
+  }
+
+  .theme-toggle {
+    width: 32px;
+  }
+
+  .lang summary {
+    padding: 7px;
+  }
+}
+
+/* Màn rất hẹp (dưới 360px): chỉ giữ biểu tượng logo, bỏ chữ VOBS bên cạnh */
+@media (max-width: 359px) {
+  .wordmark {
+    display: none;
   }
 }
 
