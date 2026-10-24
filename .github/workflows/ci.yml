@@ -86,6 +86,13 @@ jobs:
         run: docker compose up -d --build consent
       - name: Chạy thử trọn luồng consent
         run: ./try-consent-flow.sh
+      - name: Image kèm thông báo giấy phép của thư viện bên thứ ba
+        run: |
+          docker run --rm --entrypoint sh vobs-consent:sandbox -c '
+            set -e
+            ls /app/licenses/LICENSE /app/licenses/NOTICE /app/licenses/third-party/THIRD-PARTY.txt
+            grep -q "PostgreSQL Global Development Group" /app/licenses/third-party/postgresql-*/META-INF/LICENSE
+            echo "Thư viện có file giấy phép: $(ls /app/licenses/third-party | grep -vc THIRD-PARTY.txt)"'
       - name: Log của service khi lỗi
         if: failure()
         run: docker compose logs consent

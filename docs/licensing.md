@@ -27,9 +27,9 @@ Ngôn ngữ chính là Java 21, cùng hệ sinh thái với Keycloak, Debezium v
 ## Giấy phép cần tránh
 
 Pháp chế ngân hàng thường chặn các giấy phép dưới đây. Profile `license-check` của Maven dùng danh sách cho phép
-(Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, EDL-1.0): dependency mang giấy phép khác làm build thất bại cho tới
-khi được xem xét và thêm vào danh sách. BSD-2-Clause được thêm cho driver JDBC của PostgreSQL; giấy phép này dễ dãi
-hơn BSD-3-Clause (chỉ bỏ điều khoản cấm dùng tên tác giả để quảng bá).
+(Apache-2.0, MIT, BSD-3-Clause, EDL-1.0): dependency mang giấy phép khác làm build thất bại cho tới khi được xem xét.
+Mở rộng danh sách cho phép là thay đổi chính sách; trường hợp lẻ được xử lý bằng ngoại lệ theo từng artifact (mục
+dưới).
 
 | Tránh | Vì sao | Dùng thay |
 | --- | --- | --- |
@@ -40,6 +40,25 @@ hơn BSD-3-Clause (chỉ bỏ điều khoản cấm dùng tên tác giả để 
 | Confluent Schema Registry, ksqlDB | Confluent Community License | Apicurio Registry, Kafka Streams |
 | Camunda 8 | Không còn giấy phép open-source cho production | Temporal |
 | MinIO | AGPL | Storage sẵn có của ngân hàng, Ceph, SeaweedFS |
+
+## Ngoại lệ giấy phép
+
+Ngoại lệ chỉ áp dụng cho một artifact ở một phiên bản cụ thể, không cho cả loại giấy phép. Ngoại lệ khai báo trong
+`src/license/override-THIRD-PARTY.properties` của module dùng artifact đó. Khi nâng phiên bản, build dừng cho tới
+khi có người xác nhận giấy phép của bản mới và sửa khóa.
+
+| Artifact | Phiên bản | Giấy phép | Dùng ở | Lý do | Quyết định |
+| --- | --- | --- | --- | --- | --- |
+| `org.postgresql:postgresql` (driver JDBC chính thức của PostgreSQL) | 42.7.14 | BSD-2-Clause | Quản lý sự đồng ý | Lưu consent và log kiểm toán vào PostgreSQL. Driver đóng gói kèm thư viện SCRAM, SASLprep của OnGres, cùng giấy phép BSD-2-Clause | Chủ dự án, 24/10/2026 |
+
+BSD-2-Clause dễ dãi hơn BSD-3-Clause đang được cho phép: chỉ bỏ điều khoản cấm dùng tên tác giả để quảng bá; tương
+thích với Apache 2.0. Nghĩa vụ duy nhất là giữ thông báo bản quyền và nội dung giấy phép khi phân phối lại.
+
+## Thông báo giấy phép khi phân phối
+
+Image Docker của dự án kèm thư mục `/app/licenses`: `LICENSE`, `NOTICE` của VOBS, danh sách `THIRD-PARTY.txt` và
+file giấy phép, thông báo lấy nguyên văn từ từng thư viện đi kèm. Build image chạy profile `license-check`, nên không
+dựng được image khi có dependency mang giấy phép ngoài danh sách cho phép.
 
 Grafana và Loki (AGPL) dùng nguyên bản được, nhưng không nhúng vào sản phẩm. Giấy phép có thể thay đổi; kiểm tra
 lại tại thời điểm chọn dùng.

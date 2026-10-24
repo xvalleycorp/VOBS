@@ -61,7 +61,8 @@ lại PR đã merge.
 - Đối tác tạo consent khi chưa biết khách hàng; khách hàng được gắn vào consent khi duyệt hoặc từ chối.
 - Lưu trữ PostgreSQL khi có `VOBS_CONSENT_DATABASE_URL`, không thì trong bộ nhớ. Bảng log kiểm toán chỉ ghi thêm
   (trigger chặn sửa, xóa); service kiểm tra chuỗi hash khi khởi động.
-- Giấy phép BSD-2-Clause được thêm vào danh sách cho phép cho driver PostgreSQL (`docs/licensing.md`).
+- Driver PostgreSQL dùng ngoại lệ giấy phép theo artifact, ghim phiên bản; nâng driver thì sửa
+  `vobs-consent/src/license/override-THIRD-PARTY.properties` sau khi xác nhận giấy phép (`docs/licensing.md`).
 
 ## Quyết định ngày 24/10/2026 (phiên local)
 
@@ -76,7 +77,8 @@ lại PR đã merge.
 | Con số "đáp ứng sẵn >80% nhu cầu" | Chỉ là mục tiêu nội bộ, không kiểm chứng được; tài liệu nói "phần lớn", "phần đa" |
 | Việc làm tiếp | Đưa service Quản lý sự đồng ý vào sandbox |
 
-Còn mở: pháp chế có cần duyệt việc thêm BSD-2-Clause vào danh sách giấy phép cho phép.
+Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng ngoại lệ cho riêng driver JDBC PostgreSQL
+42.7.14 (sổ ngoại lệ trong `docs/licensing.md`). Image Docker kèm thông báo giấy phép của thư viện đi kèm.
 
 ## Việc tiếp theo đề xuất
 
