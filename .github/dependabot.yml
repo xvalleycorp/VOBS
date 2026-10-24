@@ -44,6 +44,14 @@ updates:
       interval: weekly
     cooldown:
       default-days: 14
+    # Dự án dùng Java 21 (LTS): chỉ nhận bản vá trong Java 21. Đổi sang Java lớn hơn là quyết định riêng, phải đổi cùng
+    # maven.compiler.release trong pom.xml và java-version trong CI.
+    ignore:
+      - dependency-name: eclipse-temurin
+        versions: [">= 22"]
+      # Image build (Maven kèm JDK): tag gắn cả phiên bản Maven lẫn JDK, Dependabot không tách được hai phần nên đề
+      # xuất cả bản đổi JDK. Cập nhật tay cùng lúc với JDK.
+      - dependency-name: maven
 
   - package-ecosystem: docker-compose
     directory: /vobs-sandbox
