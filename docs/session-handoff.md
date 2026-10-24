@@ -13,6 +13,9 @@ Tài liệu nội bộ để tiếp tục công việc ở phiên khác. Không 
   - [#19](https://github.com/xvalleycorp/VOBS/pull/19) (merge 24/10/2026): API HTTP và lưu trữ PostgreSQL cho Quản
     lý sự đồng ý; tách nội dung website khỏi kế hoạch nội bộ; tên thân thiện cho module; trang API; Luật 91/2025/QH15.
 - Từ sau #19, mỗi việc một nhánh tạo từ `main` mới và một PR riêng (không dùng lại `feat/website`).
+- Đã merge thêm ngày 24/10/2026 (phiên local): #20 (tên "Quản lý sự đồng ý"), #21 (service consent trong sandbox),
+  #22 (ngoại lệ giấy phép cho driver PostgreSQL), #23 (API Gateway APISIX trong sandbox), #24 (gộp các bản nâng
+  dependency, gom nhóm Dependabot), #27 (Dependabot chỉ nhận bản vá trong Java 21).
 - Website tự deploy lên https://vobs.dxa.io.vn khi `main` thay đổi (workflow `website.yml`, secret
   `CLOUDFLARE_API_TOKEN` đã cài). Lần deploy gần nhất: sau khi merge #18.
 
@@ -99,6 +102,15 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
   - đối chiếu Phụ lục 01, 02 Thông tư 64;
   - tìm hiểu đặc tả kết nối NAPAS, MDP;
   - phát hành Thư viện VietQR và Thư viện ISO 20022 lên Maven Central (cần namespace và khóa GPG).
+
+## Dependabot
+
+- Gom nhóm: plugin Maven, bản nâng nhỏ của thư viện, GitHub Actions, npm của website; bản nâng lớn là PR riêng. Chỉ
+  đề xuất phiên bản đã ra ít nhất 14 ngày.
+- PR nâng driver PostgreSQL cố ý đỏ ở bước kiểm tra giấy phép: xác nhận giấy phép bản mới, rồi sửa phiên bản trong
+  `vobs-consent/src/license/override-THIRD-PARTY.properties`.
+- Image Docker chỉ nhận bản vá trong Java 21; image build (`maven:*`) cập nhật tay cùng lúc với JDK. Đổi bản Java
+  lớn (ví dụ Java 25 LTS) là quyết định riêng, đổi cùng `pom.xml` và CI.
 
 ## Lưu ý khi làm tiếp
 
