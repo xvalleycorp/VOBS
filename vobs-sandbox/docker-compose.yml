@@ -11,7 +11,7 @@
 # Giao diện Microcks: http://localhost:8585; API Gateway: http://localhost:9080/open-banking/v1
 services:
   microcks:
-    image: quay.io/microcks/microcks-uber:1.10.0
+    image: quay.io/microcks/microcks-uber:1.14.0
     ports:
       - "8585:8080"
     restart: unless-stopped
