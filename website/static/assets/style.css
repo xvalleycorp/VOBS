@@ -1329,6 +1329,19 @@ a.op:hover code {
 }
 
 /* ------------------------------------------------------------ API reference */
+/* Redoc trải hết bề ngang (sidebar sát mép trái), nên header và dòng ghi chú trên trang này cũng trải hết bề ngang,
+   lề trái bằng lề sidebar của Redoc (20px) để logo thẳng hàng với ô tìm kiếm */
+.page-api .wrap {
+  max-width: none;
+  padding: 0 20px;
+}
+
+@media (max-width: 560px) {
+  .page-api .wrap {
+    padding: 0 16px;
+  }
+}
+
 .api-note {
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
