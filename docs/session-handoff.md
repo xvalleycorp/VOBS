@@ -10,9 +10,9 @@ Tài liệu nội bộ để tiếp tục công việc ở phiên khác. Không 
   - [#15](https://github.com/xvalleycorp/VOBS/pull/15): đặc tả và consent theo Thông tư 64.
   - [#17](https://github.com/xvalleycorp/VOBS/pull/17): website, logo H3, bảng màu Đồng và Hổ phách.
   - [#18](https://github.com/xvalleycorp/VOBS/pull/18): nội dung "mã nguồn mở, phù hợp nhu cầu", nút sáng/tối.
-- **Đang mở:** [#19](https://github.com/xvalleycorp/VOBS/pull/19), CI xanh cả 5 check trên `dd47f56`, chờ merge.
-  Gồm: API HTTP và lưu trữ PostgreSQL cho Quản lý consent; tách nội dung website khỏi kế hoạch nội bộ; tên thân
-  thiện cho module; sửa trang API; tiêu đề trang chủ ngắn; trích Luật 91/2025/QH15; driver PostgreSQL 42.7.14.
+  - [#19](https://github.com/xvalleycorp/VOBS/pull/19) (merge 24/10/2026): API HTTP và lưu trữ PostgreSQL cho Quản
+    lý sự đồng ý; tách nội dung website khỏi kế hoạch nội bộ; tên thân thiện cho module; trang API; Luật 91/2025/QH15.
+- Từ sau #19, mỗi việc một nhánh tạo từ `main` mới và một PR riêng (không dùng lại `feat/website`).
 - Website tự deploy lên https://vobs.dxa.io.vn khi `main` thay đổi (workflow `website.yml`, secret
   `CLOUDFLARE_API_TOKEN` đã cài). Lần deploy gần nhất: sau khi merge #18.
 
@@ -46,7 +46,7 @@ lại PR đã merge.
 
 - Nói "mã nguồn mở", không dùng "mở" đứng một mình (chữ Open đã có trong Open Banking).
 - Nói VOBS "phù hợp nhu cầu của mọi ngân hàng" và ngân hàng "tự chủ tùy chỉnh", không nói "dùng chung cho mọi ngân
-  hàng". Không dùng "trung lập".
+  hàng". Không dùng "trung lập" (bản tiếng Anh vẫn dùng "neutral"). Không dùng con số mục tiêu "80%"; nói "phần lớn", "phần đa".
 - Website chỉ cho người dùng cuối (ngân hàng, bên thứ ba, đơn vị tích hợp, cơ quan quản lý). Lộ trình, giai đoạn,
   mô hình kinh doanh, quy trình nội bộ (CI, script, tên file) chỉ nằm trong markdown của repo. Quy ước chi tiết:
   [`website/README.md`](../website/README.md#nội-dung-website-và-tài-liệu-nội-bộ).
@@ -54,7 +54,7 @@ lại PR đã merge.
 - Gọi module bằng tên thân thiện (bảng trong [README gốc](../README.md#module)); mã `vobs-*` chỉ để tra cứu.
 - Trích dẫn pháp lý: Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 (đã thay Nghị định 13/2023/NĐ-CP).
 
-### Quản lý consent (`vobs-consent`)
+### Quản lý sự đồng ý (`vobs-consent`)
 
 - Hai cổng HTTP tách biệt: cổng đối tác (`/consents`) và cổng nội bộ (`/internal/...` cho gateway và kênh ngân
   hàng). Danh tính đối tác lấy từ header `x-vobs-client-id` do gateway đặt và ghi đè.
@@ -63,23 +63,24 @@ lại PR đã merge.
   (trigger chặn sửa, xóa); service kiểm tra chuỗi hash khi khởi động.
 - Giấy phép BSD-2-Clause được thêm vào danh sách cho phép cho driver PostgreSQL (`docs/licensing.md`).
 
-## Câu hỏi đang chờ quyết định
+## Quyết định ngày 24/10/2026 (phiên local)
 
-1. Merge #19?
-2. Tiêu đề trang chủ: giữ "Open Banking mã nguồn mở cho ngân hàng Việt Nam", hay dùng "…, hợp với mọi ngân hàng" /
-   "…, ngân hàng tự chủ tùy chỉnh"?
-3. Còn chữ "trung lập" ngoài website: `GOVERNANCE.md` ("quản trị trung lập") và `vobs-iso20022/README.md` (nghĩa
-   kỹ thuật "dạng trung lập"). Có sửa không?
-4. Bản tiếng Anh giữ chữ "neutral" (nghĩa tốt trong tiếng Anh)?
-5. Chân trang website còn link tới `docs/architecture.md` (có phần yêu cầu phi chức năng). Giữ hay bỏ?
-6. Tên module: giữ chữ "consent" hay đổi "Quản lý sự đồng ý"? Đổi `<name>` trong `pom.xml` (hiện "VOBS Consent"…)
-   theo tên thân thiện?
-7. Pháp chế có cần duyệt việc thêm BSD-2-Clause vào danh sách giấy phép cho phép?
-8. Con số "đáp ứng sẵn >80% nhu cầu" chưa đưa lên website vì chưa có số liệu chứng minh. Có đưa không?
+| Câu hỏi | Quyết định |
+| --- | --- |
+| Merge #19 | Đã merge |
+| Tiêu đề trang chủ | Giữ "Open Banking mã nguồn mở cho ngân hàng Việt Nam" |
+| Chữ "trung lập" trong `GOVERNANCE.md`, README Thư viện ISO 20022 | Sửa cả hai |
+| Chữ "neutral" ở bản tiếng Anh | Giữ |
+| Tên thân thiện của `vobs-consent` | "Quản lý sự đồng ý" (tiếng Anh giữ "Consent Manager") |
+| Link `docs/architecture.md` ở chân trang website | Bỏ |
+| Con số "đáp ứng sẵn >80% nhu cầu" | Chỉ là mục tiêu nội bộ, không kiểm chứng được; tài liệu nói "phần lớn", "phần đa" |
+| Việc làm tiếp | Đưa service Quản lý sự đồng ý vào sandbox |
+
+Còn mở: pháp chế có cần duyệt việc thêm BSD-2-Clause vào danh sách giấy phép cho phép.
 
 ## Việc tiếp theo đề xuất
 
-- **Quản lý consent:**
+- **Quản lý sự đồng ý:**
   - chạy nhiều bản service cùng lúc (khóa khi ghi log kiểm toán, khóa lạc quan khi đổi trạng thái consent);
   - connection pool;
   - đẩy log kiểm toán sang Kafka;

@@ -24,7 +24,6 @@
   "footer.contributing": "Contributing",
   "footer.docs": "Documentation",
   "footer.tt64": "Circular 64 mapping",
-  "footer.architecture": "Architecture",
   "footer.security": "Report a vulnerability",
   "home.title": "VOBS — Open-source Open Banking infrastructure for Vietnamese banks",
   "home.description": "An open-source Open Banking stack that fits the needs of every bank in Vietnam and can be customized to each bank's systems. It helps banks comply with Circular 64/2024/TT-NHNN without exposing their core banking systems: API gateway, consent, integration hub, VietQR, ISO 20022.",

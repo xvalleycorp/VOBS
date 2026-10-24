@@ -13,7 +13,7 @@
   <artifactId>vobs-consent</artifactId>
   <name>VOBS Consent</name>
   <description>
-    Quản lý consent theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Thông tư 64/2024/TT-NHNN: cấp, xem, thu hồi theo phạm vi dữ liệu và thời hạn, có log kiểm toán chuỗi hash.
+    Quản lý sự đồng ý (consent) của khách hàng theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Thông tư 64/2024/TT-NHNN: cấp, xem, thu hồi theo phạm vi dữ liệu và thời hạn, có log kiểm toán chuỗi hash.
   </description>
   <url>https://github.com/xvalleycorp/vobs/tree/main/vobs-consent</url>
 

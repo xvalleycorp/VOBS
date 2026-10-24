@@ -45,7 +45,10 @@ Khi viết nội dung tiếng Việt:
   thuật ngữ công nghệ rõ nghĩa ở Việt Nam và hàm ý tùy chỉnh được.
 - Nói VOBS "phù hợp nhu cầu của mọi ngân hàng", không nói "dùng chung cho mọi ngân hàng": VOBS có sẵn phần mà ngân
   hàng nào cũng cần, và mỗi ngân hàng tự chủ tùy chỉnh phần còn lại theo hiện trạng hệ thống của mình.
-- Không dùng "trung lập": trong tiếng Việt từ này không mang nghĩa tốt như "neutral" trong tiếng Anh.
+- Không dùng "trung lập": trong tiếng Việt từ này không mang nghĩa tốt như "neutral" trong tiếng Anh. Bản tiếng
+  Anh vẫn dùng "neutral".
+- Không đưa con số mục tiêu chưa kiểm chứng (ví dụ "đáp ứng sẵn 80% nhu cầu") vào tài liệu hay website; nói
+  "phần lớn", "phần đa" nhu cầu.
 - Chữ: Be Vietnam Pro, phông thiết kế cho tiếng Việt.
 
 ## Nội dung website và tài liệu nội bộ
@@ -64,7 +67,7 @@ Khi viết nội dung cho website:
 
 - Chỉ mô tả cái đã có. Tính năng chưa làm thì không nhắc, hoặc nói rõ "chưa có" ở đúng module; không hứa thời gian.
 - Nhãn module nói mức sẵn sàng theo góc nhìn người dùng: Dùng được, Thử nghiệm, Đang phát triển, Nháp.
-- Gọi module bằng tên thân thiện (Thư viện VietQR, Quản lý consent, Integration Hub...). Mã `vobs-*` là tên thư
+- Gọi module bằng tên thân thiện (Thư viện VietQR, Quản lý sự đồng ý, Integration Hub...). Mã `vobs-*` là tên thư
   mục và artifact, chỉ hiện kèm để lập trình viên tra cứu. Bảng tên đầy đủ ở [README gốc](../README.md#module);
   tên tiếng Anh nằm trong [`data/modules.json`](data/modules.json).
 - Không nhắc công cụ nội bộ (CI, script, tên file trong repo) hay quy trình của nhóm. Viết lợi ích cho người đọc,
