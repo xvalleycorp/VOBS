@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Vòng đời consent: đối tác yêu cầu, khách hàng duyệt hoặc từ chối, khách hàng hoặc đối tác thu hồi, tự hết hạn.
@@ -20,6 +21,12 @@ import java.util.UUID;
  */
 public final class ConsentService {
 
+    /**
+     * Thời hạn tối đa mặc định: thời gian bên thứ ba được truy vấn thông tin sau khi khách hàng đồng ý không quá 180
+     * ngày, trừ khi có thỏa thuận khác (Điều 11 Thông tư 64/2024/TT-NHNN).
+     */
+    public static final Duration TT64_MAX_VALIDITY = Duration.ofDays(180);
+
     private final ConsentRepository repository;
     private final AuditLog auditLog;
     private final Clock clock;
@@ -32,16 +39,26 @@ public final class ConsentService {
         this.maxValidity = maxValidity;
     }
 
-    /** Đối tác gửi yêu cầu consent; khách hàng duyệt sau qua kênh của ngân hàng. */
-    public Consent request(String clientId, String customerId, Set<ConsentScope> scopes, Duration validity) {
+    /**
+     * Đối tác gửi yêu cầu consent; khách hàng duyệt sau qua kênh của ngân hàng.
+     *
+     * @throws ScopeNotPermittedException nếu đối tác xin phạm vi thuộc nhóm thanh toán mà không phải ngân hàng hoặc
+     *     trung gian thanh toán
+     */
+    public Consent request(ThirdParty client, String customerId, Set<ConsentScope> scopes, Duration validity) {
         if (validity.isNegative() || validity.isZero() || validity.compareTo(maxValidity) > 0) {
             throw new IllegalArgumentException("Thời hạn consent phải trong khoảng (0, %s]".formatted(maxValidity));
         }
+        Set<ConsentScope> notPermitted = scopes.stream().filter(scope -> !client.mayUse(scope))
+                .collect(Collectors.toSet());
+        if (!notPermitted.isEmpty()) {
+            throw new ScopeNotPermittedException(client, notPermitted);
+        }
         Instant now = clock.instant();
-        Consent consent = new Consent(UUID.randomUUID().toString(), clientId, customerId, scopes, Set.of(), now,
-                now.plus(validity), Consent.Status.AWAITING_AUTHORISATION, now);
+        Consent consent = new Consent(UUID.randomUUID().toString(), client.clientId(), customerId, scopes, Set.of(),
+                now, now.plus(validity), Consent.Status.AWAITING_AUTHORISATION, now);
         repository.save(consent);
-        auditLog.append(now, "client:" + clientId, "consent.requested", consent.consentId());
+        auditLog.append(now, "client:" + client.clientId(), "consent.requested", consent.consentId());
         return consent;
     }
 
@@ -49,7 +66,7 @@ public final class ConsentService {
     public Consent authorise(String consentId, String customerId, Set<String> accountIds) {
         Consent consent = requireOwnedBy(consentId, customerId);
         requireStatus(consent, Consent.Status.AWAITING_AUTHORISATION);
-        boolean paymentOnly = consent.scopes().equals(Set.of(ConsentScope.PAYMENTS_INITIATE));
+        boolean paymentOnly = consent.scopes().stream().allMatch(ConsentScope::isPaymentGroup);
         if (accountIds.isEmpty() && !paymentOnly) {
             throw new IllegalArgumentException("Cần chọn ít nhất một tài khoản để chia sẻ dữ liệu");
         }
