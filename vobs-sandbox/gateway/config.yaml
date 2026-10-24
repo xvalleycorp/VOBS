@@ -10,9 +10,15 @@ apisix:
   router:
     # Cần cho route có tham số trên đường dẫn, như /accounts/:account_id
     http: radixtree_uri_with_parameter
+  ssl:
+    # HTTPS cho đối tác; chứng thư máy chủ và CA xác thực client nằm trong đối tượng SSL (ssls) của apisix.yaml
+    enable: true
+    listen:
+      - port: 9443
 
 plugins:
   - openid-connect
+  - vobs-fapi
   - limit-count
   - proxy-rewrite
   - vobs-consent

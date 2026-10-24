@@ -2,7 +2,7 @@
   "realm": "open-banking",
   "displayName": "VOBS sandbox",
   "enabled": true,
-  "sslRequired": "none",
+  "sslRequired": "external",
   "accessTokenLifespan": 600,
   "clients": [
     {
@@ -11,12 +11,30 @@
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "sandbox-fintech-a-secret",
+      "clientAuthenticatorType": "client-x509",
       "serviceAccountsEnabled": true,
       "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "x509.subjectdn": "CN=fintech-a,O=VOBS Sandbox",
+        "x509.allow.regex.pattern.comparison": "false",
+        "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
+        "tls.client.certificate.bound.access.tokens": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-vobs-gateway",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "vobs-gateway",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
     },
     {
       "clientId": "wallet-b",
@@ -24,12 +42,30 @@
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "sandbox-wallet-b-secret",
+      "clientAuthenticatorType": "client-x509",
       "serviceAccountsEnabled": true,
       "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "x509.subjectdn": "CN=wallet-b,O=VOBS Sandbox",
+        "x509.allow.regex.pattern.comparison": "false",
+        "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
+        "tls.client.certificate.bound.access.tokens": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-vobs-gateway",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "vobs-gateway",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
     },
     {
       "clientId": "bank-c",
@@ -37,12 +73,30 @@
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "sandbox-bank-c-secret",
+      "clientAuthenticatorType": "client-x509",
       "serviceAccountsEnabled": true,
       "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "x509.subjectdn": "CN=bank-c,O=VOBS Sandbox",
+        "x509.allow.regex.pattern.comparison": "false",
+        "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
+        "tls.client.certificate.bound.access.tokens": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-vobs-gateway",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "vobs-gateway",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
     }
   ]
 }

@@ -25,3 +25,6 @@ vobs-deploy/helm/*/Chart.lock
 # Log crash của JVM
 hs_err_pid*.log
 replay_pid*.log
+
+# PKI của sandbox, tạo bằng vobs-sandbox/pki.sh (có khóa riêng)
+vobs-sandbox/pki/

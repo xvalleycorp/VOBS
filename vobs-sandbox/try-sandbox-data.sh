@@ -5,14 +5,17 @@
 # nếu kết quả khác mong đợi.
 #
 #   MOCK_URL      API giả lập trên Microcks  (mặc định http://localhost:8585/rest/VOBS+Open+API/0.2.0-draft)
-#   KEYCLOAK_URL  Keycloak cấp mã truy cập   (mặc định http://localhost:8180)
-#   GATEWAY_URL   API Gateway                (mặc định http://localhost:9080/open-banking/v1)
+#   KEYCLOAK_URL  Keycloak cấp mã truy cập   (mặc định https://localhost:8443)
+#   GATEWAY_URL   API Gateway                (mặc định https://localhost:9443/open-banking/v1)
 #   INTERNAL_URL  cổng nội bộ của Quản lý sự đồng ý (mặc định http://localhost:8091), đóng vai kênh ngân hàng
 set -euo pipefail
 
 MOCK_URL="${MOCK_URL:-http://localhost:8585/rest/VOBS+Open+API/0.2.0-draft}"
-KEYCLOAK_URL="${KEYCLOAK_URL:-http://localhost:8180}"
-GATEWAY_URL="${GATEWAY_URL:-http://localhost:9080/open-banking/v1}"
+KEYCLOAK_URL="${KEYCLOAK_URL:-https://localhost:8443}"
+GATEWAY_URL="${GATEWAY_URL:-https://localhost:9443/open-banking/v1}"
+# Chứng thư tạo bằng ./pki.sh; script này đóng vai đối tác bank-c
+PKI="$(cd "$(dirname "$0")/pki" && pwd)"
+TLS=(--cacert "$PKI/ca.crt" --cert "$PKI/bank-c.crt" --key "$PKI/bank-c.key")
 INTERNAL_URL="${INTERNAL_URL:-http://localhost:8091}"
 CONSENT_ID="6f1c2a7e-3b0d-4f5e-9a8c-1d2e3f4a5b6c"
 BODY="$(mktemp)"
@@ -28,7 +31,7 @@ step() {
 call() {
   local method="$1" url="$2" data="${3:-}"
   shift 3 || shift $#
-  local args=(-s -o "$BODY" -w '%{http_code}' -X "$method" -H 'Content-Type: application/json')
+  local args=(-s -o "$BODY" -w '%{http_code}' -X "$method" -H 'Content-Type: application/json' "${TLS[@]}")
   for header in "$@"; do args+=(-H "$header"); done
   if [ -n "$data" ]; then args+=(--data "$data"); fi
   curl "${args[@]}" "$url"
@@ -109,7 +112,7 @@ expect "HTTP" "$(get /ewallet-topups/top-20261024-0002)" 200
 expect "reasonCode" "$(field reasonCode)" AM02
 
 # Đối tác riêng cho script này, để không dùng chung hạn mức tần suất với ./try-gateway-flow.sh
-BANK_TOKEN="$(curl -s -u bank-c:sandbox-bank-c-secret -d grant_type=client_credentials \
+BANK_TOKEN="$(curl -s "${TLS[@]}" -d grant_type=client_credentials -d client_id=bank-c \
   "$KEYCLOAK_URL/realms/open-banking/protocol/openid-connect/token" \
   | sed -En 's/.*"access_token":"([^"]+)".*/\1/p')"
 if [ -z "$BANK_TOKEN" ]; then

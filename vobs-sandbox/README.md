@@ -6,15 +6,16 @@ Sandbox cho đối tác, gồm các phần:
 | --- | --- | --- |
 | API giả lập, dựng từ [bộ đặc tả](../vobs-spec/openapi) bằng [Microcks](https://microcks.io) (Apache 2.0) | `http://localhost:8585` | Viết tích hợp với tài khoản, giao dịch, thanh toán trước khi có ngân hàng thật |
 | Service [Quản lý sự đồng ý](../vobs-consent) chạy thật, lưu trong bộ nhớ | đối tác `http://localhost:8090`, nội bộ `http://localhost:8091` | Thử trọn luồng consent: tạo, khách hàng duyệt, kiểm tra quyền, thu hồi |
-| [Keycloak](https://www.keycloak.org) (Apache 2.0), realm `open-banking` | `http://localhost:8180` | Cấp mã truy cập OAuth 2.0 cho đối tác mẫu |
-| [API Gateway](../vobs-gateway) (Apache APISIX) với plugin kiểm tra consent | `http://localhost:9080/open-banking/v1` | Gọi API như ở môi trường thật: xác thực mã truy cập, kiểm tra consent, giới hạn tần suất |
+| [Keycloak](https://www.keycloak.org) (Apache 2.0), realm `open-banking` | `https://localhost:8443` | Cấp mã truy cập gắn chứng thư (mTLS, RFC 8705) cho đối tác mẫu |
+| [API Gateway](../vobs-gateway) (Apache APISIX) với plugin kiểm tra consent | `https://localhost:9443/open-banking/v1` | Gọi API như ở môi trường thật: mTLS, mã truy cập gắn chứng thư (FAPI 2.0), kiểm tra consent, giới hạn tần suất |
 
 ## Chạy cục bộ
 
-Cần Docker và Docker Compose. Lần đầu `--build` dựng image service consent từ mã nguồn (vài phút).
+Cần Docker, Docker Compose và OpenSSL. Lần đầu `--build` dựng image service consent từ mã nguồn (vài phút).
 
 ```bash
 cd vobs-sandbox
+./pki.sh                   # tạo CA và chứng thư cho sandbox vào pki/ (một lần)
 docker compose up -d --build
 ./import-specs.sh          # nạp đặc tả và dữ liệu mẫu vào Microcks
 ./try-consent-flow.sh      # chạy thử luồng consent, gọi thẳng service
@@ -95,19 +96,24 @@ curl -s localhost:8090/consents -H 'x-vobs-client-id: fintech-a' -H 'Content-Typ
 
 ## Gọi qua API Gateway
 
-Đối tác lấy mã truy cập từ Keycloak bằng client credentials, rồi gửi kèm header `Authorization: Bearer <token>`.
-Gateway kiểm tra chữ ký và issuer của token bằng khóa công khai của Keycloak, lấy mã client từ claim `azp`. Token có
-hiệu lực 10 phút.
+Mỗi đối tác mẫu có một chứng thư client do CA của sandbox ký (`pki/<client>.crt`, `pki/<client>.key`), như chứng thư
+ngân hàng cấp khi ký hợp đồng kết nối (Điều 8 Thông tư 64). Không có client secret:
 
-| Đối tác (client id) | Client secret |
-| --- | --- |
-| `fintech-a` | `sandbox-fintech-a-secret` |
-| `wallet-b` | `sandbox-wallet-b-secret` |
-| `bank-c` | `sandbox-bank-c-secret` |
+1. Đối tác kết nối Keycloak bằng mTLS và lấy mã truy cập (client credentials). Keycloak nhận diện đối tác qua chứng
+   thư, rồi gắn token với chứng thư đó: claim `cnf.x5t#S256` là SHA-256 của chứng thư (RFC 8705). Token có hiệu lực
+   10 phút, `aud` là `vobs-gateway`.
+2. Đối tác gọi gateway bằng mTLS với **cùng chứng thư**, kèm `Authorization: Bearer <token>`. Gateway kiểm tra:
+   chứng thư client do CA tin cậy ký; chữ ký, issuer và `aud` của token; token gắn với đúng chứng thư của kết nối
+   (plugin `vobs-fapi`). Token bị lộ không dùng được từ máy không có khóa riêng của đối tác.
 
-Khác môi trường thật: ở môi trường thật, đối tác xác thực bằng chứng thư mTLS và token gắn với chứng thư (FAPI 2.0,
-RFC 8705); sandbox dùng client secret và HTTP. Keycloak chạy chế độ dev, dữ liệu mất khi dừng; trang quản trị tại
-`http://localhost:8180/admin`, tài khoản `admin`/`admin`.
+| Đối tác (client id) | Chứng thư | Subject |
+| --- | --- | --- |
+| `fintech-a` | `pki/fintech-a.crt` | `CN=fintech-a, O=VOBS Sandbox` |
+| `wallet-b` | `pki/wallet-b.crt` | `CN=wallet-b, O=VOBS Sandbox` |
+| `bank-c` | `pki/bank-c.crt` | `CN=bank-c, O=VOBS Sandbox` |
+
+Khác môi trường thật: CA tự ký của sandbox, Keycloak chạy chế độ dev (dữ liệu mất khi dừng), khóa riêng để mở quyền
+đọc. Trang quản trị Keycloak tại `https://localhost:8443/admin`, tài khoản `admin`/`admin`.
 
 | Đường dẫn | Gateway làm gì |
 | --- | --- |
@@ -118,20 +124,24 @@ RFC 8705); sandbox dùng client secret và HTTP. Keycloak chạy chế độ dev
 Mỗi đối tác được gọi tối đa 30 lần mỗi phút trên mỗi đường dẫn; vượt hạn mức nhận `429`.
 
 ```bash
-# Lấy mã truy cập
-TOKEN=$(curl -s -u fintech-a:sandbox-fintech-a-secret -d grant_type=client_credentials \
-  localhost:8180/realms/open-banking/protocol/openid-connect/token | sed -E 's/.*"access_token":"([^"]+)".*/\1/')
+# Kết nối bằng chứng thư của fintech-a
+TLS=(--cacert pki/ca.crt --cert pki/fintech-a.crt --key pki/fintech-a.key)
+# Lấy mã truy cập gắn chứng thư
+TOKEN=$(curl -s "${TLS[@]}" -d grant_type=client_credentials -d client_id=fintech-a \
+  https://localhost:8443/realms/open-banking/protocol/openid-connect/token | sed -E 's/.*"access_token":"([^"]+)".*/\1/')
 # Tạo consent, rồi cho khách hàng duyệt qua cổng nội bộ (đóng vai kênh ngân hàng)
-curl -s localhost:9080/open-banking/v1/consents -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"scopes":["ACCOUNTS_READ"],"validityDays":90}'
+curl -s "${TLS[@]}" https://localhost:9443/open-banking/v1/consents -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' -d '{"scopes":["ACCOUNTS_READ"],"validityDays":90}'
 curl -s localhost:8091/internal/consents/<consentId>/authorisation -H 'Content-Type: application/json' \
   -d '{"customerId":"cif-1001","accountIds":["acc-1001"]}'
 # Đọc tài khoản qua gateway
-curl -s localhost:9080/open-banking/v1/accounts/acc-1001 -H "Authorization: Bearer $TOKEN" -H 'x-consent-id: <consentId>'
+curl -s "${TLS[@]}" https://localhost:9443/open-banking/v1/accounts/acc-1001 -H "Authorization: Bearer $TOKEN" \
+  -H 'x-consent-id: <consentId>'
 ```
 
-[`try-gateway-flow.sh`](try-gateway-flow.sh) đi qua 12 bước, gồm cả token giả (ghép payload của đối tác khác) và
-trường hợp đối tác tự gửi `x-vobs-client-id`, `X-Userinfo` để giả danh đối tác khác.
+[`try-gateway-flow.sh`](try-gateway-flow.sh) đi qua 14 bước, gồm cả kết nối không có chứng thư, token bị lộ dùng từ
+chứng thư khác, token giả (ghép payload của đối tác khác) và trường hợp đối tác tự gửi `x-vobs-client-id`,
+`X-Userinfo` để giả danh đối tác khác.
 
 ## Kiểm thử hợp đồng API
 

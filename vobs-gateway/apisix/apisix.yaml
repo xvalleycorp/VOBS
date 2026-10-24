@@ -1,6 +1,7 @@
 # Ví dụ cấu hình route ở chế độ standalone của Apache APISIX cho API Lấy thông tin tài khoản
 # (Điều 6 khoản 1 điểm b Thông tư 64/2024/TT-NHNN).
-# Thứ tự plugin theo priority: openid-connect (2599, xác thực token FAPI) -> limit-count (1002) -> vobs-consent (999).
+# Thứ tự plugin theo priority: openid-connect (2599, xác thực token FAPI) -> vobs-fapi (1500, token gắn chứng thư
+# mTLS, RFC 8705) -> limit-count (1002) -> vobs-consent (999).
 # limit-count giới hạn truy vấn tự động theo từng bên thứ ba (Điều 11).
 # kafka-logger ghi log mọi lần sử dụng Open API; topic giữ tối thiểu 3 tháng và được sao lưu tối thiểu 1 năm
 # (Điều 11), lưu kiểu WORM.
@@ -16,8 +17,13 @@ routes:
         client_secret: <từ OpenBao>
         bearer_only: true
         use_jwks: true
-        # Bắt buộc: vobs-consent đọc mã client (claim azp) từ X-Userinfo do openid-connect đặt
+        # Bắt buộc: vobs-fapi và vobs-consent đọc claim (cnf, azp) từ X-Userinfo do openid-connect đặt
         set_userinfo_header: true
+        claim_validator:
+          audience:
+            # Token phải cấp cho chính gateway (aud chứa client_id vobs-gateway)
+            match_with_client_id: true
+      vobs-fapi: {}
       limit-count:
         count: 60
         time_window: 60
@@ -65,8 +71,12 @@ routes:
         client_secret: <từ OpenBao>
         bearer_only: true
         use_jwks: true
-        # Bắt buộc: $vobs_client_id lấy mã client (claim azp) từ X-Userinfo do openid-connect đặt
+        # Bắt buộc: vobs-fapi và $vobs_client_id đọc claim (cnf, azp) từ X-Userinfo do openid-connect đặt
         set_userinfo_header: true
+        claim_validator:
+          audience:
+            match_with_client_id: true
+      vobs-fapi: {}
       limit-count:
         count: 60
         time_window: 60
@@ -99,4 +109,15 @@ routes:
       scheme: https
       nodes:
         vobs-consent-partner.vobs.svc:8443: 1
+
+# mTLS với đối tác: chứng thư máy chủ của gateway và CA cấp chứng thư cho đối tác (Điều 8: chứng thư cấp khi ký hợp
+# đồng kết nối). Đối tác không có chứng thư hợp lệ bị từ chối trước khi tới route.
+ssls:
+  - id: open-banking
+    snis: [<tên miền Open API của ngân hàng>]
+    cert: $secret://vault/vobs/gateway/tls-cert
+    key: $secret://vault/vobs/gateway/tls-key
+    client:
+      ca: <PEM của CA cấp chứng thư cho bên thứ ba>
+      depth: 2
 #END
