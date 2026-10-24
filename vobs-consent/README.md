@@ -47,8 +47,9 @@ Yêu cầu consent mới được xét theo bảng quyết định `consent_requ
 | `ALLOW` | Còn lại | Tạo consent |
 
 - **Có phiên bản và ngày hiệu lực.** Bảng v1 có hiệu lực từ 01/03/2025, ngày Thông tư 64 có hiệu lực. Khi quy định
-  đổi, hoặc ngân hàng có thỏa thuận khác với đối tác, thêm phiên bản mới với `effectiveFrom` là ngày áp dụng và đóng
-  phiên bản cũ bằng `effectiveTo` cùng ngày. Phiên bản được chọn theo ngày nghiệp vụ (giờ Việt Nam) của yêu cầu.
+  đổi, hoặc ngân hàng có thỏa thuận khác với đối tác, thêm file phiên bản mới với `effectiveFrom` là ngày áp dụng;
+  không sửa file cũ. Phiên bản cũ tự hết hiệu lực khi phiên bản mới bắt đầu. Phiên bản được chọn theo ngày nghiệp vụ
+  (giờ Việt Nam) của yêu cầu.
 - **Quy tắc riêng của ngân hàng.** Quy tắc mới đặt `allowed` là `false` kèm `reasonCode`; đối tác nhận `403` với
   `reason` là mã đó viết thường, ví dụ `TRANSACTIONS_WITHOUT_ACCOUNTS` thành `transactions_without_accounts`.
 - **Dùng bảng riêng** bằng biến môi trường `VOBS_CONSENT_RULES_DIR`: thư mục chứa mọi phiên bản bảng
@@ -59,8 +60,9 @@ Yêu cầu consent mới được xét theo bảng quyết định `consent_requ
   (`vobs-consent: decision {...}`): phiên bản bảng, quy tắc khớp, mã lý do, mã consent, hash của input. Bản ghi
   không chứa giá trị input.
 
-Sửa bất kỳ chữ nào trong bảng, kể cả mô tả hay `effectiveTo`, đều đổi hash. Vì vậy đóng phiên bản cũ cũng đổi hash
-của nó; consent tạo trước đó vẫn giữ hash cũ để đối chiếu với file trong lịch sử git.
+Sửa bất kỳ chữ nào trong một file bảng, kể cả mô tả, đều đổi hash của phiên bản đó. Vì thêm phiên bản mới không
+phải sửa file cũ, các file phiên bản chỉ được thêm, không bị sửa: hash lưu trong consent cũ luôn khớp với file đang
+chạy. Chỉ đặt `effectiveTo` khi chính sách hết hiệu lực mà không có phiên bản thay thế.
 
 ## API HTTP
 

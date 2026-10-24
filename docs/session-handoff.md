@@ -122,8 +122,9 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
 - Thư viện đến cùng RuleStone mà JAR không kèm giấy phép: văn bản lấy từ repo gốc, lưu ở
   `vobs-consent/src/license/third-party` (README trong đó ghi nguồn). Đổi commit RuleStone mà kéo theo phiên bản
   thư viện mới thì tải lại văn bản tương ứng.
-- Góp ý cho RuleStone: thêm phiên bản mới buộc sửa `effectiveTo` của phiên bản cũ, làm đổi hash của phiên bản cũ
-  (https://github.com/xvalleycorp/RuleStone/issues/6).
+- Góp ý cho RuleStone về việc thêm phiên bản mới làm đổi hash của phiên bản cũ
+  (https://github.com/xvalleycorp/RuleStone/issues/6) đã được sửa ở commit `5a4dc73`: phiên bản không có
+  `effectiveTo` tự hết hiệu lực khi phiên bản sau bắt đầu. VOBS dùng commit này; file phiên bản chỉ thêm, không sửa.
 
 ## Dữ liệu mẫu của sandbox
 
