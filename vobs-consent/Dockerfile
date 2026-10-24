@@ -13,8 +13,13 @@ COPY vobs-hub vobs-hub
 # Chỉ build module consent và các module nó cần; chép dependency lúc chạy vào target/dependency
 RUN mvn -B -q -pl vobs-consent -am -DskipTests package dependency:copy-dependencies -DincludeScope=runtime
 
-FROM eclipse-temurin:21.0.12_8-jre-noble
-RUN useradd --system --uid 10001 --no-create-home vobs
+FROM eclipse-temurin:21.0.12.1_1-jre-noble
+# Cài bản vá bảo mật của Ubuntu lúc build: tag base image có thể chậm hơn bản vá vài ngày (ví dụ OpenSSL),
+# và CI quét image bằng Trivy, dừng khi còn lỗ hổng HIGH, CRITICAL đã có bản vá.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/* \
+ && useradd --system --uid 10001 --no-create-home vobs
 WORKDIR /app
 COPY --from=build /src/vobs-consent/target/vobs-consent-*.jar /app/lib/
 COPY --from=build /src/vobs-consent/target/dependency/ /app/lib/
