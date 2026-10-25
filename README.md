@@ -28,6 +28,7 @@ Open API mà không phải mở thẳng core banking ra ngoài, và giúp fintec
 | [Quản lý sự đồng ý](vobs-consent) | `vobs-consent` | Vòng đời consent; chính sách theo Điều 5, 11 viết bằng bảng quyết định RuleStone; kiểm tra quyền; log kiểm toán chuỗi hash; API HTTP | 2 | Lõi, API HTTP, lưu trữ PostgreSQL; chạy một bản |
 | [Integration Hub](vobs-hub) | `vobs-hub` | CDC từ core (Debezium), chuẩn hóa, kho đọc | 2 | Parser và projector; chưa có connector core |
 | [API Gateway](vobs-gateway) | `vobs-gateway` | Plugin APISIX: consent, giới hạn tần suất, log kiểm toán | 2 | Plugin consent và FAPI (mTLS, token gắn chứng thư) chạy trên APISIX 3.19 với Keycloak trong sandbox |
+| [Xác thực và cấp quyền](vobs-keycloak) | `vobs-keycloak` | Phần mở rộng Keycloak: khách hàng duyệt consent theo phạm vi và tài khoản, mã truy cập gắn consent; FAPI 2.0 với PAR, PKCE, mTLS | 2 | Chạy với Keycloak 26.8 trong sandbox; token còn ký RS256 |
 | [Bộ triển khai](vobs-deploy) | `vobs-deploy` | Helm chart tổng, GitOps, bộ cài air-gapped | 2 | Khung |
 
 Module Decision (trên [RuleStone](https://github.com/xvalleycorp/RuleStone)), Fraud và AML (tích hợp Tazama) thuộc giai

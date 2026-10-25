@@ -96,7 +96,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Tạo PKI của sandbox (CA, chứng thư máy chủ, chứng thư client của đối tác mẫu)
         run: ./pki.sh
-      - name: Build image và chạy sandbox (Microcks, Quản lý sự đồng ý, Keycloak, API Gateway)
+      - name: Build image và chạy sandbox (Microcks, Quản lý sự đồng ý, Keycloak kèm vobs-keycloak, API Gateway)
         run: docker compose up -d --build
       - name: Chạy thử trọn luồng consent
         run: ./try-consent-flow.sh
@@ -104,6 +104,8 @@ jobs:
         run: ./import-specs.sh
       - name: Chạy thử luồng qua API Gateway
         run: ./try-gateway-flow.sh
+      - name: Chạy thử luồng khách hàng duyệt consent (PAR, PKCE, mTLS, FAPI 2.0)
+        run: ./try-authorization-flow.sh
       - name: Kiểm tra dữ liệu mẫu của API giả lập
         run: ./try-sandbox-data.sh
       - name: Image kèm thông báo giấy phép của thư viện bên thứ ba

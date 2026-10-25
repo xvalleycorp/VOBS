@@ -17,6 +17,7 @@ COPY vobs-iso20022 vobs-iso20022
 COPY vobs-switch vobs-switch
 COPY vobs-consent vobs-consent
 COPY vobs-hub vobs-hub
+COPY vobs-keycloak vobs-keycloak
 # Chỉ build module consent và các module nó cần. Profile license-check làm build dừng nếu có dependency mang giấy
 # phép ngoài danh sách cho phép (docs/licensing.md); dependency lúc chạy được chép vào target/dependency, tên file
 # dạng groupId.artifactId.jar.

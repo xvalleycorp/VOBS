@@ -130,6 +130,10 @@ public final class ConsentHttpServer implements AutoCloseable {
             requireMethod(exchange, "GET");
             return listForCustomer(path[2]);
         }
+        if (path.length == 3 && path[0].equals("internal") && path[1].equals("consents")) {
+            requireMethod(exchange, "GET");
+            return getForBankChannel(path[2]);
+        }
         if (path.length == 4 && path[0].equals("internal") && path[1].equals("consents")) {
             requireMethod(exchange, "POST");
             String consentId = path[2];
@@ -191,6 +195,16 @@ public final class ConsentHttpServer implements AutoCloseable {
         ArrayNode consents = result.putArray("consents");
         service.listForCustomer(customerId).forEach(consent -> consents.add(internalView(consent)));
         return Response.json(200, result);
+    }
+
+    /**
+     * Một consent theo mã, cho trang duyệt consent của ngân hàng: trang cần biết đối tác, phạm vi và thời hạn trước khi
+     * khách hàng quyết định, và kiểm tra consent đúng là của đối tác đang chuyển khách hàng sang.
+     */
+    private Response getForBankChannel(String consentId) {
+        Consent consent = service.find(consentId)
+                .orElseThrow(() -> new NoSuchElementException("Không tìm thấy consent " + consentId));
+        return Response.json(200, internalView(consent));
     }
 
     private Response authorise(HttpExchange exchange, String consentId) throws IOException {

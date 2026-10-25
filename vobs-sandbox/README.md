@@ -6,12 +6,13 @@ Sandbox cho đối tác, gồm các phần:
 | --- | --- | --- |
 | API giả lập, dựng từ [bộ đặc tả](../vobs-spec/openapi) bằng [Microcks](https://microcks.io) (Apache 2.0) | `http://localhost:8585` | Viết tích hợp với tài khoản, giao dịch, thanh toán trước khi có ngân hàng thật |
 | Service [Quản lý sự đồng ý](../vobs-consent) chạy thật, lưu trong bộ nhớ | đối tác `http://localhost:8090`, nội bộ `http://localhost:8091` | Thử trọn luồng consent: tạo, khách hàng duyệt, kiểm tra quyền, thu hồi |
-| [Keycloak](https://www.keycloak.org) (Apache 2.0), realm `open-banking` | `https://localhost:8443` | Cấp mã truy cập gắn chứng thư (mTLS, RFC 8705) cho đối tác mẫu |
+| [Keycloak](https://www.keycloak.org) (Apache 2.0), realm `open-banking` | `https://localhost:8443` | Cấp mã truy cập gắn chứng thư (mTLS, RFC 8705) cho đối tác mẫu; trang khách hàng đăng nhập và duyệt consent ([`vobs-keycloak`](../vobs-keycloak)) |
 | [API Gateway](../vobs-gateway) (Apache APISIX) với plugin kiểm tra consent | `https://localhost:9443/open-banking/v1` | Gọi API như ở môi trường thật: mTLS, mã truy cập gắn chứng thư (FAPI 2.0), kiểm tra consent, giới hạn tần suất |
 
 ## Chạy cục bộ
 
-Cần Docker, Docker Compose và OpenSSL. Lần đầu `--build` dựng image service consent từ mã nguồn (vài phút).
+Cần Docker, Docker Compose và OpenSSL. Lần đầu `--build` dựng image service consent và image Keycloak kèm phần mở
+rộng của VOBS từ mã nguồn (vài phút).
 
 ```bash
 cd vobs-sandbox
@@ -20,6 +21,7 @@ docker compose up -d --build
 ./import-specs.sh          # nạp đặc tả và dữ liệu mẫu vào Microcks
 ./try-consent-flow.sh      # chạy thử luồng consent, gọi thẳng service
 ./try-gateway-flow.sh      # chạy thử luồng qua API Gateway
+./try-authorization-flow.sh  # chạy thử luồng khách hàng đăng nhập ngân hàng để duyệt consent
 ./try-sandbox-data.sh      # kiểm tra dữ liệu mẫu, trực tiếp và qua API Gateway
 ```
 
@@ -142,6 +144,34 @@ curl -s "${TLS[@]}" https://localhost:9443/open-banking/v1/accounts/acc-1001 -H 
 [`try-gateway-flow.sh`](try-gateway-flow.sh) đi qua 14 bước, gồm cả kết nối không có chứng thư, token bị lộ dùng từ
 chứng thư khác, token giả (ghép payload của đối tác khác) và trường hợp đối tác tự gửi `x-vobs-client-id`,
 `X-Userinfo` để giả danh đối tác khác.
+
+## Khách hàng duyệt consent
+
+Luồng như ở môi trường thật theo FAPI 2.0: khách hàng đăng nhập ngân hàng để duyệt consent, không qua cổng nội bộ.
+
+1. Đối tác tạo consent qua gateway bằng mã truy cập client credentials.
+2. Đối tác gửi Pushed Authorization Request (PAR) tới Keycloak qua mTLS, kèm PKCE S256 và `consent_id`, nhận
+   `request_uri`. Thiếu PKCE, hay gửi tham số thẳng tới trang ủy quyền thay vì qua PAR, đều bị từ chối.
+3. Đối tác chuyển khách hàng tới
+   `https://localhost:8443/realms/open-banking/protocol/openid-connect/auth?client_id=<client>&request_uri=<request_uri>`.
+   Khách hàng mẫu: `cif-2001`, mật khẩu `sandbox`, có tài khoản `acc-1001` và `acc-2002`.
+4. Trang duyệt hiện tên đối tác, phạm vi dữ liệu, thời hạn và tài khoản để chọn. Khách hàng đồng ý thì Keycloak chuyển
+   về `https://<client>.example/callback` kèm `code`, `state`, `iss`; từ chối thì kèm `error=access_denied`.
+5. Đối tác đổi `code` lấy mã truy cập qua mTLS, kèm `code_verifier`. Token có claim `consent_id` và gắn với chứng
+   thư của đối tác.
+6. Đối tác gọi gateway bằng token này, không cần `x-consent-id`. Gửi kèm `x-consent-id` khác consent trong token thì
+   bị từ chối (`consent_mismatch`).
+
+`redirect_uri` của đối tác mẫu là tên miền không có thật: mở trên trình duyệt, trang cuối báo lỗi kết nối, còn `code`
+nằm trên thanh địa chỉ. [`try-authorization-flow.sh`](try-authorization-flow.sh) đóng vai cả đối tác và trình duyệt của
+khách hàng, đi qua 14 bước, gồm:
+
+- PAR thiếu PKCE;
+- dùng lại authorization code;
+- đọc tài khoản khách hàng không chọn;
+- làm mới token bằng refresh token;
+- khách hàng từ chối;
+- đối tác dùng consent của đối tác khác trong PAR của mình.
 
 ## Kiểm thử hợp đồng API
 
