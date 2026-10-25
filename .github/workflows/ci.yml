@@ -61,6 +61,8 @@ jobs:
         run: |
           python3 -m pip install --quiet jsonschema==4.23.0 PyYAML==6.0.2
           python3 vobs-sandbox/check-data.py
+      - name: Số liệu hạ tầng trên website khớp mô hình định cỡ
+        run: python3 scripts/sizing.py --json | diff - website/data/infrastructure.json
 
   security:
     name: Quét lỗ hổng và SBOM

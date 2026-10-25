@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Định cỡ hạ tầng và ước tính chi phí tham khảo cho VOBS theo quy mô và nơi triển khai.
 
-In ra các bảng Markdown dùng trong docs/infrastructure.md. Mọi giả định và đơn giá nằm ở đầu file: ngân hàng sửa
+In ra các bảng Markdown dùng trong docs/infrastructure.md; với `--json` in dữ liệu cho trang Hạ tầng của website
+(website/data/infrastructure.json). Mọi giả định và đơn giá nằm ở đầu file: ngân hàng sửa
 theo tải thực tế, báo giá nhận được hoặc tỷ giá mới rồi chạy lại `python3 scripts/sizing.py`. Chỉ dùng thư viện chuẩn.
 
 Đơn giá là giá niêm yết, chưa gồm VAT, thu thập ngày PRICES_AS_OF; nguồn ghi trong docs/infrastructure.md.
 """
+import json
 import math
+import sys
 
 PRICES_AS_OF = "2026-10-25"
 USD_VND = 26_100  # Vietcombank, giá bán USD giữa tháng 10/2026
@@ -133,6 +136,34 @@ CLOUDS = {
         "private_link": None, "os_disk_included": False,
     },
 }
+# Tên tiếng Anh cho website
+EN = {
+    "Nhỏ: thí điểm hoặc ngân hàng nhỏ": "Small: pilot or small bank",
+    "Vừa: ngân hàng quy mô trung bình": "Medium: mid-sized bank",
+    "Lớn: ngân hàng có tập khách hàng lớn": "Large: bank with a large customer base",
+    "API Gateway (APISIX, Coraza WAF)": "API Gateway (APISIX, Coraza WAF)",
+    "Keycloak": "Keycloak",
+    "Quản lý sự đồng ý": "Consent Management",
+    "OpenFGA": "OpenFGA",
+    "Service đọc dữ liệu, payment adapter": "Data read services, payment adapter",
+    "Kafka Connect, Debezium": "Kafka Connect, Debezium",
+    "OpenBao": "OpenBao",
+    "Nền tảng (ingress, cert-manager, Argo CD)": "Platform (ingress, cert-manager, Argo CD)",
+    "Kafka (KRaft)": "Kafka (KRaft)",
+    "Kafka controller riêng": "Dedicated Kafka controllers",
+    "PostgreSQL kho đọc, consent, Keycloak (CloudNativePG)": "PostgreSQL read store, consent, Keycloak (CloudNativePG)",
+    "PostgreSQL kho đọc (CloudNativePG)": "PostgreSQL read store (CloudNativePG)",
+    "PostgreSQL consent, Keycloak (CloudNativePG)": "PostgreSQL consent, Keycloak (CloudNativePG)",
+    "Valkey": "Valkey",
+    "Quan sát (Prometheus, Loki, Tempo, Grafana)": "Observability (Prometheus, Loki, Tempo, Grafana)",
+    "AWS (Local Zone Hà Nội)": "AWS (Hanoi Local Zone)",
+    "Azure (Southeast Asia, Singapore)": "Azure (Southeast Asia, Singapore)",
+    "GCP (asia-southeast1, Singapore)": "GCP (asia-southeast1, Singapore)",
+    "Alibaba Cloud (Singapore)": "Alibaba Cloud (Singapore)",
+    "Viettel IDC": "Viettel IDC",
+    "CMC Cloud": "CMC Cloud",
+}
+
 OBJECT_STORAGE_USD_PER_GB = 0.025  # giả định chung cho mọi cloud: sao lưu và log kiểm toán (WORM)
 
 # On-premise: giá phần cứng là giả định, cần báo giá. Khấu hao 5 năm, giá máy đã gồm bảo hành 5 năm.
@@ -226,8 +257,9 @@ def onprem(tier):
     colo = racks * o["rack_vnd_per_month"] / USD_VND
     months = o["years"] * 12
     return {
-        "servers": f"{prod_servers} + {nonprod_servers} phi production",
-        "storage_servers": storage_servers,
+        "prodServers": prod_servers,
+        "nonprodServers": nonprod_servers,
+        "storageServers": storage_servers,
         "racks": racks,
         "capex": capex,
         "colo": colo,
@@ -304,7 +336,7 @@ def print_onprem():
     print("|---|---|---|---|---|---|---|---|")
     for tier in TIERS:
         o = onprem(tier)
-        print(f"| {tier} | {o['servers']} | {o['storage_servers']} | {o['racks']} | {usd(o['capex'])} | "
+        print(f"| {tier} | {o['prodServers']} + {o['nonprodServers']} phi production | {o['storageServers']} | {o['racks']} | {usd(o['capex'])} | "
               f"{usd(o['colo'])} | {usd(o['monthly'])} | {usd(o['tco'])} |")
 
 
@@ -319,7 +351,46 @@ def print_tco():
         print(f"| {provider} | " + " | ".join(cells) + " |")
 
 
+def as_json():
+    """Số liệu cho website; website tự định dạng số theo ngôn ngữ."""
+    names = list(dict.fromkeys(c[0] for t in TIERS.values() for c in t["components"]))
+    components = []
+    for name in names:
+        cells = []
+        for t in TIERS.values():
+            spec = next((c for c in t["components"] if c[0] == name), None)
+            cells.append(None if spec is None else dict(zip(("replicas", "vcpu", "ramGb", "diskGb"), spec[2:])))
+        components.append({"vi": name, "en": EN[name], "cells": cells})
+    tiers = []
+    for tier, t in TIERS.items():
+        s = size(tier)
+        n = s["nodes"]
+        tiers.append({
+            "id": tier, "vi": t["name"], "en": EN[t["name"]],
+            "peakTps": t["peak_tps"], "callsPerDay": t["calls_per_day"],
+            "partners": t["partners"], "customers": t["customers"],
+            "nodesApp": n["app"], "nodesData": n["data"],
+            "vcpu": n["app"] * NODE["app"][0] + n["data"] * NODE["data"][0],
+            "ramGb": n["app"] * NODE["app"][1] + n["data"] * NODE["data"][1],
+            "diskTb": round(s["disk_gb"] / 1000, 1), "objectTb": round(s["object_gb"] / 1000, 1),
+            "egressTb": round(s["egress_gb"] / 1000, 1),
+            "onprem": {k: round(v) if isinstance(v, float) else v for k, v in onprem(tier).items()},
+        })
+    clouds = []
+    for provider, price in CLOUDS.items():
+        clouds.append({
+            "vi": provider, "en": EN[provider],
+            "onDemand": [round(cloud_monthly(t, price, False)["total"]) for t in TIERS],
+            "commit": [round(cloud_monthly(t, price, True)["total"]) for t in TIERS] if price["app_commit"] else None,
+            "tco5y": [round(cloud_monthly(t, price, True)["total"] * 60) for t in TIERS],
+        })
+    return {"asOf": PRICES_AS_OF, "usdVnd": USD_VND, "tiers": tiers, "components": components, "clouds": clouds}
+
+
 def main():
+    if "--json" in sys.argv[1:]:
+        print(json.dumps(as_json(), ensure_ascii=False, indent=2))
+        return
     print(f"Giá thu thập ngày {PRICES_AS_OF}; tỷ giá {usd(USD_VND)} đ/USD; giá chưa gồm VAT.\n")
     print_components()
     print_sites()

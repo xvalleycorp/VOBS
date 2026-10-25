@@ -1,0 +1,515 @@
+{
+  "asOf": "2026-10-25",
+  "usdVnd": 26100,
+  "tiers": [
+    {
+      "id": "S",
+      "vi": "Nhỏ: thí điểm hoặc ngân hàng nhỏ",
+      "en": "Small: pilot or small bank",
+      "peakTps": 150,
+      "callsPerDay": 3000000,
+      "partners": 30,
+      "customers": 2000000,
+      "nodesApp": 6,
+      "nodesData": 6,
+      "vcpu": 96,
+      "ramGb": 576,
+      "diskTb": 9.1,
+      "objectTb": 3.1,
+      "egressTb": 0.4,
+      "onprem": {
+        "prodServers": 3,
+        "nonprodServers": 2,
+        "storageServers": 0,
+        "racks": 2,
+        "capex": 352000,
+        "colo": 2299,
+        "monthly": 8166,
+        "tco": 489931
+      }
+    },
+    {
+      "id": "M",
+      "vi": "Vừa: ngân hàng quy mô trung bình",
+      "en": "Medium: mid-sized bank",
+      "peakTps": 800,
+      "callsPerDay": 20000000,
+      "partners": 150,
+      "customers": 8000000,
+      "nodesApp": 12,
+      "nodesData": 15,
+      "vcpu": 216,
+      "ramGb": 1344,
+      "diskTb": 21.1,
+      "objectTb": 11.3,
+      "egressTb": 2.4,
+      "onprem": {
+        "prodServers": 3,
+        "nonprodServers": 3,
+        "storageServers": 0,
+        "racks": 3,
+        "capex": 602000,
+        "colo": 3448,
+        "monthly": 13482,
+        "tco": 808897
+      }
+    },
+    {
+      "id": "L",
+      "vi": "Lớn: ngân hàng có tập khách hàng lớn",
+      "en": "Large: bank with a large customer base",
+      "peakTps": 3000,
+      "callsPerDay": 80000000,
+      "partners": 500,
+      "customers": 30000000,
+      "nodesApp": 21,
+      "nodesData": 30,
+      "vcpu": 408,
+      "ramGb": 2592,
+      "diskTb": 65.2,
+      "objectTb": 39.2,
+      "egressTb": 9.6,
+      "onprem": {
+        "prodServers": 8,
+        "nonprodServers": 4,
+        "storageServers": 3,
+        "racks": 5,
+        "capex": 1332000,
+        "colo": 5747,
+        "monthly": 27947,
+        "tco": 1676828
+      }
+    }
+  ],
+  "components": [
+    {
+      "vi": "API Gateway (APISIX, Coraza WAF)",
+      "en": "API Gateway (APISIX, Coraza WAF)",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        },
+        {
+          "replicas": 3,
+          "vcpu": 4,
+          "ramGb": 8,
+          "diskGb": 0
+        },
+        {
+          "replicas": 6,
+          "vcpu": 4,
+          "ramGb": 8,
+          "diskGb": 0
+        }
+      ]
+    },
+    {
+      "vi": "Keycloak",
+      "en": "Keycloak",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        },
+        {
+          "replicas": 3,
+          "vcpu": 4,
+          "ramGb": 8,
+          "diskGb": 0
+        },
+        {
+          "replicas": 4,
+          "vcpu": 4,
+          "ramGb": 8,
+          "diskGb": 0
+        }
+      ]
+    },
+    {
+      "vi": "Quản lý sự đồng ý",
+      "en": "Consent Management",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 1,
+          "ramGb": 2,
+          "diskGb": 0
+        },
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        },
+        {
+          "replicas": 6,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        }
+      ]
+    },
+    {
+      "vi": "OpenFGA",
+      "en": "OpenFGA",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 1,
+          "ramGb": 2,
+          "diskGb": 0
+        },
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        },
+        {
+          "replicas": 6,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        }
+      ]
+    },
+    {
+      "vi": "Service đọc dữ liệu, payment adapter",
+      "en": "Data read services, payment adapter",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        },
+        {
+          "replicas": 4,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        },
+        {
+          "replicas": 8,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 0
+        }
+      ]
+    },
+    {
+      "vi": "Kafka Connect, Debezium",
+      "en": "Kafka Connect, Debezium",
+      "cells": [
+        {
+          "replicas": 2,
+          "vcpu": 2,
+          "ramGb": 8,
+          "diskGb": 0
+        },
+        {
+          "replicas": 3,
+          "vcpu": 4,
+          "ramGb": 16,
+          "diskGb": 0
+        },
+        {
+          "replicas": 4,
+          "vcpu": 4,
+          "ramGb": 16,
+          "diskGb": 0
+        }
+      ]
+    },
+    {
+      "vi": "OpenBao",
+      "en": "OpenBao",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 1,
+          "ramGb": 2,
+          "diskGb": 20
+        },
+        {
+          "replicas": 3,
+          "vcpu": 1,
+          "ramGb": 2,
+          "diskGb": 20
+        },
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 20
+        }
+      ]
+    },
+    {
+      "vi": "Nền tảng (ingress, cert-manager, Argo CD)",
+      "en": "Platform (ingress, cert-manager, Argo CD)",
+      "cells": [
+        {
+          "replicas": 1,
+          "vcpu": 4,
+          "ramGb": 8,
+          "diskGb": 0
+        },
+        {
+          "replicas": 1,
+          "vcpu": 8,
+          "ramGb": 16,
+          "diskGb": 0
+        },
+        {
+          "replicas": 1,
+          "vcpu": 16,
+          "ramGb": 32,
+          "diskGb": 0
+        }
+      ]
+    },
+    {
+      "vi": "Kafka (KRaft)",
+      "en": "Kafka (KRaft)",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 4,
+          "ramGb": 16,
+          "diskGb": 1000
+        },
+        {
+          "replicas": 3,
+          "vcpu": 8,
+          "ramGb": 32,
+          "diskGb": 2000
+        },
+        {
+          "replicas": 5,
+          "vcpu": 8,
+          "ramGb": 64,
+          "diskGb": 4000
+        }
+      ]
+    },
+    {
+      "vi": "PostgreSQL kho đọc, consent, Keycloak (CloudNativePG)",
+      "en": "PostgreSQL read store, consent, Keycloak (CloudNativePG)",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 4,
+          "ramGb": 32,
+          "diskGb": 1000
+        },
+        {
+          "replicas": 3,
+          "vcpu": 8,
+          "ramGb": 64,
+          "diskGb": 2000
+        },
+        null
+      ]
+    },
+    {
+      "vi": "Valkey",
+      "en": "Valkey",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 8,
+          "diskGb": 0
+        },
+        {
+          "replicas": 3,
+          "vcpu": 4,
+          "ramGb": 16,
+          "diskGb": 0
+        },
+        {
+          "replicas": 6,
+          "vcpu": 4,
+          "ramGb": 32,
+          "diskGb": 0
+        }
+      ]
+    },
+    {
+      "vi": "Quan sát (Prometheus, Loki, Tempo, Grafana)",
+      "en": "Observability (Prometheus, Loki, Tempo, Grafana)",
+      "cells": [
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 8,
+          "diskGb": 1000
+        },
+        {
+          "replicas": 3,
+          "vcpu": 8,
+          "ramGb": 32,
+          "diskGb": 3000
+        },
+        {
+          "replicas": 5,
+          "vcpu": 8,
+          "ramGb": 32,
+          "diskGb": 6000
+        }
+      ]
+    },
+    {
+      "vi": "Kafka controller riêng",
+      "en": "Dedicated Kafka controllers",
+      "cells": [
+        null,
+        null,
+        {
+          "replicas": 3,
+          "vcpu": 2,
+          "ramGb": 4,
+          "diskGb": 50
+        }
+      ]
+    },
+    {
+      "vi": "PostgreSQL kho đọc (CloudNativePG)",
+      "en": "PostgreSQL read store (CloudNativePG)",
+      "cells": [
+        null,
+        null,
+        {
+          "replicas": 3,
+          "vcpu": 16,
+          "ramGb": 128,
+          "diskGb": 4000
+        }
+      ]
+    },
+    {
+      "vi": "PostgreSQL consent, Keycloak (CloudNativePG)",
+      "en": "PostgreSQL consent, Keycloak (CloudNativePG)",
+      "cells": [
+        null,
+        null,
+        {
+          "replicas": 3,
+          "vcpu": 8,
+          "ramGb": 64,
+          "diskGb": 1000
+        }
+      ]
+    }
+  ],
+  "clouds": [
+    {
+      "vi": "AWS (Local Zone Hà Nội)",
+      "en": "AWS (Hanoi Local Zone)",
+      "onDemand": [
+        15602,
+        33163,
+        64649
+      ],
+      "commit": [
+        9538,
+        20241,
+        41776
+      ],
+      "tco5y": [
+        572302,
+        1214472,
+        2506548
+      ]
+    },
+    {
+      "vi": "Azure (Southeast Asia, Singapore)",
+      "en": "Azure (Southeast Asia, Singapore)",
+      "onDemand": [
+        14413,
+        31086,
+        60908
+      ],
+      "commit": [
+        7205,
+        15695,
+        33645
+      ],
+      "tco5y": [
+        432322,
+        941713,
+        2018716
+      ]
+    },
+    {
+      "vi": "GCP (asia-southeast1, Singapore)",
+      "en": "GCP (asia-southeast1, Singapore)",
+      "onDemand": [
+        12853,
+        27904,
+        56442
+      ],
+      "commit": [
+        8536,
+        18647,
+        40023
+      ],
+      "tco5y": [
+        512162,
+        1118842,
+        2401351
+      ]
+    },
+    {
+      "vi": "Alibaba Cloud (Singapore)",
+      "en": "Alibaba Cloud (Singapore)",
+      "onDemand": [
+        14477,
+        29820,
+        57732
+      ],
+      "commit": null,
+      "tco5y": [
+        868595,
+        1789174,
+        3463948
+      ]
+    },
+    {
+      "vi": "Viettel IDC",
+      "en": "Viettel IDC",
+      "onDemand": [
+        9521,
+        20278,
+        41742
+      ],
+      "commit": null,
+      "tco5y": [
+        571249,
+        1216660,
+        2504510
+      ]
+    },
+    {
+      "vi": "CMC Cloud",
+      "en": "CMC Cloud",
+      "onDemand": [
+        8710,
+        18533,
+        38654
+      ],
+      "commit": null,
+      "tco5y": [
+        522629,
+        1111971,
+        2319269
+      ]
+    }
+  ]
+}

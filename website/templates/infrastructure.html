@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{t:infra.title}}</title>
+  <meta name="description" content="{{t:infra.description}}">
+  {{head:links}}
+</head>
+<body>
+<!-- HEADER -->
+
+<main id="main">
+  <div class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">{{t:infra.eyebrow}}</span>
+      <h1>{{t:infra.h1}}</h1>
+      <p>{{t:infra.lead}}</p>
+      <div class="coverage">
+        <div class="card"><strong>3</strong><p>{{t:infra.fact.places}}</p></div>
+        <div class="card"><strong>{{INFRA_TCO_ONPREM_M}}</strong><p>{{t:infra.fact.onpremM}}</p></div>
+        <div class="card"><strong>{{INFRA_TCO_S_RANGE}}</strong><p>{{t:infra.fact.small}}</p></div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{{t:infra.load.h2}}</h2>
+        <p>{{t:infra.load.lead}}</p>
+      </div>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead>
+            <tr><th scope="col">{{t:infra.col.tier}}</th><th scope="col">{{t:infra.col.target}}</th><th scope="col" class="num">{{t:infra.col.peak}}</th><th scope="col" class="num">{{t:infra.col.calls}}</th><th scope="col" class="num">{{t:infra.col.partners}}</th><th scope="col" class="num">{{t:infra.col.customers}}</th></tr>
+          </thead>
+          <tbody>
+{{INFRA_ASSUMPTIONS}}
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">{{t:infra.load.footnote}}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{{t:infra.sites.h2}}</h2>
+        <p>{{t:infra.sites.lead}}</p>
+      </div>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead>
+            <tr><th scope="col">{{t:infra.col.tier}}</th><th scope="col" class="num">{{t:infra.col.nodesApp}}</th><th scope="col" class="num">{{t:infra.col.nodesData}}</th><th scope="col" class="num">{{t:infra.col.total}}</th><th scope="col" class="num">{{t:infra.col.disk}}</th><th scope="col" class="num">{{t:infra.col.object}}</th><th scope="col" class="num">{{t:infra.col.egress}}</th></tr>
+          </thead>
+          <tbody>
+{{INFRA_SITES}}
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">{{t:infra.sites.footnote}}</p>
+      <details class="disclosure">
+        <summary>{{t:infra.components.summary}}</summary>
+        <div class="table-wrap">
+          <table class="wide">
+            <thead>
+              <tr><th scope="col">{{t:infra.col.component}}</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr>
+            </thead>
+            <tbody>
+{{INFRA_COMPONENTS}}
+            </tbody>
+          </table>
+        </div>
+        <p class="footnote">{{t:infra.components.footnote}}</p>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{{t:infra.where.h2}}</h2>
+        <p>{{t:infra.where.lead}}</p>
+      </div>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead>
+            <tr><th scope="col">{{t:infra.col.where}}</th><th scope="col">{{t:infra.col.inVietnam}}</th><th scope="col">{{t:infra.col.k8s}}</th><th scope="col">{{t:infra.col.fit}}</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">{{t:infra.where.onprem}}</th><td>{{t:infra.yes}}</td><td>{{t:infra.where.onprem.k8s}}</td><td>{{t:infra.where.onprem.fit}}</td></tr>
+            <tr><th scope="row"><a href="https://aws.amazon.com/about-aws/whats-new/2026/06/aws-local-zones-hanoi-vietnam/">{{t:infra.where.aws}}</a></th><td>{{t:infra.where.aws.vn}}</td><td>EKS</td><td>{{t:infra.where.aws.fit}}</td></tr>
+            <tr><th scope="row">Viettel IDC, CMC Cloud, FPT Cloud, VNG Cloud</th><td>{{t:infra.yes}}</td><td>{{t:infra.where.local.k8s}}</td><td>{{t:infra.where.local.fit}}</td></tr>
+            <tr><th scope="row">Azure, Google Cloud, Alibaba Cloud</th><td>{{t:infra.where.global.vn}}</td><td>AKS, GKE, ACK</td><td>{{t:infra.where.global.fit}}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">{{t:infra.where.footnote}}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{{t:infra.cloud.h2}}</h2>
+        <p>{{t:infra.cloud.lead}}</p>
+      </div>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead>
+            <tr><th scope="col" rowspan="2">{{t:infra.col.provider}}</th><th scope="colgroup" colspan="2" class="center">S</th><th scope="colgroup" colspan="2" class="center">M</th><th scope="colgroup" colspan="2" class="center">L</th></tr>
+            <tr><th scope="col" class="num">{{t:infra.col.onDemand}}</th><th scope="col" class="num">{{t:infra.col.commit}}</th><th scope="col" class="num">{{t:infra.col.onDemand}}</th><th scope="col" class="num">{{t:infra.col.commit}}</th><th scope="col" class="num">{{t:infra.col.onDemand}}</th><th scope="col" class="num">{{t:infra.col.commit}}</th></tr>
+          </thead>
+          <tbody>
+{{INFRA_CLOUD}}
+            <tr><th scope="row">FPT Cloud, VNG Cloud</th><td colspan="6">{{t:infra.cloud.quoteOnly}}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">{{t:infra.cloud.footnote}}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{{t:infra.onprem.h2}}</h2>
+        <p>{{t:infra.onprem.lead}}</p>
+      </div>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead>
+            <tr><th scope="col">{{t:infra.col.tier}}</th><th scope="col" class="num">{{t:infra.col.servers}}</th><th scope="col" class="num">{{t:infra.col.storage}}</th><th scope="col" class="num">{{t:infra.col.racks}}</th><th scope="col" class="num">{{t:infra.col.capex}}</th><th scope="col" class="num">{{t:infra.col.colo}}</th><th scope="col" class="num">{{t:infra.col.monthly}}</th><th scope="col" class="num">{{t:infra.col.tco}}</th></tr>
+          </thead>
+          <tbody>
+{{INFRA_ONPREM}}
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">{{t:infra.onprem.footnote}}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{{t:infra.tco.h2}}</h2>
+        <p>{{t:infra.tco.lead}}</p>
+      </div>
+      <div class="table-wrap">
+        <table class="tco wide">
+          <thead>
+            <tr><th scope="col">{{t:infra.col.option}}</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr>
+          </thead>
+          <tbody>
+{{INFRA_TCO}}
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">{{t:infra.tco.footnote}}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap prose">
+      <h2>{{t:infra.excluded.h2}}</h2>
+      <ul class="plain-list">
+        <li>{{t:infra.excluded.hsm}}</li>
+        <li>{{t:infra.excluded.links}}</li>
+        <li>{{t:infra.excluded.audit}}</li>
+        <li>{{t:infra.excluded.tools}}</li>
+        <li>{{t:infra.excluded.tax}}</li>
+      </ul>
+      <h2 class="spaced">{{t:infra.sources.h2}}</h2>
+      <p>{{t:infra.sources.p}}
+        <a href="https://aws.amazon.com/ec2/pricing/on-demand/">AWS EC2</a>,
+        <a href="https://aws.amazon.com/savingsplans/compute-pricing/">AWS Savings Plans</a>,
+        <a href="https://aws.amazon.com/eks/pricing/">Amazon EKS</a>,
+        <a href="https://aws.amazon.com/directconnect/pricing/">AWS Direct Connect</a>,
+        <a href="https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices">Azure Retail Prices</a>,
+        <a href="https://gcloud-compute.com/n2-standard-8.html">Google Cloud n2-standard-8</a>,
+        <a href="https://gcloud-compute.com/n2-highmem-8.html">n2-highmem-8</a>,
+        <a href="https://sparecores.com/server/alicloud/ecs.g7.2xlarge">Alibaba ecs.g7.2xlarge</a>,
+        <a href="https://sparecores.com/server/alicloud/ecs.r7.2xlarge">ecs.r7.2xlarge</a>,
+        <a href="https://viettel-idc.com.vn/">Viettel IDC</a>,
+        <a href="https://cmccloud.vn/dich-vu/kubernetes">CMC Cloud</a>,
+        <a href="https://fptcloud.com/bang-gia/">FPT Cloud</a>,
+        <a href="https://docs.greennode.ai/vn/vserver/compute-hcm03-1a/cach-tinh-gia-vserver">VNG Cloud</a>,
+        <a href="https://www.keycloak.org/high-availability/multi-cluster/concepts-memory-and-cpu-sizing">Keycloak sizing</a>,
+        <a href="https://www.networkworld.com/article/4093752/server-memory-prices-could-double-by-2026-as-ai-demand-strains-supply.html">Network World</a>,
+        <a href="https://www.tnd.vn/colocation/">TND</a>,
+        <a href="https://vnpthcm.vn/bang-gia-vnpt-colocation-thue-cho-dat-may-chu/">VNPT</a>,
+        <a href="https://tapchinganhang.gov.vn/ung-dung-dien-toan-dam-may-trong-hoat-dong-ngan-hang-thach-thuc-va-mot-so-giai-phap-nang-cao-hieu-qua-563.html">{{t:infra.sources.sbvJournal}}</a>.
+        {{t:infra.sources.details}}</p>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+</body>
+</html>

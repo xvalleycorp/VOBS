@@ -9,13 +9,14 @@ Website song ngữ: tiếng Việt ở `/`, tiếng Anh ở `/en/`, chuyển qua
 | --- | --- | --- | --- |
 | Trang chủ | `/` | `/en/` | [`templates/home.html`](templates/home.html) |
 | Đối chiếu Thông tư 64 | `/thong-tu-64/` | `/en/circular-64/` | [`templates/tt64.html`](templates/tt64.html) |
+| Hạ tầng và chi phí tham khảo | `/ha-tang/` | `/en/infrastructure/` | [`templates/infrastructure.html`](templates/infrastructure.html) |
 | Đặc tả API (Redoc) | `/api/` | `/en/api/` | [`templates/api.html`](templates/api.html) |
 
 | Thư mục | Nội dung |
 | --- | --- |
 | `templates/` | Khung HTML dùng chung cho hai ngôn ngữ; chữ là khóa `{{t:...}}` |
 | `i18n/vi.json`, `i18n/en.json` | Từ điển; build dừng nếu hai file lệch khóa |
-| `data/` | Danh sách module và các điều khoản Thông tư 64, có nội dung cho cả hai ngôn ngữ |
+| `data/` | Danh sách module và các điều khoản Thông tư 64, có nội dung cho cả hai ngôn ngữ; `infrastructure.json` sinh bằng `python3 scripts/sizing.py --json` |
 | `static/` | CSS, logo, script, `_headers` (CSP), chép nguyên trạng |
 
 `build.mjs` đọc đặc tả trong `vobs-spec` mỗi lần build, nên website luôn khớp đặc tả cùng commit. Build dừng nếu

@@ -3,7 +3,8 @@
 // - chép static/ (CSS, ảnh, script, _headers) nguyên trạng;
 // - tự host font Be Vietnam Pro và Redoc (không gọi CDN bên ngoài);
 // - đọc đặc tả trong vobs-spec để sinh trang tài liệu API và bảng đối chiếu Thông tư 64,
-//   nên website luôn khớp với đặc tả trong cùng commit.
+//   nên website luôn khớp với đặc tả trong cùng commit;
+// - dựng trang Hạ tầng từ data/infrastructure.json (sinh bằng scripts/sizing.py --json).
 // Build dừng khi: đặc tả thiếu API của Điều 6, hai từ điển lệch khóa, hoặc còn placeholder chưa thay.
 import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -22,10 +23,11 @@ const DEFAULT_LANG = "vi";
 const PAGES = {
   home: { template: "home.html", vi: "/", en: "/en/" },
   tt64: { template: "tt64.html", vi: "/thong-tu-64/", en: "/en/circular-64/" },
+  infra: { template: "infrastructure.html", vi: "/ha-tang/", en: "/en/infrastructure/" },
   api: { template: "api.html", vi: "/api/", en: "/en/api/" },
   notFound: { template: "404.html", vi: "/404.html", en: "/en/404.html", noAlternates: true },
 };
-const NAV_PAGE = { tt64: "tt64", api: "api" };
+const NAV_PAGE = { tt64: "tt64", infra: "infra", api: "api" };
 
 const HTTP_METHODS = ["get", "post", "put", "patch", "delete"];
 
@@ -93,6 +95,70 @@ function moduleCards(list, t, lang) {
           <p>${escapeHtml(m[lang].desc)}</p>
         </article>`)
     .join("\n");
+}
+
+// Số trên trang Hạ tầng: dấu phân cách theo ngôn ngữ (vi: 1.332.000 và 9,1; en: 1,332,000 và 9.1)
+const numberFormat = (lang, digits = 0) =>
+  new Intl.NumberFormat(lang === "vi" ? "vi-VN" : "en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const num = (value, lang, digits = 0) => numberFormat(lang, digits).format(value);
+const thousandUsd = (value, lang) => (lang === "vi" ? `${num(value / 1000, lang)} nghìn USD` : `USD ${num(value / 1000, lang)}k`);
+
+function infraValues(infra, t, lang) {
+  // Cột đầu là tiêu đề hàng; textCols là các cột chữ, còn lại căn phải như cột số
+  const row = (cells, textCols = []) =>
+    `<tr>${cells.map((c, i) => (i === 0 ? `<th scope="row">${c}</th>` : `<td${textCols.includes(i) ? "" : ' class="num"'}>${c}</td>`)).join("")}</tr>`;
+  const tiers = infra.tiers;
+  const name = (item) => escapeHtml(item[lang]);
+  const spec = (c) =>
+    c ? `${c.replicas} × ${c.vcpu}/${c.ramGb} GB${c.diskGb ? `, ${num(c.diskGb, lang)} GB` : ""}` : "";
+  const quote = escapeHtml(t("infra.quote"));
+
+  const assumptions = tiers.map((x) =>
+    row([`${x.id}`, name(x), `${num(x.peakTps, lang)} TPS`, num(x.callsPerDay, lang), num(x.partners, lang), num(x.customers, lang)], [1]));
+  const sites = tiers.map((x) =>
+    row([x.id, x.nodesApp, x.nodesData, `${x.vcpu} vCPU / ${num(x.ramGb, lang)} GB`, `${num(x.diskTb, lang, 1)} TB`,
+      `${num(x.objectTb, lang, 1)} TB`, `${num(x.egressTb, lang, 1)} TB`]));
+  const components = infra.components.map((c) => row([name(c), ...c.cells.map(spec)], [1, 2, 3]));
+  const cloud = infra.clouds.map((c) =>
+    row([name(c), ...tiers.flatMap((_, i) => [num(c.onDemand[i], lang), c.commit ? num(c.commit[i], lang) : quote])]));
+  const onprem = tiers.map((x) => {
+    const o = x.onprem;
+    return row([x.id, `${o.prodServers} + ${o.nonprodServers}`, o.storageServers, o.racks, num(o.capex, lang),
+      num(o.colo, lang), num(o.monthly, lang), num(o.tco, lang)]);
+  });
+
+  // Tổng chi phí 5 năm: thanh ngang theo tỷ lệ với phương án đắt nhất của cùng quy mô
+  const options = [
+    { label: escapeHtml(t("infra.tco.onprem")), values: tiers.map((x) => x.onprem.tco), onprem: true },
+    ...infra.clouds.map((c) => ({ label: name(c), values: c.tco5y })),
+  ];
+  const max = tiers.map((_, i) => Math.max(...options.map((o) => o.values[i])));
+  const tco = options.map((o) =>
+    `<tr${o.onprem ? ' class="highlight"' : ""}><th scope="row">${o.label}</th>` +
+      o.values.map((v, i) => `<td class="bar-cell"><span class="bar-value">${num(v / 1000, lang)}</span>` +
+        // SVG thay cho style inline để giữ CSP style-src 'self'
+        `<svg class="bar" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true">` +
+        `<rect width="${((v / max[i]) * 100).toFixed(1)}" height="6" rx="1"/></svg></td>`).join("") + "</tr>");
+
+  const committed = infra.clouds.filter((c) => c.commit).map((c) => c.tco5y[0]);
+  const smallOnprem = tiers[0].onprem.tco;
+  const low = Math.min(smallOnprem, ...committed);
+  const high = Math.max(smallOnprem, ...committed);
+  return {
+    "{{INFRA_AS_OF}}": lang === "vi" ? infra.asOf.split("-").reverse().join("/") : infra.asOf,
+    "{{INFRA_USD_VND}}": num(infra.usdVnd, lang),
+    "{{INFRA_ASSUMPTIONS}}": assumptions.join("\n"),
+    "{{INFRA_SITES}}": sites.join("\n"),
+    "{{INFRA_COMPONENTS}}": components.join("\n"),
+    "{{INFRA_CLOUD}}": cloud.join("\n"),
+    "{{INFRA_ONPREM}}": onprem.join("\n"),
+    "{{INFRA_TCO}}": tco.join("\n"),
+    "{{INFRA_TCO_ONPREM_M}}": thousandUsd(tiers[1].onprem.tco, lang),
+    "{{INFRA_TCO_ONPREM_L}}": thousandUsd(tiers[2].onprem.tco, lang),
+    "{{INFRA_TCO_S_RANGE}}": lang === "vi"
+      ? `${num(low / 1000, lang)}–${num(high / 1000, lang)} nghìn USD`
+      : `USD ${num(low / 1000, lang)}k–${num(high / 1000, lang)}k`,
+  };
 }
 
 function headLinks(pageKey, lang) {
@@ -209,6 +275,7 @@ async function main() {
 
   const moduleList = await readJson(join(root, "data", "modules.json"));
   const provisions = await readJson(join(root, "data", "tt64-provisions.json"));
+  const infra = await readJson(join(root, "data", "infrastructure.json"));
   const tpl = (name) => readFile(join(root, "templates", name), "utf8");
   const partials = {
     header: await tpl("_header.html"),
@@ -227,6 +294,7 @@ async function main() {
         "{{TT64_TABLE}}": tt64Table(catalog, byRef, t, lang),
         "{{TT64_PROVISIONS}}": provisionRows(provisions, lang),
         "{{MODULE_CARDS}}": moduleCards(moduleList, t, lang),
+        ...infraValues(infra, t, lang),
       };
       for (const group of ["a", "b", "c"]) {
         v[`{{TT64_GROUP_${group.toUpperCase()}}}`] = String(catalog.apis.filter((api) => api.group === group).length);

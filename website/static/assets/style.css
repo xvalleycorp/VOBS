@@ -240,6 +240,11 @@ p {
   border-left: 1px solid var(--line);
 }
 
+/* Nhãn ngắn của mục điều hướng chỉ hiện trên điện thoại hẹp */
+.nav .label-short {
+  display: none;
+}
+
 .nav {
   display: flex;
   gap: 2px;
@@ -478,16 +483,25 @@ p {
   }
 }
 
-/* Điện thoại hẹp: bỏ biểu tượng GitHub ở header (đã có ở hero và chân trang), thu khoảng đệm link
-   để nút ngôn ngữ không bị đẩy ra ngoài màn hình */
+/* Điện thoại hẹp: bỏ biểu tượng GitHub ở header (đã có ở hero và chân trang) và chữ VOBS cạnh logo (logo vẫn dẫn
+   về trang chủ), thu khoảng đệm link để ba mục điều hướng và nút ngôn ngữ vừa màn hình */
 @media (max-width: 460px) {
   .site-header .wrap {
     gap: 4px;
   }
 
   .gh-icon,
-  .lang .chevron {
+  .lang .chevron,
+  .brand .wordmark {
     display: none;
+  }
+
+  .nav .label-long {
+    display: none;
+  }
+
+  .nav .label-short {
+    display: inline;
   }
 
   .nav a {
@@ -1132,7 +1146,8 @@ tr.group th {
   color: var(--ink);
 }
 
-tbody tr:last-child td {
+tbody tr:last-child td,
+tbody tr:last-child th {
   border-bottom: none;
 }
 
@@ -1202,6 +1217,87 @@ a.op:hover code {
   margin-top: 14px;
   color: var(--ink-3);
   font-size: 0.92rem;
+}
+
+/* ------------------------------------------------------------ infrastructure page */
+th.num,
+td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+td.num {
+  white-space: nowrap;
+}
+
+th.center {
+  text-align: center;
+}
+
+tbody th[scope="row"] {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+table.tco tr.highlight th,
+table.tco tr.highlight td {
+  background: var(--surface-2);
+}
+
+/* Trên màn hình hẹp, bảng giữ đủ rộng để đọc và vuốt ngang trong .table-wrap */
+table.wide {
+  min-width: 720px;
+}
+
+td.bar-cell {
+  min-width: 140px;
+}
+
+.bar-value {
+  display: block;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+svg.bar {
+  display: block;
+  width: 100%;
+  height: 6px;
+  margin-top: 6px;
+  fill: var(--amber);
+}
+
+tr.highlight svg.bar {
+  fill: var(--copper);
+}
+
+details.disclosure {
+  margin-top: 24px;
+}
+
+details.disclosure > summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+details.disclosure > summary:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 2px;
+}
+
+.plain-list {
+  margin-top: 14px;
+  padding-left: 1.2em;
+  color: var(--ink-2);
+}
+
+.plain-list li + li {
+  margin-top: 8px;
+}
+
+.prose h2.spaced {
+  margin-top: 40px;
 }
 
 /* ------------------------------------------------------------ prose pages */
