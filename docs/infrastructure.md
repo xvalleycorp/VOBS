@@ -247,6 +247,13 @@ python3 scripts/sizing.py
 Script in lại toàn bộ các bảng trong tài liệu này. Đổi tải ở `TIERS`, đơn giá cloud ở `CLOUDS`, giá phần cứng và
 chỗ đặt ở `ONPREM`, tỷ giá ở `USD_VND`. Nên cập nhật giá mỗi 6 tháng hoặc khi có báo giá chính thức.
 
+Trang [Hạ tầng](https://vobs.dxa.io.vn/ha-tang/) trên website dựng từ cùng số liệu. Sau khi đổi script, sinh lại dữ
+liệu cho website; CI báo lỗi nếu hai bên lệch nhau:
+
+```sh
+python3 scripts/sizing.py --json > website/data/infrastructure.json
+```
+
 ## Nguồn
 
 Thu thập ngày 25/10/2026.
