@@ -133,7 +133,7 @@ customer_opens() {
     { echo "Chuyển hướng: $(sed -En 's/^[Ll]ocation: (.*)$/\1/p' "$HEADERS")"; cat "$WORK/page"; } > "$BODY"
     expect "Trang đăng nhập" "$status" "200 có form đăng nhập"
   fi
-  curl -s -o "$WORK/page" -D "$HEADERS" -w '%{http_code}' --cacert "$PKI/ca.crt" -c "$jar" -b "$jar" \
+  curl -s -o "$WORK/page" -D "$HEADERS" -w '%{http_code}' --cacert "$PKI/ca.crt" -c "$WORK/cookies" -b "$WORK/cookies" \
     --data-urlencode "username=$CUSTOMER" --data-urlencode "password=$PASSWORD" "$action"
 }
 
