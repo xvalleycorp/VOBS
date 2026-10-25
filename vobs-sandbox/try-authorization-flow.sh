@@ -104,15 +104,33 @@ form_action() {
   grep -o 'action="[^"]*"' "$1" | sed -e 's/^action="//' -e 's/"$//' -e 's/&amp;/\&/g' | grep "$2" | head -1
 }
 
+# browse URL -> trình duyệt của khách hàng mở URL (giữ cookie), đi theo chuyển hướng trong Keycloak; dừng ở chuyển
+# hướng ra ngoài (về đối tác). Trang vào $WORK/page, header vào $HEADERS, mã HTTP ra stdout
+browse() {
+  local url="$1" status location
+  for _ in 1 2 3 4 5; do
+    status=$(curl -s -o "$WORK/page" -D "$HEADERS" -w '%{http_code}' --cacert "$PKI/ca.crt" \
+      -c "$WORK/cookies" -b "$WORK/cookies" "$url")
+    location="$(sed -En 's/^[Ll]ocation: (.*)$/\1/p' "$HEADERS" | tr -d '\r')"
+    case "$status:$location" in
+      30?:"$KEYCLOAK_URL"*) url="$location" ;;
+      30?:/*) url="$KEYCLOAK_URL$location" ;;
+      *) break ;;
+    esac
+  done
+  echo "$status"
+}
+
 # customer_opens CLIENT REQUEST_URI -> khách hàng mở trang ủy quyền và đăng nhập; trang tiếp theo vào $WORK/page
 customer_opens() {
-  local jar="$WORK/cookies" status action
-  rm -f "$jar"
-  status=$(curl -s -o "$WORK/page" -w '%{http_code}' --cacert "$PKI/ca.crt" -c "$jar" -b "$jar" -G \
-    --data-urlencode "client_id=$1" --data-urlencode "request_uri=$2" "$OIDC/auth")
+  local status action query
+  rm -f "$WORK/cookies"
+  # request_uri của Keycloak dạng urn:ietf:params:oauth:request_uri:<base64url>: chỉ cần mã hóa dấu hai chấm
+  query="client_id=$1&request_uri=$(printf '%s' "$2" | sed 's/:/%3A/g')"
+  status=$(browse "$OIDC/auth?$query")
   action="$(form_action "$WORK/page" login-actions/authenticate)"
   if [ "$status" != "200" ] || [ -z "$action" ]; then
-    cp "$WORK/page" "$BODY"
+    { echo "Chuyển hướng: $(sed -En 's/^[Ll]ocation: (.*)$/\1/p' "$HEADERS")"; cat "$WORK/page"; } > "$BODY"
     expect "Trang đăng nhập" "$status" "200 có form đăng nhập"
   fi
   curl -s -o "$WORK/page" -D "$HEADERS" -w '%{http_code}' --cacert "$PKI/ca.crt" -c "$jar" -b "$jar" \

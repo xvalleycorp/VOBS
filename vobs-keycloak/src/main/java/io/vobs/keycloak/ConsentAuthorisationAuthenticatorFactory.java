@@ -14,7 +14,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 
 /**
  * Đăng ký {@link ConsentAuthorisationAuthenticator} với Keycloak. Địa chỉ API nội bộ của service Quản lý sự đồng ý
- * lấy từ tùy chọn SPI {@code consent-service-url}, hoặc biến môi trường {@value #CONSENT_URL_ENV}.
+ * lấy từ biến môi trường {@value #CONSENT_URL_ENV}.
  */
 public final class ConsentAuthorisationAuthenticatorFactory implements AuthenticatorFactory {
 
@@ -27,7 +27,7 @@ public final class ConsentAuthorisationAuthenticatorFactory implements Authentic
 
     @Override
     public void init(Config.Scope config) {
-        String url = config.get("consent-service-url", System.getenv(CONSENT_URL_ENV));
+        String url = System.getenv(CONSENT_URL_ENV);
         http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
         consents = new ConsentServiceClient(URI.create(url == null || url.isBlank() ? DEFAULT_CONSENT_URL : url),
                 http);

@@ -45,6 +45,11 @@
     "en": {"title": "API Gateway", "label": "Preview", "desc": "Apache APISIX plugin that checks consent by scope and account before every request, blocks partner impersonation and rate-limits each third party. Try it in the sandbox, with mTLS and certificate-bound access tokens (FAPI 2.0) issued by Keycloak."}
   },
   {
+    "name": "vobs-keycloak", "status": "draft",
+    "vi": {"title": "Xác thực và cấp quyền", "label": "Thử nghiệm", "desc": "Phần mở rộng Keycloak để khách hàng đăng nhập ngân hàng, xem đối tác xin dữ liệu gì, chọn tài khoản rồi duyệt hoặc từ chối consent. Đối tác nhận mã truy cập chỉ dùng được với đúng consent đó, theo FAPI 2.0 với PAR, PKCE và mTLS. Dùng thử được trong sandbox."},
+    "en": {"title": "Authentication and Authorisation", "label": "Preview", "desc": "Keycloak extension where customers sign in to their bank, see what data a partner asks for, choose accounts, then approve or reject the consent. Partners get access tokens that work only with that consent, following FAPI 2.0 with PAR, PKCE and mTLS. Try it in the sandbox."}
+  },
+  {
     "name": "vobs-deploy", "status": "skeleton",
     "vi": {"title": "Bộ triển khai", "label": "Đang phát triển", "desc": "Helm chart tổng, GitOps và bộ cài không cần Internet cho triển khai on-premise."},
     "en": {"title": "Deployment Kit", "label": "In development", "desc": "Umbrella Helm chart, GitOps and an offline installer for on-premise deployments."}
