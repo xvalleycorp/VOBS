@@ -62,6 +62,7 @@
     <module>vobs-switch</module>
     <module>vobs-consent</module>
     <module>vobs-hub</module>
+    <module>vobs-keycloak</module>
   </modules>
 
   <properties>
