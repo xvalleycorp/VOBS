@@ -56,6 +56,7 @@ VietQr qr = VietQr.parse(payload);
 
 - [Đối chiếu Thông tư 64/2024/TT-NHNN](docs/tt64.md)
 - [Kiến trúc và yêu cầu phi chức năng](docs/architecture.md)
+- [Hạ tầng tham khảo và chi phí: on-premise, cloud quốc tế và trong nước](docs/infrastructure.md)
 - [Lộ trình](docs/roadmap.md)
 - [Open-source dùng lại và giấy phép cần tránh](docs/licensing.md)
 - [Quản trị dự án và mô hình kinh doanh](GOVERNANCE.md)
