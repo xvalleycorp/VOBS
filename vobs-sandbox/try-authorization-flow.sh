@@ -218,11 +218,20 @@ REFRESH_TOKEN="$(field refresh_token)"
 expect "consent_id trong token" "$(jwt_claim "$CUSTOMER_TOKEN" consent_id)" "$CONSENT"
 expect "Token gắn chứng thư (cnf.x5t#S256)" "$([ -n "$(jwt_claim "$CUSTOMER_TOKEN" 'x5t#S256')" ] && echo có)" "có"
 
-step "Dùng lại authorization code: bị từ chối"
+step "Làm mới mã truy cập bằng refresh token: token mới vẫn gắn đúng consent"
+status=$(mtls fintech-a "$OIDC/token" grant_type=refresh_token "refresh_token=$REFRESH_TOKEN" client_id=fintech-a)
+expect "HTTP" "$status" 200
+expect "consent_id trong token mới" "$(jwt_claim "$(field access_token)" consent_id)" "$CONSENT"
+CUSTOMER_TOKEN="$(field access_token)"
+REFRESH_TOKEN="$(field refresh_token)"
+
+step "Dùng lại authorization code: bị từ chối, refresh token cấp từ code này bị thu hồi (RFC 6749 mục 4.1.2)"
 status=$(mtls fintech-a "$OIDC/token" grant_type=authorization_code "code=$CODE" client_id=fintech-a \
   "redirect_uri=https://fintech-a.example/callback" "code_verifier=$VERIFIER")
 expect "HTTP" "$status" 400
 expect "error" "$(field error)" invalid_grant
+status=$(mtls fintech-a "$OIDC/token" grant_type=refresh_token "refresh_token=$REFRESH_TOKEN" client_id=fintech-a)
+expect "Refresh token sau khi code bị dùng lại: HTTP" "$status" 400
 
 step "Consent đã được duyệt với đúng tài khoản khách hàng chọn"
 status=$(AS=fintech-a call GET "$GATEWAY_URL/consents/$CONSENT" "" "Authorization: Bearer $FINTECH_TOKEN")
@@ -245,11 +254,6 @@ status=$(AS=fintech-a call GET "$GATEWAY_URL/accounts/acc-1001" "" "Authorizatio
   "x-consent-id: consent-khac")
 expect "HTTP" "$status" 403
 expect "reason" "$(field reason)" consent_mismatch
-
-step "Làm mới mã truy cập bằng refresh token: token mới vẫn gắn đúng consent"
-status=$(mtls fintech-a "$OIDC/token" grant_type=refresh_token "refresh_token=$REFRESH_TOKEN" client_id=fintech-a)
-expect "HTTP" "$status" 200
-expect "consent_id trong token mới" "$(jwt_claim "$(field access_token)" consent_id)" "$CONSENT"
 
 step "Khách hàng từ chối một consent khác: đối tác nhận access_denied, consent chuyển sang REJECTED"
 AS=fintech-a call POST "$GATEWAY_URL/consents" '{"scopes":["ACCOUNTS_READ"],"validityDays":30}' \

@@ -94,6 +94,10 @@ Các executor còn lại:
 - **Thuật toán ký token.** FAPI 2.0 yêu cầu PS256, ES256 hoặc EdDSA. Realm mẫu vẫn ký RS256, vì plugin
   `openid-connect` của APISIX 3.19 (lua-resty-openidc 1.9) chỉ xác minh được RS* và HS* khi lấy khóa từ JWKS. Hướng
   xử lý: gateway xác minh token bằng introspection, hoặc xác minh ES256 bằng plugin riêng.
+- **Thu hồi token.** Gateway xác minh mã truy cập bằng chữ ký, không hỏi lại Keycloak, nên mã đã bị thu hồi (ví dụ khi
+  authorization code bị dùng lại, hoặc phiên của khách hàng bị đăng xuất) vẫn dùng được tới khi hết hạn (realm mẫu:
+  10 phút). Refresh token thì bị chặn ngay. Khách hàng rút consent thì gateway chặn ngay, vì gateway hỏi service consent
+  ở mỗi yêu cầu. Introspection xử lý được cả trường hợp mã bị thu hồi.
 - **Phân quyền đối tác.** Trang duyệt chưa đọc loại tổ chức của đối tác. Việc chặn đối tác không được dùng phạm vi
   thanh toán do service consent làm khi tạo consent (Điều 5).
 - **Bộ kiểm thử chứng nhận.** Chưa chạy bộ kiểm thử FAPI 2.0 của OpenID Foundation (conformance suite).
