@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.0
+    image: quay.io/keycloak/keycloak:26.8.1-2
     # Chế độ dev: HTTP, lưu trong bộ nhớ; realm open-banking nạp từ keycloak/open-banking-realm.json khi khởi động
     command: ["start-dev", "--import-realm"]
     environment:
