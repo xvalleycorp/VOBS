@@ -54,7 +54,7 @@ jobs:
       - run: npx --yes @redocly/cli@1.25.0 lint vobs-spec/openapi/*.yaml
       - name: Kiểm tra đủ danh mục Open API theo Điều 6 Thông tư 64
         run: python3 vobs-spec/scripts/check_tt64_coverage.py
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - name: Dữ liệu mẫu của sandbox khớp đặc tả
