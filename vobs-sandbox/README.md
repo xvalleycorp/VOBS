@@ -105,8 +105,8 @@ ngân hàng cấp khi ký hợp đồng kết nối (Điều 8 Thông tư 64). K
    thư, rồi gắn token với chứng thư đó: claim `cnf.x5t#S256` là SHA-256 của chứng thư (RFC 8705). Token có hiệu lực
    10 phút, `aud` là `vobs-gateway`.
 2. Đối tác gọi gateway bằng mTLS với **cùng chứng thư**, kèm `Authorization: Bearer <token>`. Gateway kiểm tra:
-   chứng thư client do CA tin cậy ký; chữ ký, issuer và `aud` của token; token gắn với đúng chứng thư của kết nối
-   (plugin `vobs-fapi`). Token bị lộ không dùng được từ máy không có khóa riêng của đối tác.
+   chứng thư client do CA tin cậy ký; token còn hiệu lực theo Keycloak (introspection) và `aud` đúng; token gắn với
+   đúng chứng thư của kết nối (plugin `vobs-fapi`). Token bị lộ không dùng được từ máy không có khóa riêng của đối tác.
 
 | Đối tác (client id) | Chứng thư | Subject |
 | --- | --- | --- |
@@ -167,7 +167,7 @@ nằm trên thanh địa chỉ. [`try-authorization-flow.sh`](try-authorization-
 khách hàng, đi qua 14 bước, gồm:
 
 - PAR thiếu PKCE;
-- dùng lại authorization code;
+- dùng lại authorization code, và mọi token cấp từ code đó bị chặn;
 - đọc tài khoản khách hàng không chọn;
 - làm mới token bằng refresh token;
 - khách hàng từ chối;

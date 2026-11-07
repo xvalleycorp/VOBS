@@ -80,6 +80,9 @@
     <postgresql.version>42.7.14</postgresql.version>
     <!-- Chưa có trên Maven Central: cài từ mã nguồn bằng scripts/install-rulestone.sh -->
     <rulestone.version>0.1.0-SNAPSHOT</rulestone.version>
+    <!-- Thư viện gián tiếp qua dev.cel:cel. Guava 33.6.0 dính CVE-2026-102554; bản mới cần jspecify mới hơn bản của CEL -->
+    <guava.version>33.8.0-jre</guava.version>
+    <jspecify.version>1.0.1</jspecify.version>
   </properties>
 
   <dependencyManagement>
@@ -108,6 +111,16 @@
         <groupId>vn.io.dxa.rulestone</groupId>
         <artifactId>rulestone-core</artifactId>
         <version>${rulestone.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jspecify</groupId>
+        <artifactId>jspecify</artifactId>
+        <version>${jspecify.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>

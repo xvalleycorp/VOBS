@@ -4,10 +4,12 @@
 # - API dữ liệu (tài khoản, giao dịch) chuyển tới bản giả lập trên Microcks thay cho kho đọc của Integration Hub.
 # mTLS, mã truy cập gắn chứng thư (FAPI 2.0, RFC 8705), kiểm tra consent và giới hạn tần suất chạy giống môi trường thật.
 #
-# openid-connect kiểm tra chữ ký token bằng khóa công khai của Keycloak (use_jwks), issuer lấy từ discovery, và aud
-# phải chứa client_id của gateway (vobs-gateway). set_userinfo_header đưa payload token đã xác thực vào header
-# X-Userinfo, nơi vobs-fapi đọc claim cnf và vobs-consent đọc mã client (claim azp). vobs-fapi so cnf["x5t#S256"] với
-# chứng thư client của kết nối mTLS.
+# openid-connect hỏi Keycloak về token qua endpoint introspection, nên token ký PS256 và token bị thu hồi đều được xử
+# lý đúng. Gateway xác thực với Keycloak bằng JWT ký bằng khóa riêng (private_key_jwt, ES256); ./pki.sh tạo khóa và
+# ghép vào chỗ __GATEWAY_CLIENT_KEY__. Thư viện mặc định giữ kết quả tới khi token hết hạn, nên phải đặt
+# introspection_interval: sandbox để 1 giây để kiểm tra thu hồi. aud phải chứa client_id của gateway (vobs-gateway).
+# set_userinfo_header đưa kết quả introspection vào header X-Userinfo, nơi vobs-fapi đọc claim cnf và vobs-consent đọc
+# mã client (claim azp). vobs-fapi so cnf["x5t#S256"] với chứng thư client của kết nối mTLS.
 
 routes:
   # Tạo, xem, thu hồi consent. proxy-rewrite đặt mã client đã xác thực vào x-vobs-client-id, ghi đè giá trị đối tác
@@ -21,7 +23,13 @@ routes:
         client_id: vobs-gateway
         realm: open-banking
         bearer_only: true
-        use_jwks: true
+        introspection_endpoint_auth_method: private_key_jwt
+        client_rsa_private_key: "__GATEWAY_CLIENT_KEY__"
+        client_rsa_private_key_id: vobs-gateway-1
+        client_jwt_assertion_alg: ES256
+        client_jwt_assertion_audience: https://localhost:8443/realms/open-banking
+        client_jwt_assertion_expires_in: 30
+        introspection_interval: 1
         set_userinfo_header: true
         claim_validator:
           audience:
@@ -53,7 +61,13 @@ routes:
         client_id: vobs-gateway
         realm: open-banking
         bearer_only: true
-        use_jwks: true
+        introspection_endpoint_auth_method: private_key_jwt
+        client_rsa_private_key: "__GATEWAY_CLIENT_KEY__"
+        client_rsa_private_key_id: vobs-gateway-1
+        client_jwt_assertion_alg: ES256
+        client_jwt_assertion_audience: https://localhost:8443/realms/open-banking
+        client_jwt_assertion_expires_in: 30
+        introspection_interval: 1
         set_userinfo_header: true
         claim_validator:
           audience:
@@ -85,7 +99,13 @@ routes:
         client_id: vobs-gateway
         realm: open-banking
         bearer_only: true
-        use_jwks: true
+        introspection_endpoint_auth_method: private_key_jwt
+        client_rsa_private_key: "__GATEWAY_CLIENT_KEY__"
+        client_rsa_private_key_id: vobs-gateway-1
+        client_jwt_assertion_alg: ES256
+        client_jwt_assertion_audience: https://localhost:8443/realms/open-banking
+        client_jwt_assertion_expires_in: 30
+        introspection_interval: 1
         set_userinfo_header: true
         claim_validator:
           audience:

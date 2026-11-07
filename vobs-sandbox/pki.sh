@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tạo PKI cho sandbox vào pki/ (không commit): một CA, chứng thư máy chủ cho Keycloak và API Gateway, chứng thư client
 # cho từng đối tác mẫu. Đối tác dùng chứng thư client để xác thực mTLS với Keycloak (lấy mã truy cập gắn chứng thư,
-# RFC 8705) và với API Gateway. Rồi ghép chứng thư vào cấu hình gateway (pki/apisix.yaml).
+# RFC 8705) và với API Gateway. Thêm một khóa riêng để gateway xác thực với Keycloak khi hỏi về token. Rồi ghép chứng
+# thư và khóa vào cấu hình gateway (pki/apisix.yaml), khóa công khai vào realm (pki/open-banking-realm.json).
 #
 # Chạy một lần trước docker compose up; chạy lại thì giữ nguyên PKI đã có. FORCE=1 tạo lại từ đầu.
 # Khóa chỉ dùng cho sandbox: quyền đọc mở cho mọi user để container (Keycloak, APISIX) đọc được.
@@ -70,15 +71,33 @@ for partner in "${PARTNERS[@]}"; do
     issue "$partner" "/O=VOBS Sandbox/CN=$partner" client
   fi
 done
+if [ ! -f "$OUT/gateway-client.key" ]; then
+  echo "Tạo khóa của gateway để xác thực với Keycloak"
+  key gateway-client
+fi
 chmod 644 "$OUT"/*.key "$OUT"/*.crt
+
+# Realm = keycloak/open-banking-realm.json + khóa công khai của gateway. Khóa P-256 dạng DER kết thúc bằng 65 byte
+# 04 || x || y; JWK cần x và y mã hóa base64url.
+base64url() {
+  openssl base64 -A | tr '+/' '-_' | tr -d '='
+}
+openssl pkey -in "$OUT/gateway-client.key" -pubout -outform DER 2>/dev/null | tail -c 64 > "$OUT/gateway-client.xy"
+JWK_X="$(head -c 32 "$OUT/gateway-client.xy" | base64url)"
+JWK_Y="$(tail -c 32 "$OUT/gateway-client.xy" | base64url)"
+rm -f "$OUT/gateway-client.xy"
+sed -e "s|__GATEWAY_JWK_X__|$JWK_X|" -e "s|__GATEWAY_JWK_Y__|$JWK_Y|" keycloak/open-banking-realm.json \
+  > "$OUT/open-banking-realm.json"
 
 # Cấu hình gateway = route trong gateway/apisix.yaml + chứng thư máy chủ và CA để xác thực client (mTLS). APISIX
 # standalone chỉ nhận PEM viết thẳng trong file, nên ghép tại đây.
 indent() {
   sed 's/^/      /' "$1"
 }
+# Khóa của gateway nằm trong chuỗi YAML một dòng, xuống dòng viết là \n (sed cần \\n)
+GATEWAY_CLIENT_KEY="$(awk 'BEGIN { ORS = "\\\\n" } { print }' "$OUT/gateway-client.key")"
 {
-  sed '/^#END$/d' gateway/apisix.yaml
+  sed -e '/^#END$/d' -e "s|__GATEWAY_CLIENT_KEY__|$GATEWAY_CLIENT_KEY|" gateway/apisix.yaml
   echo
   echo "ssls:"
   echo "  - id: gateway"

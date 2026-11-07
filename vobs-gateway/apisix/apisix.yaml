@@ -1,6 +1,6 @@
 # Ví dụ cấu hình route ở chế độ standalone của Apache APISIX cho API Lấy thông tin tài khoản
 # (Điều 6 khoản 1 điểm b Thông tư 64/2024/TT-NHNN).
-# Thứ tự plugin theo priority: openid-connect (2599, xác thực token FAPI) -> vobs-fapi (1500, token gắn chứng thư
+# Thứ tự plugin theo priority: openid-connect (2599, xác thực token FAPI qua introspection) -> vobs-fapi (1500, token gắn chứng thư
 # mTLS, RFC 8705) -> limit-count (1002) -> vobs-consent (999).
 # limit-count giới hạn truy vấn tự động theo từng bên thứ ba (Điều 11).
 # kafka-logger ghi log mọi lần sử dụng Open API; topic giữ tối thiểu 3 tháng và được sao lưu tối thiểu 1 năm
@@ -14,9 +14,18 @@ routes:
       openid-connect:
         discovery: https://<keycloak-host>/realms/open-banking/.well-known/openid-configuration
         client_id: vobs-gateway
-        client_secret: <từ OpenBao>
         bearer_only: true
-        use_jwks: true
+        # Hỏi Keycloak về từng token (RFC 7662): nhận mọi thuật toán ký, chặn được token đã thu hồi. Client policy FAPI
+        # 2.0 áp cho cả lời gọi này, nên gateway xác thực bằng JWT ký khóa riêng, aud là đúng issuer.
+        introspection_endpoint_auth_method: private_key_jwt
+        client_rsa_private_key: <khóa riêng EC P-256 từ OpenBao>
+        client_rsa_private_key_id: <kid của khóa, khai báo trong client vobs-gateway>
+        client_jwt_assertion_alg: ES256
+        client_jwt_assertion_audience: https://<keycloak-host>/realms/open-banking
+        client_jwt_assertion_expires_in: 30
+        # Số giây giữ kết quả. Bắt buộc đặt: bỏ trống thì token thu hồi vẫn dùng được tới khi hết hạn. Số lớn giảm tải cho
+        # Keycloak nhưng chặn token thu hồi chậm hơn.
+        introspection_interval: 30
         # Bắt buộc: vobs-fapi và vobs-consent đọc claim (cnf, azp) từ X-Userinfo do openid-connect đặt
         set_userinfo_header: true
         claim_validator:
@@ -68,9 +77,18 @@ routes:
       openid-connect:
         discovery: https://<keycloak-host>/realms/open-banking/.well-known/openid-configuration
         client_id: vobs-gateway
-        client_secret: <từ OpenBao>
         bearer_only: true
-        use_jwks: true
+        # Hỏi Keycloak về từng token (RFC 7662): nhận mọi thuật toán ký, chặn được token đã thu hồi. Client policy FAPI
+        # 2.0 áp cho cả lời gọi này, nên gateway xác thực bằng JWT ký khóa riêng, aud là đúng issuer.
+        introspection_endpoint_auth_method: private_key_jwt
+        client_rsa_private_key: <khóa riêng EC P-256 từ OpenBao>
+        client_rsa_private_key_id: <kid của khóa, khai báo trong client vobs-gateway>
+        client_jwt_assertion_alg: ES256
+        client_jwt_assertion_audience: https://<keycloak-host>/realms/open-banking
+        client_jwt_assertion_expires_in: 30
+        # Số giây giữ kết quả. Bắt buộc đặt: bỏ trống thì token thu hồi vẫn dùng được tới khi hết hạn. Số lớn giảm tải cho
+        # Keycloak nhưng chặn token thu hồi chậm hơn.
+        introspection_interval: 30
         # Bắt buộc: vobs-fapi và $vobs_client_id đọc claim (cnf, azp) từ X-Userinfo do openid-connect đặt
         set_userinfo_header: true
         claim_validator:

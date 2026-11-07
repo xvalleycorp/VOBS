@@ -4,7 +4,7 @@
 -- Danh tính của đối tác đã được xác thực trong request hiện tại, dùng chung cho các plugin vobs-*.
 --
 -- openid-connect (APISIX 3.19) không đặt payload token vào context của request. Với set_userinfo_header = true, plugin
--- này xóa header X-Userinfo do client tự gửi rồi đặt lại bằng payload (base64 JSON) của token đã xác thực. Vì vậy
+-- này xóa header X-Userinfo do client tự gửi rồi đặt lại bằng kết quả introspection (base64 JSON). Vì vậy
 -- X-Userinfo chỉ đáng tin khi route có openid-connect; route khác thì client tự gửi được header này để giả danh.
 --
 local core = require("apisix.core")
@@ -26,7 +26,7 @@ local function runs_openid_connect(ctx)
     return false
 end
 
--- Payload của token đã được openid-connect xác thực, hoặc nil nếu route không dùng openid-connect.
+-- Claim của token đã được openid-connect xác thực, hoặc nil nếu route không dùng openid-connect.
 function _M.claims(ctx)
     if ctx.vobs_claims ~= nil then
         return ctx.vobs_claims or nil
