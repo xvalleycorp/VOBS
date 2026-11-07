@@ -57,6 +57,13 @@ public final class ConsentHttpServer implements AutoCloseable {
     private static final DateTimeFormatter TIMESTAMP =
             DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneOffset.ofHours(7));
 
+    static {
+        // HttpServer của JDK ghi header và nội dung thành hai lần và mặc định không bật TCP_NODELAY, nên lần ghi sau có
+        // thể chờ ACK của lần trước. Trên Linux, phía nhận trì hoãn ACK khoảng 40 ms. JDK đọc thuộc tính này một lần,
+        // nên phải đặt trước khi tạo server.
+        System.setProperty("sun.net.httpserver.nodelay", "true");
+    }
+
     private final ConsentService service;
     private final ThirdPartyDirectory directory;
     private final ObjectMapper json = new ObjectMapper();
