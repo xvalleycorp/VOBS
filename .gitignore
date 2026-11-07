@@ -28,3 +28,4 @@ replay_pid*.log
 
 # PKI của sandbox, tạo bằng vobs-sandbox/pki.sh (có khóa riêng)
 vobs-sandbox/pki/
+vobs-sandbox/load/results/
