@@ -173,6 +173,11 @@ khách hàng, đi qua 14 bước, gồm:
 - khách hàng từ chối;
 - đối tác dùng consent của đối tác khác trong PAR của mình.
 
+## Đo tải
+
+[`load/run.sh`](load/run.sh) đo tải API Gateway bằng k6 và in bảng độ trễ, CPU của từng service. Cách đọc kết quả và số
+liệu đã đo ở [`docs/load-testing.md`](../docs/load-testing.md).
+
 ## Kiểm thử hợp đồng API
 
 Microcks cũng chạy được ngược lại: gọi vào API thật của một ngân hàng và đối chiếu với đặc tả. Đây là nền cho

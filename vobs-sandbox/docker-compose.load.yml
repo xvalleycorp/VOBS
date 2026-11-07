@@ -1,0 +1,13 @@
+# Thêm vào docker-compose.yml khi đo tải (load/run.sh): upstream giả lập và cấu hình gateway riêng cho đo tải.
+services:
+  load-upstream:
+    image: nginx:1.30.6-alpine
+    volumes:
+      - ./load/upstream.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./pki/load-body.json:/usr/share/nginx/html/body.json:ro
+    restart: unless-stopped
+
+  gateway:
+    depends_on: [load-upstream]
+    volumes:
+      - ./pki/apisix.load.yaml:/usr/local/apisix/conf/apisix.yaml:ro

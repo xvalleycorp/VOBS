@@ -75,6 +75,6 @@ plugins:
     - luồng authorization code với PAR, PKCE S256 và mTLS cho khách hàng duyệt consent;
     - client policy FAPI 2.0 của Keycloak;
     - mã truy cập gắn consent.
-- Chưa đo tải của introspection lên Keycloak.
+- Mới [đo tải](../docs/load-testing.md) trên một máy nhỏ, chưa đo trên cụm có cấu hình như production.
 - Service Quản lý sự đồng ý đã có API HTTP và lưu trữ PostgreSQL, nhưng mỗi lúc chỉ chạy được một bản.
 - Upstream `vobs-read-api` trong route mẫu là API đọc của Integration Hub, chưa có.

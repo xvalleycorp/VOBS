@@ -1,0 +1,48 @@
+name: Đo tải
+
+# Không chạy ở mọi PR: tốn thời gian, và kết quả trên runner dùng chung dao động. Chạy tay, hoặc khi sửa bộ đo tải.
+on:
+  workflow_dispatch:
+    inputs:
+      rates:
+        description: Các mức tải, lượt mỗi giây
+        default: 50 100 200 400 800 1600
+      duration:
+        description: Thời gian đo mỗi mức
+        default: 40s
+  pull_request:
+    paths:
+      - vobs-sandbox/load/**
+      - vobs-sandbox/docker-compose.load.yml
+      - .github/workflows/load-test.yml
+
+permissions:
+  contents: read
+
+jobs:
+  load:
+    name: Đo tải API Gateway trên sandbox
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: vobs-sandbox
+    steps:
+      - uses: actions/checkout@v7
+      - name: Tạo PKI của sandbox
+        run: ./pki.sh
+      - name: Đo tải
+        env:
+          RATES: ${{ inputs.rates || '50 100 200 400 800 1600' }}
+          DURATION: ${{ inputs.duration || '40s' }}
+        run: ./load/run.sh
+      - name: Ghi kết quả vào trang tóm tắt
+        if: always()
+        run: if [ -f load/results/results.md ]; then cat load/results/results.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Lưu số liệu thô
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results
+          path: vobs-sandbox/load/results
+          if-no-files-found: ignore
