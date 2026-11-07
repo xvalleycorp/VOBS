@@ -150,7 +150,23 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
   commit, `.gitignore`) và ghép đối tượng SSL vào `pki/apisix.yaml` mà gateway đọc (APISIX standalone chỉ nhận PEM
   viết thẳng). Keycloak xác thực client bằng X.509 và cấp token gắn chứng thư; plugin `vobs-fapi` so `cnf.x5t#S256`
   với chứng thư của kết nối; `openid-connect` kiểm tra `aud` là `vobs-gateway`.
-- Còn lại: luồng authorization code + PAR + PKCE cho khách hàng duyệt consent.
+- Đã có (PR #37): luồng authorization code + PAR + PKCE cho khách hàng duyệt consent, xem mục dưới.
+
+## Khách hàng duyệt consent (`vobs-keycloak`)
+
+- **Phần mở rộng Keycloak.** Module `vobs-keycloak` gồm bước `vobs-consent-authorisation` trong luồng đăng nhập,
+  mapper `vobs-consent-id-mapper` và giao diện `vobs`. Image Keycloak của sandbox build từ `vobs-keycloak/Dockerfile`.
+- **Cách truyền consent.** Đối tác gửi `consent_id` trong PAR. Keycloak lưu tham số lạ vào phiên đăng nhập, ghi chú
+  `client_request_param_consent_id`. Khi khách hàng duyệt, bước này lưu ghi chú `vobs.consent_id` vào phiên của đối
+  tác; mapper đọc ghi chú đó, nên refresh token giữ đúng consent.
+- **Không dùng SSO.** Luồng `vobs-browser` không có bước cookie: mỗi lần duyệt, khách hàng đăng nhập lại và có phiên
+  riêng. Nếu dùng chung phiên, consent sau sẽ ghi đè consent trước trong phiên của cùng đối tác.
+- **Profile `vobs-fapi-2`.** Là `fapi-2-security-profile` bỏ hai executor:
+    - `consent-required`: trùng với trang duyệt của VOBS;
+    - `secure-signature-algorithm`: ép PS256 khi client được cập nhật, gateway không xác minh được.
+- **Việc còn lại.** Token vẫn ký RS256: lua-resty-openidc 1.9 trong APISIX 3.19 chỉ xác minh RS* và HS* qua JWKS, còn
+  api7-lua-resty-jwt hỗ trợ ES256. Để đủ FAPI 2.0, gateway cần dùng introspection hoặc plugin xác minh ES256.
+- **Môi trường kiểm thử.** Máy local không có Docker; luồng sandbox chỉ kiểm chứng trên CI (job `sandbox`).
 
 ## Lưu ý khi làm tiếp
 

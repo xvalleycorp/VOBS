@@ -1,7 +1,8 @@
 # Sandbox cục bộ cho bên thứ ba (fintech, ví điện tử):
 # - Microcks dựng API giả lập từ bộ đặc tả trong vobs-spec;
 # - service Quản lý sự đồng ý chạy thật, lưu trong bộ nhớ, để thử trọn luồng tạo, duyệt, kiểm tra consent;
-# - Keycloak cấp mã truy cập OAuth 2.0 gắn chứng thư (client credentials, mTLS, RFC 8705) cho đối tác mẫu;
+# - Keycloak cấp mã truy cập OAuth 2.0 gắn chứng thư (mTLS, RFC 8705) cho đối tác mẫu: client credentials cho API của
+#   đối tác, authorization code với PAR và PKCE khi khách hàng đăng nhập ngân hàng để duyệt consent (FAPI 2.0);
 # - API Gateway (Apache APISIX) xác thực mTLS, mã truy cập và consent: đối tác gọi qua gateway như ở môi trường thật.
 #
 #   ./pki.sh                 # tạo CA, chứng thư máy chủ và chứng thư client của đối tác mẫu (một lần)
@@ -9,6 +10,7 @@
 #   ./import-specs.sh        # nạp đặc tả và dữ liệu mẫu vào Microcks
 #   ./try-consent-flow.sh    # chạy thử luồng consent, gọi thẳng service
 #   ./try-gateway-flow.sh    # chạy thử luồng qua API Gateway
+#   ./try-authorization-flow.sh  # chạy thử luồng khách hàng đăng nhập ngân hàng để duyệt consent
 #   ./try-sandbox-data.sh    # kiểm tra dữ liệu mẫu
 #
 # Giao diện Microcks: http://localhost:8585; Keycloak: https://localhost:8443; API Gateway: https://localhost:9443/open-banking/v1
@@ -37,10 +39,17 @@ services:
     restart: unless-stopped
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.0
+    # Keycloak 26.8.0 kèm phần mở rộng vobs-keycloak: trang khách hàng duyệt consent, claim consent_id trong token
+    image: vobs-keycloak:sandbox
+    build:
+      context: ..
+      dockerfile: vobs-keycloak/Dockerfile
+    depends_on: [consent]
     # Chế độ dev: HTTP, lưu trong bộ nhớ; realm open-banking nạp từ keycloak/open-banking-realm.json khi khởi động
     command: ["start-dev", "--import-realm"]
     environment:
+      # Trang duyệt consent đọc consent và ghi quyết định của khách hàng qua cổng nội bộ của service consent
+      VOBS_CONSENT_INTERNAL_URL: http://consent:8081
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       # HTTPS cho đối tác, kèm mTLS: đối tác xác thực bằng chứng thư client (X.509) do CA của sandbox ký

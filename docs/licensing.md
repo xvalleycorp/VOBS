@@ -55,6 +55,12 @@ khi có người xác nhận giấy phép của bản mới và sửa khóa.
 BSD-2-Clause dễ dãi hơn BSD-3-Clause đang được cho phép: chỉ bỏ điều khoản cấm dùng tên tác giả để quảng bá; tương
 thích với Apache 2.0. Nghĩa vụ duy nhất là giữ thông báo bản quyền và nội dung giấy phép khi phân phối lại.
 
+Phần mở rộng Keycloak (`vobs-keycloak`) chỉ dùng API của Keycloak ở phạm vi `provided`. Các thư viện này là một
+phần của Keycloak (Apache 2.0) và do Keycloak phân phối cùng máy chủ của nó; JAR của VOBS không đóng gói lại thư viện
+nào. Vì vậy kiểm tra giấy phép của module này bỏ phạm vi `provided` (trong đó có thư viện mang giấy phép ngoài danh
+sách cho phép, như `jakarta.ws.rs-api` theo EPL-2.0). Image Keycloak của sandbox là image chính thức của Keycloak thêm
+một JAR của VOBS.
+
 ## Thông báo giấy phép khi phân phối
 
 Image Docker của dự án kèm thư mục `/app/licenses`: `LICENSE`, `NOTICE` của VOBS, danh sách `THIRD-PARTY.txt` và

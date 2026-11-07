@@ -73,6 +73,7 @@ Hai cổng tách biệt, để API nội bộ không bị lộ ra ngoài dù rou
 | Đối tác (mặc định 8080) | `POST /consents`, `GET /consents/{id}`, `DELETE /consents/{id}` | Đối tác, qua API Gateway | [`vobs-open-api.yaml`](../vobs-spec/openapi/vobs-open-api.yaml) |
 | Nội bộ (mặc định 8081) | `POST /internal/consent-checks` | API Gateway, trước mỗi request của đối tác | [`internal-consent-check.yaml`](../vobs-spec/openapi/internal-consent-check.yaml) |
 | Nội bộ | `GET /internal/customers/{customerId}/consents` (Điều 12) | Kênh của ngân hàng, sau khi xác thực khách hàng | như trên |
+| Nội bộ | `GET /internal/consents/{id}` | Trang duyệt consent ([`vobs-keycloak`](../vobs-keycloak)), trước khi khách hàng quyết định | như trên |
 | Nội bộ | `POST /internal/consents/{id}/authorisation`, `/rejection`, `/revocation` | Kênh của ngân hàng, sau khi xác thực khách hàng | như trên |
 
 - Cổng đối tác lấy danh tính đối tác từ header `x-vobs-client-id`. Gateway đặt header này từ mã truy cập đã xác thực

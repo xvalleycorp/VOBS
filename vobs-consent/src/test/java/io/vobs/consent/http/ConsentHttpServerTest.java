@@ -101,6 +101,21 @@ class ConsentHttpServerTest {
     }
 
     @Test
+    void bankChannelReadsConsentBeforeCustomerDecides() throws Exception {
+        String id = createAccountsConsent("fintech-a");
+        Reply pending = internal("GET", "/internal/consents/" + id, null);
+        assertEquals(200, pending.status());
+        assertEquals("fintech-a", pending.text("clientId"));
+        assertEquals("AWAITING_AUTHORISATION", pending.text("status"));
+        assertTrue(pending.body().get("customerId").isNull(), "chưa khách hàng nào duyệt");
+
+        assertEquals(404, internal("GET", "/internal/consents/khong-ton-tai", null).status());
+        assertEquals(405, internal("DELETE", "/internal/consents/" + id, null).status());
+        assertEquals(404, partner("GET", "/internal/consents/" + id, "fintech-a", null).status(),
+                "API nội bộ không có trên cổng đối tác");
+    }
+
+    @Test
     void customerRejectsOrRevokesThroughBankChannel() throws Exception {
         String rejected = createAccountsConsent("fintech-a");
         Reply rejection = internal("POST", "/internal/consents/" + rejected + "/rejection", "{\"customerId\":\"cif-1\"}");

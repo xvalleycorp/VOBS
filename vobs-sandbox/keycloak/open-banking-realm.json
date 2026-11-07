@@ -4,6 +4,14 @@
   "enabled": true,
   "sslRequired": "external",
   "accessTokenLifespan": 600,
+  "loginTheme": "vobs",
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "vi",
+    "en"
+  ],
+  "defaultLocale": "vi",
+  "browserFlow": "vobs-browser",
   "clients": [
     {
       "clientId": "fintech-a",
@@ -13,14 +21,17 @@
       "publicClient": false,
       "clientAuthenticatorType": "client-x509",
       "serviceAccountsEnabled": true,
-      "standardFlowEnabled": false,
+      "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "attributes": {
         "x509.subjectdn": "CN=fintech-a,O=VOBS Sandbox",
         "x509.allow.regex.pattern.comparison": "false",
         "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
-        "tls.client.certificate.bound.access.tokens": "true"
+        "tls.client.certificate.bound.access.tokens": "true",
+        "require.pushed.authorization.requests": "true",
+        "pkce.code.challenge.method": "S256",
+        "exclude.issuer.from.auth.response": "false"
       },
       "protocolMappers": [
         {
@@ -33,8 +44,24 @@
             "id.token.claim": "false",
             "introspection.token.claim": "true"
           }
+        },
+        {
+          "name": "consent-id",
+          "protocol": "openid-connect",
+          "protocolMapper": "vobs-consent-id-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
         }
-      ]
+      ],
+      "consentRequired": false,
+      "fullScopeAllowed": false,
+      "redirectUris": [
+        "https://fintech-a.example/callback"
+      ],
+      "webOrigins": []
     },
     {
       "clientId": "wallet-b",
@@ -44,14 +71,17 @@
       "publicClient": false,
       "clientAuthenticatorType": "client-x509",
       "serviceAccountsEnabled": true,
-      "standardFlowEnabled": false,
+      "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "attributes": {
         "x509.subjectdn": "CN=wallet-b,O=VOBS Sandbox",
         "x509.allow.regex.pattern.comparison": "false",
         "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
-        "tls.client.certificate.bound.access.tokens": "true"
+        "tls.client.certificate.bound.access.tokens": "true",
+        "require.pushed.authorization.requests": "true",
+        "pkce.code.challenge.method": "S256",
+        "exclude.issuer.from.auth.response": "false"
       },
       "protocolMappers": [
         {
@@ -64,8 +94,24 @@
             "id.token.claim": "false",
             "introspection.token.claim": "true"
           }
+        },
+        {
+          "name": "consent-id",
+          "protocol": "openid-connect",
+          "protocolMapper": "vobs-consent-id-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
         }
-      ]
+      ],
+      "consentRequired": false,
+      "fullScopeAllowed": false,
+      "redirectUris": [
+        "https://wallet-b.example/callback"
+      ],
+      "webOrigins": []
     },
     {
       "clientId": "bank-c",
@@ -75,14 +121,17 @@
       "publicClient": false,
       "clientAuthenticatorType": "client-x509",
       "serviceAccountsEnabled": true,
-      "standardFlowEnabled": false,
+      "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "attributes": {
         "x509.subjectdn": "CN=bank-c,O=VOBS Sandbox",
         "x509.allow.regex.pattern.comparison": "false",
         "x509.casubjectdn": "CN=VOBS Sandbox CA,O=VOBS Sandbox",
-        "tls.client.certificate.bound.access.tokens": "true"
+        "tls.client.certificate.bound.access.tokens": "true",
+        "require.pushed.authorization.requests": "true",
+        "pkce.code.challenge.method": "S256",
+        "exclude.issuer.from.auth.response": "false"
       },
       "protocolMappers": [
         {
@@ -95,8 +144,159 @@
             "id.token.claim": "false",
             "introspection.token.claim": "true"
           }
+        },
+        {
+          "name": "consent-id",
+          "protocol": "openid-connect",
+          "protocolMapper": "vobs-consent-id-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ],
+      "consentRequired": false,
+      "fullScopeAllowed": false,
+      "redirectUris": [
+        "https://bank-c.example/callback"
+      ],
+      "webOrigins": []
+    }
+  ],
+  "authenticationFlows": [
+    {
+      "alias": "vobs-browser",
+      "description": "Khách hàng đăng nhập ngân hàng rồi duyệt consent của Open API. Không dùng lại phiên đăng nhập cũ (SSO): mỗi lần duyệt consent khách hàng xác thực lại, và mỗi consent có phiên riêng.",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-username-password-form",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "authenticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "vobs-consent-authorisation",
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "authenticatorFlow": false,
+          "userSetupAllowed": false
         }
       ]
+    }
+  ],
+  "clientProfiles": {
+    "profiles": [
+      {
+        "name": "vobs-fapi-2",
+        "description": "FAPI 2.0 Security Profile của Keycloak, bỏ consent-required (VOBS có trang duyệt consent riêng) và secure-signature-algorithm (gateway chưa xác minh được PS256, ES256).",
+        "executors": [
+          {
+            "executor": "confidential-client",
+            "configuration": {}
+          },
+          {
+            "executor": "secure-client-authenticator",
+            "configuration": {
+              "allowed-client-authenticators": [
+                "client-x509",
+                "client-jwt"
+              ],
+              "default-client-authenticator": "client-x509"
+            }
+          },
+          {
+            "executor": "secure-client-uris",
+            "configuration": {}
+          },
+          {
+            "executor": "secure-signature-algorithm-signed-jwt",
+            "configuration": {
+              "require-client-assertion": false
+            }
+          },
+          {
+            "executor": "full-scope-disabled",
+            "configuration": {
+              "auto-configure": true
+            }
+          },
+          {
+            "executor": "reject-implicit-grant",
+            "configuration": {
+              "auto-configure": "true"
+            }
+          },
+          {
+            "executor": "holder-of-key-enforcer",
+            "configuration": {
+              "auto-configure": "true"
+            }
+          },
+          {
+            "executor": "pkce-enforcer",
+            "configuration": {
+              "auto-configure": "true"
+            }
+          },
+          {
+            "executor": "secure-client-authentication-assertion",
+            "configuration": {}
+          },
+          {
+            "executor": "secure-par-content",
+            "configuration": {}
+          }
+        ]
+      }
+    ]
+  },
+  "clientPolicies": {
+    "policies": [
+      {
+        "name": "vobs-fapi-2",
+        "description": "Mọi client của đối tác theo FAPI 2.0: client bảo mật, xác thực bằng chứng thư hoặc JWT, token gắn chứng thư, PAR, PKCE S256.",
+        "enabled": true,
+        "conditions": [
+          {
+            "condition": "any-client",
+            "configuration": {}
+          }
+        ],
+        "profiles": [
+          "vobs-fapi-2"
+        ]
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "cif-2001",
+      "enabled": true,
+      "email": "cif-2001@khach-hang.example",
+      "emailVerified": true,
+      "firstName": "Khách hàng",
+      "lastName": "Mẫu",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "sandbox",
+          "temporary": false
+        }
+      ],
+      "attributes": {
+        "customer_id": [
+          "cif-2001"
+        ],
+        "vobs_account": [
+          "acc-1001|Tài khoản thanh toán VND",
+          "acc-2002|Tài khoản tiết kiệm"
+        ]
+      }
     }
   ]
 }

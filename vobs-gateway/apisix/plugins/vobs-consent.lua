@@ -7,8 +7,9 @@
 -- Nhờ vậy request vượt hạn mức bị chặn trước khi tốn một lần gọi service consent.
 -- Plugin đọc client id của đối tác đã được xác thực: từ token (claim azp, hoặc client_id) khi route dùng
 -- openid-connect với set_userinfo_header, hoặc từ tên consumer khi dùng plugin xác thực consumer như key-auth.
--- Sau đó lấy consent id từ header
--- x-consent-id và hỏi service consent qua API nội bộ
+-- Consent lấy từ claim consent_id của token khi khách hàng đã duyệt consent qua luồng authorization code (vobs-keycloak
+-- gắn claim này); header x-consent-id gửi kèm phải trùng. Token client credentials không có claim, khi đó consent lấy
+-- từ header x-consent-id, trừ khi route đặt require_bound_consent. Sau đó hỏi service consent qua API nội bộ
 -- POST /internal/consent-checks (xem vobs-spec/openapi/internal-consent-check.yaml).
 -- Mọi lỗi khi gọi service consent đều từ chối request (fail closed).
 --
@@ -31,6 +32,9 @@ local schema = {
         },
         -- Tên tham số trên đường dẫn route chứa mã tài khoản, ví dụ "account_id" cho /accounts/:account_id
         account_id_param = { type = "string" },
+        -- Chỉ nhận mã truy cập do khách hàng duyệt consent (có claim consent_id), không nhận header x-consent-id đi
+        -- kèm token client credentials
+        require_bound_consent = { type = "boolean", default = false },
         timeout_ms = { type = "integer", minimum = 100, maximum = 10000, default = 2000 },
         ssl_verify = { type = "boolean", default = true },
     },
@@ -79,10 +83,34 @@ local function account_id_of(conf, ctx)
     return matched and matched[conf.account_id_param]
 end
 
+-- Consent của request: claim consent_id của token nếu có, nếu không thì header x-consent-id. Trả về nil kèm lý do từ
+-- chối khi không xác định được.
+local function consent_id_of(conf, ctx)
+    local header = core.request.header(ctx, "x-consent-id")
+    if header == "" then
+        header = nil
+    end
+    local claims = identity.claims(ctx)
+    local bound = claims and claims.consent_id
+    if type(bound) == "string" and bound ~= "" then
+        if header and header ~= bound then
+            return nil, "consent_mismatch"
+        end
+        return bound
+    end
+    if conf.require_bound_consent then
+        return nil, "customer_authorisation_required"
+    end
+    if not header then
+        return nil, "consent_required"
+    end
+    return header
+end
+
 function _M.access(conf, ctx)
-    local consent_id = core.request.header(ctx, "x-consent-id")
-    if not consent_id or consent_id == "" then
-        return deny(403, "consent_required")
+    local consent_id, reason = consent_id_of(conf, ctx)
+    if not consent_id then
+        return deny(403, reason)
     end
 
     local client_id = client_id_of(ctx)

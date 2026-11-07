@@ -97,6 +97,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  /internal/consents/{consentId}:
+    parameters:
+      - $ref: '#/components/parameters/ConsentIdPath'
+    get:
+      operationId: getConsentForBankChannel
+      summary: Xem một consent trước khi khách hàng quyết định
+      description: |
+        Trang duyệt consent của ngân hàng (ví dụ phần mở rộng `vobs-keycloak`) gọi trước khi hiển thị: lấy đối tác,
+        phạm vi, thời hạn, và kiểm tra consent đúng là của đối tác đang chuyển khách hàng sang, còn chờ duyệt.
+      responses:
+        '200':
+          $ref: '#/components/responses/Consent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Chỉ hỗ trợ GET
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
   /internal/consents/{consentId}/authorisation:
     parameters:
       - $ref: '#/components/parameters/ConsentIdPath'
