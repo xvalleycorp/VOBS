@@ -87,7 +87,11 @@ token trong thời hạn hiệu lực, nên số lượt cấp token thấp hơn
 
 Con số trên chưa tính introspection: gateway hỏi Keycloak về từng token, và giữ kết quả trong `introspection_interval`
 giây (cấu hình mẫu là 30). Số lượt hỏi mỗi giây vì vậy xấp xỉ số token đang được dùng chia cho 30, và không vượt quá
-số lượt gọi API. Hướng dẫn của Keycloak không có số liệu cho introspection, nên tải này cần đo khi load test.
+số lượt gọi API. [Lần đo đầu tiên](load-testing.md) cho thấy mỗi vCPU Keycloak xử lý khoảng 550–700 lượt introspection
+mỗi giây. Nếu tạm dùng con số này, trường hợp xấu nhất (không cache, mỗi lượt gọi API đều hỏi Keycloak) cần khoảng 0,3
+vCPU ở quy mô S, 1,5 vCPU ở M và 5,5 vCPU ở L, thấp hơn tổng vCPU Keycloak trong bảng trên. Phép tính này chỉ để tham
+khảo: số đo lấy trên một máy nhỏ, với token client credentials và Keycloak chế độ dev. Bảng định cỡ chưa được kiểm chứng
+bằng đo tải.
 
 ## Định cỡ mỗi site production
 

@@ -168,7 +168,9 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
     - thư viện mặc định giữ kết quả tới khi token hết hạn, nên phải đặt `introspection_interval`;
     - client policy áp cho cả introspection, nên `vobs-gateway` xác thực bằng `private_key_jwt`;
     - khóa do `pki.sh` tạo, ghép vào `pki/apisix.yaml` và `pki/open-banking-realm.json`.
-- **Việc còn lại.** Đo tải introspection lên Keycloak; chạy bộ kiểm thử chứng nhận FAPI 2.0.
+- **Đo tải.** Bộ đo trong `vobs-sandbox/load`, kết quả trong `docs/load-testing.md`. Mới đo trên runner 4 vCPU, chưa
+  kiểm chứng được bảng định cỡ. Đo tải đã phát hiện lỗi 40 ms ở `HttpServer` của JDK; lỗi chỉ xuất hiện trên Linux.
+- **Việc còn lại.** Đo tải trên cụm có cấu hình như production; chạy bộ kiểm thử chứng nhận FAPI 2.0.
 - **Môi trường kiểm thử.** Máy local không có Docker; luồng sandbox chỉ kiểm chứng trên CI (job `sandbox`).
 
 ## Lưu ý khi làm tiếp
