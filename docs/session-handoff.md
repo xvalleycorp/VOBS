@@ -161,11 +161,14 @@ Giấy phép BSD-2-Clause: không mở rộng danh sách cho phép chung; dùng 
   tác; mapper đọc ghi chú đó, nên refresh token giữ đúng consent.
 - **Không dùng SSO.** Luồng `vobs-browser` không có bước cookie: mỗi lần duyệt, khách hàng đăng nhập lại và có phiên
   riêng. Nếu dùng chung phiên, consent sau sẽ ghi đè consent trước trong phiên của cùng đối tác.
-- **Profile `vobs-fapi-2`.** Là `fapi-2-security-profile` bỏ hai executor:
-    - `consent-required`: trùng với trang duyệt của VOBS;
-    - `secure-signature-algorithm`: ép PS256 khi client được cập nhật, gateway không xác minh được.
-- **Việc còn lại.** Token vẫn ký RS256: lua-resty-openidc 1.9 trong APISIX 3.19 chỉ xác minh RS* và HS* qua JWKS, còn
-  api7-lua-resty-jwt hỗ trợ ES256. Để đủ FAPI 2.0, gateway cần dùng introspection hoặc plugin xác minh ES256.
+- **Profile `vobs-fapi-2`.** Là `fapi-2-security-profile` bỏ executor `consent-required`, vì trùng với trang duyệt
+  của VOBS.
+- **Introspection.** Token ký PS256; lua-resty-openidc 1.9 trong APISIX 3.19 chỉ xác minh RS* và HS* qua JWKS, nên
+  gateway dùng introspection:
+    - thư viện mặc định giữ kết quả tới khi token hết hạn, nên phải đặt `introspection_interval`;
+    - client policy áp cho cả introspection, nên `vobs-gateway` xác thực bằng `private_key_jwt`;
+    - khóa do `pki.sh` tạo, ghép vào `pki/apisix.yaml` và `pki/open-banking-realm.json`.
+- **Việc còn lại.** Đo tải introspection lên Keycloak; chạy bộ kiểm thử chứng nhận FAPI 2.0.
 - **Môi trường kiểm thử.** Máy local không có Docker; luồng sandbox chỉ kiểm chứng trên CI (job `sandbox`).
 
 ## Lưu ý khi làm tiếp

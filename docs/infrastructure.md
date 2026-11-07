@@ -85,6 +85,10 @@ mỗi vCPU xử lý khoảng 120 lượt cấp token client credentials mỗi gi
 cấu hình trên, quy mô S cấp được khoảng 290 token mỗi giây và quy mô L khoảng 770 token mỗi giây. Đối tác dùng lại
 token trong thời hạn hiệu lực, nên số lượt cấp token thấp hơn nhiều so với số lượt gọi API.
 
+Con số trên chưa tính introspection: gateway hỏi Keycloak về từng token, và giữ kết quả trong `introspection_interval`
+giây (cấu hình mẫu là 30). Số lượt hỏi mỗi giây vì vậy xấp xỉ số token đang được dùng chia cho 30, và không vượt quá
+số lượt gọi API. Hướng dẫn của Keycloak không có số liệu cho introspection, nên tải này cần đo khi load test.
+
 ## Định cỡ mỗi site production
 
 Số node bằng tổng tài nguyên các thành phần nhân 1,3, làm tròn lên bội số của 3 để chia đều cho 3 vùng sự cố.

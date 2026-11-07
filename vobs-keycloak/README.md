@@ -67,6 +67,7 @@ Realm mẫu: [`vobs-sandbox/keycloak/open-banking-realm.json`](../vobs-sandbox/k
 | Client của đối tác | Bật Standard flow; `redirectUris` là địa chỉ HTTPS cố định; bắt buộc PAR (`require.pushed.authorization.requests`), PKCE S256, token gắn chứng thư; xác thực client bằng chứng thư (`client-x509`) |
 | Mapper | `vobs-consent-id-mapper` trên mỗi client của đối tác |
 | Client policy | Profile `vobs-fapi-2` áp cho mọi client (mục dưới) |
+| Client của gateway | `vobs-gateway`: tắt mọi luồng cấp token, chỉ dùng để gọi introspection; xác thực bằng JWT ký khóa riêng (`client-jwt`), xem [`vobs-gateway`](../vobs-gateway/README.md#xác-thực-token-bằng-introspection) |
 | Người dùng | Thuộc tính `customer_id` (không có thì dùng username) và `vobs_account`, mỗi giá trị dạng `<mã tài khoản>\|<tên hiển thị>` |
 
 Ở môi trường thật, người dùng và tài khoản đến từ hệ thống của ngân hàng: User Federation (LDAP hoặc provider nối core)
@@ -74,10 +75,8 @@ nạp hai thuộc tính trên, hoặc thay `CustomerAccounts` bằng lớp gọi
 
 ### Profile `vobs-fapi-2`
 
-Lấy profile `fapi-2-security-profile` có sẵn của Keycloak, bỏ hai executor:
-
-- `consent-required`: hiện màn hình đồng ý mặc định của Keycloak, trùng với trang duyệt consent của VOBS.
-- `secure-signature-algorithm`: bắt client ký bằng PS256. Gateway chưa xác minh được PS256 (mục dưới).
+Lấy profile `fapi-2-security-profile` có sẵn của Keycloak, bỏ executor `consent-required`: executor này hiện màn hình
+đồng ý mặc định của Keycloak, trùng với trang duyệt consent của VOBS.
 
 Các executor còn lại:
 
@@ -86,18 +85,12 @@ Các executor còn lại:
 - URI chỉ dùng HTTPS;
 - token gắn chứng thư (holder-of-key);
 - PKCE bắt buộc;
+- token ký PS256 (realm mẫu đặt `defaultSignatureAlgorithm` và khóa `rsa-generated` cho PS256);
 - nội dung yêu cầu ủy quyền chỉ đến từ PAR;
 - tắt full scope và implicit grant.
 
 ## Giới hạn hiện tại
 
-- **Thuật toán ký token.** FAPI 2.0 yêu cầu PS256, ES256 hoặc EdDSA. Realm mẫu vẫn ký RS256, vì plugin
-  `openid-connect` của APISIX 3.19 (lua-resty-openidc 1.9) chỉ xác minh được RS* và HS* khi lấy khóa từ JWKS. Hướng
-  xử lý: gateway xác minh token bằng introspection, hoặc xác minh ES256 bằng plugin riêng.
-- **Thu hồi token.** Gateway xác minh mã truy cập bằng chữ ký, không hỏi lại Keycloak, nên mã đã bị thu hồi (ví dụ khi
-  authorization code bị dùng lại, hoặc phiên của khách hàng bị đăng xuất) vẫn dùng được tới khi hết hạn (realm mẫu:
-  10 phút). Refresh token thì bị chặn ngay. Khách hàng rút consent thì gateway chặn ngay, vì gateway hỏi service consent
-  ở mỗi yêu cầu. Introspection xử lý được cả trường hợp mã bị thu hồi.
 - **Phân quyền đối tác.** Trang duyệt chưa đọc loại tổ chức của đối tác. Việc chặn đối tác không được dùng phạm vi
   thanh toán do service consent làm khi tạo consent (Điều 5).
 - **Bộ kiểm thử chứng nhận.** Chưa chạy bộ kiểm thử FAPI 2.0 của OpenID Foundation (conformance suite).

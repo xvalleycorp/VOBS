@@ -4,6 +4,7 @@
   "enabled": true,
   "sslRequired": "external",
   "accessTokenLifespan": 600,
+  "defaultSignatureAlgorithm": "PS256",
   "loginTheme": "vobs",
   "internationalizationEnabled": true,
   "supportedLocales": [
@@ -13,6 +14,23 @@
   "defaultLocale": "vi",
   "browserFlow": "vobs-browser",
   "clients": [
+    {
+      "clientId": "vobs-gateway",
+      "name": "API Gateway",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-jwt",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": false,
+      "attributes": {
+        "token.endpoint.auth.signing.alg": "ES256",
+        "use.jwks.string": "true",
+        "jwks.string": "{\"keys\":[{\"kty\":\"EC\",\"crv\":\"P-256\",\"use\":\"sig\",\"alg\":\"ES256\",\"kid\":\"vobs-gateway-1\",\"x\":\"__GATEWAY_JWK_X__\",\"y\":\"__GATEWAY_JWK_Y__\"}]}"
+      }
+    },
     {
       "clientId": "fintech-a",
       "name": "Fintech mẫu (chỉ nhóm truy vấn thông tin)",
@@ -189,11 +207,39 @@
       ]
     }
   ],
+  "components": {
+    "org.keycloak.keys.KeyProvider": [
+      {
+        "name": "rsa-ps256",
+        "providerId": "rsa-generated",
+        "config": {
+          "priority": ["100"],
+          "keySize": ["2048"],
+          "algorithm": ["PS256"]
+        }
+      },
+      {
+        "name": "hmac",
+        "providerId": "hmac-generated",
+        "config": {
+          "priority": ["100"],
+          "algorithm": ["HS512"]
+        }
+      },
+      {
+        "name": "aes",
+        "providerId": "aes-generated",
+        "config": {
+          "priority": ["100"]
+        }
+      }
+    ]
+  },
   "clientProfiles": {
     "profiles": [
       {
         "name": "vobs-fapi-2",
-        "description": "FAPI 2.0 Security Profile của Keycloak, bỏ consent-required (VOBS có trang duyệt consent riêng) và secure-signature-algorithm (gateway chưa xác minh được PS256, ES256).",
+        "description": "FAPI 2.0 Security Profile của Keycloak, bỏ consent-required (VOBS có trang duyệt consent riêng).",
         "executors": [
           {
             "executor": "confidential-client",
@@ -212,6 +258,12 @@
           {
             "executor": "secure-client-uris",
             "configuration": {}
+          },
+          {
+            "executor": "secure-signature-algorithm",
+            "configuration": {
+              "default-algorithm": "PS256"
+            }
           },
           {
             "executor": "secure-signature-algorithm-signed-jwt",

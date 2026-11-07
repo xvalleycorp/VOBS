@@ -81,6 +81,14 @@ jwt_claim() {
   echo "$payload" | openssl base64 -d -A | sed -En "s/.*\"$2\":\"([^\"]*)\".*/\1/p"
 }
 
+# jwt_alg TOKEN -> thuật toán ký trong header của JWT
+jwt_alg() {
+  local header
+  header="$(echo "$1" | cut -d. -f1 | tr '_-' '/+')"
+  while [ $(( ${#header} % 4 )) -ne 0 ]; do header="$header="; done
+  echo "$header" | openssl base64 -d -A | sed -En 's/.*"alg":"([^"]*)".*/\1/p'
+}
+
 # pkce -> đặt VERIFIER và CHALLENGE (S256)
 pkce() {
   VERIFIER="$(openssl rand -hex 32)"
@@ -216,6 +224,7 @@ expect "HTTP" "$status" 200
 CUSTOMER_TOKEN="$(field access_token)"
 REFRESH_TOKEN="$(field refresh_token)"
 expect "consent_id trong token" "$(jwt_claim "$CUSTOMER_TOKEN" consent_id)" "$CONSENT"
+expect "Thuật toán ký (FAPI 2.0)" "$(jwt_alg "$CUSTOMER_TOKEN")" PS256
 expect "Token gắn chứng thư (cnf.x5t#S256)" "$([ -n "$(jwt_claim "$CUSTOMER_TOKEN" 'x5t#S256')" ] && echo có)" "có"
 
 step "Làm mới mã truy cập bằng refresh token: token mới vẫn gắn đúng consent"
@@ -224,14 +233,6 @@ expect "HTTP" "$status" 200
 expect "consent_id trong token mới" "$(jwt_claim "$(field access_token)" consent_id)" "$CONSENT"
 CUSTOMER_TOKEN="$(field access_token)"
 REFRESH_TOKEN="$(field refresh_token)"
-
-step "Dùng lại authorization code: bị từ chối, refresh token cấp từ code này bị thu hồi (RFC 6749 mục 4.1.2)"
-status=$(mtls fintech-a "$OIDC/token" grant_type=authorization_code "code=$CODE" client_id=fintech-a \
-  "redirect_uri=https://fintech-a.example/callback" "code_verifier=$VERIFIER")
-expect "HTTP" "$status" 400
-expect "error" "$(field error)" invalid_grant
-status=$(mtls fintech-a "$OIDC/token" grant_type=refresh_token "refresh_token=$REFRESH_TOKEN" client_id=fintech-a)
-expect "Refresh token sau khi code bị dùng lại: HTTP" "$status" 400
 
 step "Consent đã được duyệt với đúng tài khoản khách hàng chọn"
 status=$(AS=fintech-a call GET "$GATEWAY_URL/consents/$CONSENT" "" "Authorization: Bearer $FINTECH_TOKEN")
@@ -254,6 +255,17 @@ status=$(AS=fintech-a call GET "$GATEWAY_URL/accounts/acc-1001" "" "Authorizatio
   "x-consent-id: consent-khac")
 expect "HTTP" "$status" 403
 expect "reason" "$(field reason)" consent_mismatch
+
+step "Dùng lại authorization code: bị từ chối, mọi token cấp từ code này bị thu hồi (RFC 6749 mục 4.1.2)"
+status=$(mtls fintech-a "$OIDC/token" grant_type=authorization_code "code=$CODE" client_id=fintech-a \
+  "redirect_uri=https://fintech-a.example/callback" "code_verifier=$VERIFIER")
+expect "HTTP" "$status" 400
+expect "error" "$(field error)" invalid_grant
+status=$(mtls fintech-a "$OIDC/token" grant_type=refresh_token "refresh_token=$REFRESH_TOKEN" client_id=fintech-a)
+expect "Refresh token sau khi code bị dùng lại: HTTP" "$status" 400
+sleep 2 # gateway giữ kết quả introspection 1 giây (introspection_interval)
+status=$(AS=fintech-a call GET "$GATEWAY_URL/accounts/acc-1001" "" "Authorization: Bearer $CUSTOMER_TOKEN")
+expect "Mã truy cập trên gateway sau khi bị thu hồi: HTTP" "$status" 401
 
 step "Khách hàng từ chối một consent khác: đối tác nhận access_denied, consent chuyển sang REJECTED"
 AS=fintech-a call POST "$GATEWAY_URL/consents" '{"scopes":["ACCOUNTS_READ"],"validityDays":30}' \
